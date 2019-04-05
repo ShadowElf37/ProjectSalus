@@ -1,0 +1,2 @@
+# ProjectSalus
+Future SGA website
