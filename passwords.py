@@ -1,0 +1,1 @@
+passwords = open('conf/passwords.cfg').read().split('\n')

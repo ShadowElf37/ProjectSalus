@@ -13,3 +13,8 @@ v0.0.1 (4/7/19)
 - Cleaned up response.py and server.py to remove Mercury-specific functions
 - Removed brute force protections (it was kinda stupid)
 - Created TODO_ list
+
+v0.0.2 (4/7/19)
+- Hid passwords in a git-ignored file
+- Added passwords.py to get passwords from secret file
+- Added fileify.js, courtesty of Alwinfy
