@@ -1,0 +1,6 @@
+v0.0.0 (4/6/19)
+- Added changelog
+- Added handlers.py, main.py, server.py, response.py, mail.py
+- Ripped HTTP response class from Mercury
+- Ripped and modified server code from Mercury
+- Copied some smtp code from SO into mail.py and set it with Emery mail account
