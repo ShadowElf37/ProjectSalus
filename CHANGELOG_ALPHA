@@ -1,6 +1,15 @@
 v0.0.0 (4/6/19)
 - Added changelog
 - Added handlers.py, main.py, server.py, response.py, mail.py
-- Ripped HTTP response class from Mercury
-- Ripped and modified server code from Mercury
 - Copied some smtp code from SO into mail.py and set it with Emery mail account
+
+v0.0.1 (4/7/19)
+- Stole response code from Mercury
+- Stole log.py from Mercury
+- Added cache.cfg, errors.cfg, ext.cfg, codes.cfg, navbar.cfg from Mercury
+- Added much of the folder structure from Mercury
+- Added index.html in web/home/
+- Added client.py to have a neat little client class
+- Cleaned up response.py and server.py to remove Mercury-specific functions
+- Removed brute force protections (it was kinda stupid)
+- Created TODO_ list
