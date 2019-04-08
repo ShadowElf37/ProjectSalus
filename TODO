@@ -4,16 +4,18 @@ To do:
     3. Create login page for admin
 
 Features to implement:
-    1. SGA feedback form
+    1. SGA feedback form & email forwarding system
     2. Snack polls
     3. Referendums / Surveys
     4. Announcements, Ma'amad info
     5. Public calendar with meetings & events
     6. Transcripts / summaries of meetings
-    7. SGA's personal todo list
+    7. SGA's personal _todo list & easy way to add feedback to it
     8. Fancy home page
     9. User-friendly ways to edit all these
     10. Simple mass-email interface
+
+    11. Remote access console and maintenance-in-progress backup system
 
 Post-deployment wishlist:
     1. Integration with other clubs and sports (at least in the Calendar)
