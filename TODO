@@ -1,3 +1,19 @@
-1. Fix up a decent home page demo
-2. Set navbar items for user, admin, and maybe an intermediate rank too
-3. Create login page for admin
+To do:
+    1. Fix up a decent home page demo
+    2. Set navbar items for user, admin, and maybe an intermediate rank too
+    3. Create login page for admin
+
+Features to implement:
+    1. SGA feedback form
+    2. Snack polls
+    3. Referendums / Surveys
+    4. Announcements, Ma'amad info
+    5. Public calendar with meetings & events
+    6. Transcripts / summaries of meetings
+    7. SGA's personal todo list
+    8. Fancy home page
+    9. User-friendly ways to edit all these
+    10. Simple mass-email interface
+
+Post-deployment wishlist:
+    1. Integration with other clubs and sports (at least in the Calendar)
