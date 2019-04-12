@@ -18,3 +18,7 @@ v0.0.2 (4/7/19)
 - Hid passwords in a git-ignored file
 - Added passwords.py to get passwords from secret file
 - Added fileify.js, courtesty of Alwinfy
+
+v0.0.3 (4/12/19)
+- Added autoupdate.py to update to restart the server
+-
