@@ -4,7 +4,7 @@ from wsgiref.handlers import format_date_time
 ENCODING = 'UTF-8'
 
 def days_to_seconds(x):
-    return x*24*60*60
+    return int(x*24*60*60)
 
 class Request:
     def __init__(self, HTTPRequest):
