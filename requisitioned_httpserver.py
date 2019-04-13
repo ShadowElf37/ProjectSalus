@@ -41,12 +41,14 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         req = Request(self)
         rsp = Response(self)
+
+        # THREADED
         self.server.server.overlord.push(req, rsp)
+
+        # UNTHREADED
         # handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
-        #handler = handlers.DefaultHandler(req, rsp)
-        #handler.call()
-        #rsp.finish()
-        #self.wfile.write(b'testing')
+        # handler.call()
+        # rsp.finish()
 
         #handler.response.finish()
         print('Response sent.')
