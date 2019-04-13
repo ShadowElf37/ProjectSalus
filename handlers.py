@@ -20,7 +20,6 @@ class RequestHandler:
 class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
-
         self.response.set_body('Testing 123.')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
@@ -31,7 +30,8 @@ class DefaultHandler(RequestHandler):
 class HandlerBlank(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.set_status_code(307, location='/home/index.html')
+        self.response.set_body('Testing 123.')
+        # self.response.set_status_code(307, location='/home/index.html')
 
 
 class HandlerHome(RequestHandler):

@@ -2,6 +2,7 @@ import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from response import *
 from threadpool import *
+from handlers import *
 
 
 class Server:
@@ -41,6 +42,14 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         req = Request(self)
         rsp = Response(self)
         self.server.server.overlord.push(req, rsp)
+        # handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
+        #handler = handlers.DefaultHandler(req, rsp)
+        #handler.call()
+        #rsp.finish()
+        #self.wfile.write(b'testing')
+
+        #handler.response.finish()
+        print('Response sent.')
 
 
 if __name__ == '__main__':

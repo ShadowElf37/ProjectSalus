@@ -54,9 +54,9 @@ class Response:
         self.cookies = {}
         self.body = ''
         self.default_renderopts = {
-            'ip':self.server.ip,
+            'ip':self.server.host,
             'port':self.server.port,
-            'addr':self.server.ip+str(self.server.port),
+            'addr':self.server.host+str(self.server.port),
         }
 
     @staticmethod
@@ -74,8 +74,9 @@ class Response:
         self.add_header('Accept-Ranges', 'none')
         self.add_header('Server', self.req.server_version)
 
-    def set_body(self, string, append=False):
-        self.add_header('Content-Length', len(string))
+    def set_body(self, string, append=False, specify_length=False):
+        if specify_length:
+            self.add_header('Content-Length', len(string))
         if append:
             self.body += string
         else:
@@ -104,16 +105,16 @@ class Response:
         kwargs.update(dict(tuple(zip(args, [None]*len(args)))))
         self.cookies[k] = (v, kwargs)
 
-    def compile(self):
-        self.load_base_header()
+    def compile_header(self):
+        # self.load_base_header()
         self.req.send_response(self.code)
         for k,v in self.header.items():
             self.req.send_header(k, v)
         for c in [(i[0] + '=' + i[1][0] + '; ' + '; '.join(j[0]+'='+j[1] if j[1] is not None else j[0] for j in i[1][1].items())) for i in self.cookies.items()]:
             self.req.send_header('Set-Cookie', c)
-        self.req.wfile.write(self.body.encode(ENCODING))
+        self.req.end_headers()
 
     def finish(self):
-        self.compile()
-        self.req.end_headers()
-        self.req.wfile.close()
+        self.compile_header()
+        self.req.wfile.write(self.body.encode(ENCODING))
+        # self.req.wfile.close()
