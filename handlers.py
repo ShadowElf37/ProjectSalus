@@ -1,16 +1,12 @@
 class RequestHandler:
-    def __init__(self, server, conn, addr, request, response):
-        self.conn = conn
-        self.addr = addr
+    def __init__(self, request, response):
         self.request = request
         self.response = response
-        self.server = server
-
-    def throwError(self, code, letter):
-        self.response.error = self.server.throwError(code, letter, self.request.get_last_page(), self.conn, response=self.response)
-        self.server.log.log(self.addr[0], 'threw error '+str(code)+letter,
-                            lvl=Log.ERROR)
-        return 1
+        self.path = self.request.path
+        self.server = self.request.req.server
+        self.c_ip, self.c_port = self.request.req.client_address
+        self.ip = self.request.server.host
+        self.port = self.request.server.port
 
     @staticmethod
     def handler(f):
@@ -24,8 +20,11 @@ class RequestHandler:
 class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
-                             nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
+
+        self.response.set_body('Testing 123.')
+        #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
+        #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
+
 
 
 # Handlers

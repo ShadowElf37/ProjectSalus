@@ -19,6 +19,6 @@ v0.0.2 (4/7/19)
 - Added passwords.py to get passwords from secret file
 - Added fileify.js, courtesty of Alwinfy
 
-v0.0.3 (4/12/19)
-- Added autoupdate.py to update to restart the server
--
+v0.0.3 (4/13/19)
+- Work in progress server overhaul to use http.server
+- Added proc_manager.py to try and do server reboots; will replace with something neater later
