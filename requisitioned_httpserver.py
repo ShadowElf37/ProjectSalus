@@ -7,6 +7,8 @@ import os
 import sys
 from subprocess import check_output, CalledProcessError
 
+py = sys.executable
+
 class EpicAwesomeServer(HTTPServer):
     def __init__(self, macroserver, *args):
         super().__init__(*args)
@@ -34,6 +36,12 @@ class Server:
             exit(0)
         except Exception as e:
             self.log('An exception occurred:', e)
+
+    def reboot(self):
+        os.execl(py, py, *sys.argv)
+
+    def update(self):
+        return check_output(['git', 'pull'])
 
     def close(self):
         self.server.server_close()

@@ -36,6 +36,11 @@ class HandlerBlank(RequestHandler):
     def call(self):
         self.response.redirect('/home/index.html')
 
+class HandlerReboot(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        self.server.reboot()
+
 class HandlerHome(RequestHandler):
     @RequestHandler.handler
     def call(self):

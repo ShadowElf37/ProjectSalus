@@ -2,7 +2,8 @@ from requisitioned_httpserver import Server
 import os
 import sys
 
+py = sys.executable
+
 print('Starting %s...' % __file__)
 s = Server()
-os.execl(__file__, *sys.argv)
 s.run()
