@@ -31,3 +31,6 @@ v0.0.4 (4/14/19)
 v0.0.5 (4/14/19)
 - High quality cookie support
 - Support for custom functions being pushed to the Overlord in an emergency
+
+v0.0.6 (4/14/19)
+- Cleaner Overlord function pushing (now push() and pushf())

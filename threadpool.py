@@ -12,8 +12,11 @@ class Overlord:
         for t in self.threads:
             t.init_thread()
 
-    def push(self, args, f=None):
-        sorted(self.threads, key=lambda t: len(t.buffer)+int(t.busy))[0].buffer_request(tuple([f]+list(args)))
+    def push(self, args):
+        sorted(self.threads, key=lambda t: len(t.buffer)+int(t.busy))[0].buffer_request(tuple([None]+list(args)))
+
+    def pushf(self, f, args):
+        sorted(self.threads, key=lambda t: len(t.buffer) + int(t.busy))[0].buffer_request(tuple([f] + list(args)))
 
 
 class Maestro:
@@ -39,16 +42,17 @@ class Maestro:
         while self.running:
             try:
                 r = self.buffer.pop(0)
-                if r[0] is None:
-                    server, request, client_address = r[1:]
-                else:
-                    r[0](*r[1:])
-                    continue
             except IndexError:
                 sleep(0.001)
                 continue
 
             self.busy = True
+
+            if r[0] is not None:
+                r[0](*r[1:])
+                continue
+
+            server, request, client_address = r[1:]
             server.finish_request(request, client_address)
             server.shutdown_request(request)
             self.busy = False
