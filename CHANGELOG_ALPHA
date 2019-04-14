@@ -20,5 +20,10 @@ v0.0.2 (4/7/19)
 - Added fileify.js, courtesty of Alwinfy
 
 v0.0.3 (4/13/19)
-- Work in progress server overhaul to use http.server
+- Work in progress server overhaul to use http.server in requisitioned_httpserver.py
 - Added proc_manager.py to try and do server reboots; will replace with something neater later
+- Added thread Overlord and Maestro in threadpool.py
+
+v0.0.4 (4/14/19)
+- Fixed the thread Overlord not running its threads
+- Overrode some stuff to get the thread Overlord to handle requests properly

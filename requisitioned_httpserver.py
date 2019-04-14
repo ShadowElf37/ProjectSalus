@@ -4,14 +4,18 @@ from response import *
 from threadpool import *
 from handlers import *
 
+class EpicAwesomeServer(HTTPServer):
+    def process_request(self, request, client_address):
+        self.macroserver.overlord.push((self, request, client_address))
+
 
 class Server:
     def __init__(self, host='0.0.0.0', port=8080):
         self.host = host
         self.port = port
         self.domain = 'localhost'
-        self.server = HTTPServer((host, port), HTTPMacroHandler)
-        self.server.server = self
+        self.server = EpicAwesomeServer((host, port), HTTPMacroHandler)
+        self.server.macroserver = self
         self.log('Server initialized.')
         self.overlord = Overlord(8)
 
@@ -40,18 +44,11 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        # THREADED
-        self.server.server.overlord.push(self)
-
-        # UNTHREADED
-        #req = Request(self)
-        #rsp = Response(self)
-        #handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
-        #handler.call()
-        #rsp.finish()
-
-        #handler.response.finish()
-        print('Response sent.')
+        req = Request(self)
+        rsp = Response(self)
+        handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
+        handler.call()
+        rsp.finish()
 
 
 if __name__ == '__main__':

@@ -11,8 +11,8 @@ class Request:
         self.req = HTTPRequest
         self.path = self.req.path
         self.headers = self.req.headers
-        self.server = self.req.server.server
-        print(self.headers)
+        self.server = self.req.server.macroserver
+        self.addr = self.req.client_address
 
     def get_header(self, key):
         return self.headers.getheaders(key.lower())
@@ -48,7 +48,7 @@ class Response:
 
     def __init__(self, HTTPRequest):
         self.req = HTTPRequest
-        self.server = self.req.server.server
+        self.server = self.req.server.macroserver
         self.code = 200
         self.header = {}
         self.cookies = {}
