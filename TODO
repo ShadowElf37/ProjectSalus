@@ -1,9 +1,14 @@
-To do:
+Backend (urgent):
+    1. Server rebooting
+    2. Proper logging mechanism
+    3. SSL?
+
+Front-end (important):
     1. Fix up a decent home page demo
     2. Set navbar items for user, admin, and maybe an intermediate rank too
     3. Create login page for admin
 
-Features to implement:
+Actual pages (less important):
     1. SGA feedback form & email forwarding system
     2. Snack polls
     3. Referendums / Surveys
@@ -14,8 +19,8 @@ Features to implement:
     8. Fancy home page
     9. User-friendly ways to edit all these
     10. Simple mass-email interface
-
     11. Remote access console and maintenance-in-progress backup system
 
-Post-deployment wishlist:
+Post-deployment wishlist (far future):
     1. Integration with other clubs and sports (at least in the Calendar)
+    2. Mercury-style tutor/help board

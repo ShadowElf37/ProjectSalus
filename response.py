@@ -21,16 +21,17 @@ class Request:
         if self.type == 'POST':
             content_len = int(self.get_header('content-length'))
             post_body = self.req.rfile.read(content_len)
-            self.post_vals = post_body
+            self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
+            print(self.post_vals)
 
     def get_header(self, key):
-        return self.headers[key.lower()]
+        return self.headers.get(key.lower())
 
     def get_cookie(self, key):
         return self.cookie[key].value
 
     def get_post(self, key):
-        return key
+        return self.post_vals.get(key)
 
 
 class Response:
@@ -70,6 +71,8 @@ class Response:
             'port':self.server.port,
             'addr':self.server.host+str(self.server.port),
         }
+        self.sent_prematurely = False
+        self.head = False
 
     @staticmethod
     def resolve_content_type(path):
@@ -78,7 +81,15 @@ class Response:
     def set_code(self, n):
         self.code = n
 
-    def load_base_header(self, content_type=None, cache_control='public'):
+    def send_error(self, n, msg=None):
+        self.req.send_error(n, msg)
+        self.sent_prematurely = True
+
+    def redirect(self, location, permanent=False):
+        self.set_code(307 if not permanent else 308)
+        self.add_header('Location', location)
+
+    def load_base(self, content_type=None, cache_control='public'):
         if content_type is not None:
             self.set_content_type(content_type)
         # self.add_header('Date', format_date_time(time.time()))
@@ -86,14 +97,14 @@ class Response:
         self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
 
-    def set_body(self, string, append=False, specify_length=False):
+    def set_body(self, string, append=False, specify_length=False, ctype='text'):
         if specify_length:
             self.add_header('Content-Length', len(string))
         if append:
             self.body += string
         else:
             self.body = string
-        self.set_content_type('text')
+        self.set_content_type(ctype)
 
     def attach_file(self, path, render=True, render_opts=dict(), resolve_ctype=True, append=False):
         f = open(path, 'r').read()
@@ -104,7 +115,7 @@ class Response:
         self.set_body(f, append=append)
 
         if resolve_ctype:
-            self.set_content_type(self.resolve_content_type(path))
+            self.add_header('Content-Type', self.resolve_content_type(path))
 
     def set_content_type(self, type):
         self.add_header('Content-Type', Response.CONTENT_TYPE[type])
@@ -133,16 +144,18 @@ class Response:
             self.cookie[k][j] = kwargs[j]
 
     def compile_header(self):
-        # self.load_base_header()
+        self.load_base()
         self.req.send_response(self.code)
         for k,v in self.header.items():
             self.req.send_header(k, v)
-        print('@', self.cookie.output())
         for cookie in self.cookie.output(header='').split('\n'):
             self.req.send_header('Set-Cookie', cookie)
         self.req.end_headers()
 
     def finish(self):
+        if self.sent_prematurely:
+            return
         self.compile_header()
+        if self.head:
+            return
         self.req.wfile.write(self.body.encode(ENCODING))
-        # self.req.wfile.close()

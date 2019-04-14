@@ -34,3 +34,9 @@ v0.0.5 (4/14/19)
 
 v0.0.6 (4/14/19)
 - Cleaner Overlord function pushing (now push() and pushf())
+- Removed codes.cfg now that we have a real server
+- Added support for POST requests
+- Added easy response.redirect() function
+- Updated TODO_
+- Added a try-except into the server so errors won't crash the whole server
+- Threw GET code into HEAD but added a Response.head variable to limit it to a header

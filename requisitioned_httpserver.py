@@ -42,23 +42,38 @@ class Server:
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
+        req = Request(self)
+        rsp = Response(self)
+        rsp.head = True
+        handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
+        try:
+            handler.call()
+            rsp.finish()
+        except Exception as e:
+            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
+            self.send_error(500, str(e))
 
     def do_GET(self):
         req = Request(self)
         rsp = Response(self)
         handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
-        handler.call()
-        rsp.finish()
+        try:
+            handler.call()
+            rsp.finish()
+        except Exception as e:
+            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
+            self.send_error(500, str(e))
 
     def do_POST(self):
         req = Request(self)
         rsp = Response(self)
         handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
-        handler.call()
-        rsp.finish()
+        try:
+            handler.call()
+            rsp.finish()
+        except Exception as e:
+            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
+            self.send_error(500, str(e))
 
 
 if __name__ == '__main__':

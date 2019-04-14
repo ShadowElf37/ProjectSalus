@@ -22,8 +22,10 @@ class RequestHandler:
 class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.set_body('Hello world')
-        self.response.add_cookie('hello', 'world')
+        self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='html')
+        if self.request.get_cookie('hello') is None:
+            self.response.add_cookie('hello', 'world')
+        kilyourself()
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
@@ -33,20 +35,17 @@ class DefaultHandler(RequestHandler):
 class HandlerBlank(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.set_body('Hello world.')
-        self.response.add_cookie('hellow', 'world', 'httponly')
-        # self.response.set_status_code(307, location='/home/index.html')
+        self.response.redirect('/home/index.html')
 
 
 class HandlerHome(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('home/index.html', nb_page='home/index.html')
+        ...
 
 
 GET = {
-    '/': HandlerBlank,
-    '/home/index.html': HandlerHome,
+    '/': DefaultHandler,
 }
 
 POST = {
