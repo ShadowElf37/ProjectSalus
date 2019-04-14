@@ -3,6 +3,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from response import *
 from threadpool import *
 from handlers import *
+import os
+import sys
+from subprocess import check_output, CalledProcessError
 
 class EpicAwesomeServer(HTTPServer):
     def __init__(self, macroserver, *args):
@@ -42,16 +45,8 @@ class Server:
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
-        req = Request(self)
-        rsp = Response(self)
-        rsp.head = True
-        handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
-        try:
-            handler.call()
-            rsp.finish()
-        except Exception as e:
-            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
-            self.send_error(500, str(e))
+        self.send_response(200, 'OK')
+        self.end_headers()
 
     def do_GET(self):
         req = Request(self)
@@ -61,8 +56,8 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             handler.call()
             rsp.finish()
         except Exception as e:
-            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
-            self.send_error(500, str(e))
+            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
+            self.send_error(500, str(e) + 'line' + str(e.__traceback__.tb_lineno))
 
     def do_POST(self):
         req = Request(self)
@@ -72,8 +67,8 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             handler.call()
             rsp.finish()
         except Exception as e:
-            print('A fatal error occurred:', e.with_traceback(e.__traceback__))
-            self.send_error(500, str(e))
+            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
+            self.send_error(500, str(e)+' (line '+str(e.__traceback__.tb_lineno))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,8 @@ class RequestHandler:
         self.request = request
         self.response = response
         self.path = self.request.path
-        self.server = self.request.req.server
+        self.microserver = self.request.req.server
+        self.server = self.microserver.macroserver
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
@@ -25,10 +26,8 @@ class DefaultHandler(RequestHandler):
         self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='html')
         if self.request.get_cookie('hello') is None:
             self.response.add_cookie('hello', 'world')
-        kilyourself()
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
-
 
 
 # Handlers
@@ -36,7 +35,6 @@ class HandlerBlank(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.response.redirect('/home/index.html')
-
 
 class HandlerHome(RequestHandler):
     @RequestHandler.handler
@@ -46,6 +44,7 @@ class HandlerHome(RequestHandler):
 
 GET = {
     '/': DefaultHandler,
+    '/reboot': HandlerReboot,
 }
 
 POST = {

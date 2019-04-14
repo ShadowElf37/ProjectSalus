@@ -62,7 +62,7 @@ class Response:
     def __init__(self, HTTPRequest: BaseHTTPRequestHandler):
         self.req = HTTPRequest
         self.server = self.req.server.macroserver
-        self.code = 200
+        self.code = 200, None
         self.header = {}
         self.cookie = SimpleCookie()
         self.body = ''
@@ -78,8 +78,8 @@ class Response:
     def resolve_content_type(path):
         return Response.CONTENT_TYPE.get(path.split('.')[-1], 'text/plain')
 
-    def set_code(self, n):
-        self.code = n
+    def set_code(self, n, msg=None):
+        self.code = n, msg
 
     def send_error(self, n, msg=None):
         self.req.send_error(n, msg)
@@ -145,7 +145,7 @@ class Response:
 
     def compile_header(self):
         self.load_base()
-        self.req.send_response(self.code)
+        self.req.send_response(*self.code)
         for k,v in self.header.items():
             self.req.send_header(k, v)
         for cookie in self.cookie.output(header='').split('\n'):
