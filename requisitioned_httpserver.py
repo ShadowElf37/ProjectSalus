@@ -5,6 +5,10 @@ from threadpool import *
 from handlers import *
 
 class EpicAwesomeServer(HTTPServer):
+    def __init__(self, macroserver, *args):
+        super().__init__(*args)
+        self.macroserver = macroserver
+
     def process_request(self, request, client_address):
         self.macroserver.overlord.push((self, request, client_address))
 
@@ -14,8 +18,7 @@ class Server:
         self.host = host
         self.port = port
         self.domain = 'localhost'
-        self.server = EpicAwesomeServer((host, port), HTTPMacroHandler)
-        self.server.macroserver = self
+        self.server = EpicAwesomeServer(self, (host, port), HTTPMacroHandler)
         self.log('Server initialized.')
         self.overlord = Overlord(8)
 
@@ -46,7 +49,14 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         req = Request(self)
         rsp = Response(self)
-        handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
+        handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
+        handler.call()
+        rsp.finish()
+
+    def do_POST(self):
+        req = Request(self)
+        rsp = Response(self)
+        handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
         handler.call()
         rsp.finish()
 

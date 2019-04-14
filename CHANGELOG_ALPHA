@@ -27,3 +27,7 @@ v0.0.3 (4/13/19)
 v0.0.4 (4/14/19)
 - Fixed the thread Overlord not running its threads
 - Overrode some stuff to get the thread Overlord to handle requests properly
+
+v0.0.5 (4/14/19)
+- High quality cookie support
+- Support for custom functions being pushed to the Overlord in an emergency

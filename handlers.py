@@ -1,5 +1,7 @@
+from response import Request, Response
+
 class RequestHandler:
-    def __init__(self, request, response):
+    def __init__(self, request: Request, response: Response):
         self.request = request
         self.response = response
         self.path = self.request.path
@@ -20,7 +22,8 @@ class RequestHandler:
 class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.set_body('Hello world.')
+        self.response.set_body('Hello world')
+        self.response.add_cookie('hello', 'world')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
@@ -31,6 +34,7 @@ class HandlerBlank(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.response.set_body('Hello world.')
+        self.response.add_cookie('hellow', 'world', 'httponly')
         # self.response.set_status_code(307, location='/home/index.html')
 
 
@@ -41,8 +45,8 @@ class HandlerHome(RequestHandler):
 
 
 GET = {
-    '': HandlerBlank,
-    'home/index.html': HandlerHome,
+    '/': HandlerBlank,
+    '/home/index.html': HandlerHome,
 }
 
 POST = {

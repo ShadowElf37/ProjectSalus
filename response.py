@@ -1,10 +1,9 @@
 import time
 from wsgiref.handlers import format_date_time
+from http.cookies import SimpleCookie
+from http.server import BaseHTTPRequestHandler
 
 ENCODING = 'UTF-8'
-
-def days_to_seconds(x):
-    return int(x*24*60*60)
 
 class Request:
     def __init__(self, HTTPRequest):
@@ -13,12 +12,25 @@ class Request:
         self.headers = self.req.headers
         self.server = self.req.server.macroserver
         self.addr = self.req.client_address
+        self.cookie = SimpleCookie()
+        c = self.get_header('Cookie')
+        if c is not None:
+            self.cookie.load(c)
+        self.type = self.req.command
+        self.post_vals = None
+        if self.type == 'POST':
+            content_len = int(self.get_header('content-length'))
+            post_body = self.req.rfile.read(content_len)
+            self.post_vals = post_body
 
     def get_header(self, key):
-        return self.headers.getheaders(key.lower())
+        return self.headers[key.lower()]
 
     def get_cookie(self, key):
-        ...
+        return self.cookie[key].value
+
+    def get_post(self, key):
+        return key
 
 
 class Response:
@@ -46,12 +58,12 @@ class Response:
         'avi': 'video/h265',
     }
 
-    def __init__(self, HTTPRequest):
+    def __init__(self, HTTPRequest: BaseHTTPRequestHandler):
         self.req = HTTPRequest
         self.server = self.req.server.macroserver
         self.code = 200
         self.header = {}
-        self.cookies = {}
+        self.cookie = SimpleCookie()
         self.body = ''
         self.default_renderopts = {
             'ip':self.server.host,
@@ -69,10 +81,10 @@ class Response:
     def load_base_header(self, content_type=None, cache_control='public'):
         if content_type is not None:
             self.set_content_type(content_type)
+        # self.add_header('Date', format_date_time(time.time()))
+        # self.add_header('Server', self.req.server_version)
         self.add_header('Cache-Control', cache_control)
-        self.add_header('Date', format_date_time(time.time()))
         self.add_header('Accept-Ranges', 'none')
-        self.add_header('Server', self.req.server_version)
 
     def set_body(self, string, append=False, specify_length=False):
         if specify_length:
@@ -100,18 +112,34 @@ class Response:
     def add_header(self, k, v):
         self.header[k] = v
 
-    def add_cookie(self, k, v, expires_in_days=60, *args, **kwargs):
-        kwargs['Expires'] = format_date_time(time.time()+days_to_seconds(expires_in_days))
-        kwargs.update(dict(tuple(zip(args, [None]*len(args)))))
-        self.cookies[k] = (v, kwargs)
+    def add_cookie(self, k, v, *args, expires_in_days=60, **kwargs):
+        """
+        Valid args:
+            httponly
+            secure
+        Valid kwargs:
+            samesite (strict, lax)
+            domain [domain]
+            comment [comment]
+            max-age [seconds]
+            version [version]
+        """
+
+        self.cookie[k] = v
+        kwargs['expires'] = format_date_time(time.time()+expires_in_days*24*60*60)
+        for i in args:
+            kwargs[i] = True
+        for j in kwargs.keys():
+            self.cookie[k][j] = kwargs[j]
 
     def compile_header(self):
         # self.load_base_header()
         self.req.send_response(self.code)
         for k,v in self.header.items():
             self.req.send_header(k, v)
-        for c in [(i[0] + '=' + i[1][0] + '; ' + '; '.join(j[0]+'='+j[1] if j[1] is not None else j[0] for j in i[1][1].items())) for i in self.cookies.items()]:
-            self.req.send_header('Set-Cookie', c)
+        print('@', self.cookie.output())
+        for cookie in self.cookie.output(header='').split('\n'):
+            self.req.send_header('Set-Cookie', cookie)
         self.req.end_headers()
 
     def finish(self):
