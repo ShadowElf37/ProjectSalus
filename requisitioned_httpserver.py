@@ -17,6 +17,7 @@ class Server:
 
     def run(self):
         try:
+            self.overlord.launch()
             self.server.serve_forever()
         except (KeyboardInterrupt, SystemExit):
             self.log('Server quit by user.')
@@ -39,16 +40,15 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        req = Request(self)
-        rsp = Response(self)
-
         # THREADED
-        self.server.server.overlord.push(req, rsp)
+        self.server.server.overlord.push(self)
 
         # UNTHREADED
-        # handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
-        # handler.call()
-        # rsp.finish()
+        #req = Request(self)
+        #rsp = Response(self)
+        #handler = handlers.INDEX.get(req, handlers.DefaultHandler)(req, rsp)
+        #handler.call()
+        #rsp.finish()
 
         #handler.response.finish()
         print('Response sent.')
