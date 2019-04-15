@@ -6,31 +6,32 @@ from response import *
 
 class Overlord:
     def __init__(self, threadcount):
-        self.threads = [Maestro() for i in range(threadcount)]
+        self.condition = Condition()
+        self.queue = []
+        self.threads = [Maestro(self.condition, self.queue) for i in range(threadcount)]
 
     def launch(self):
         for t in self.threads:
             t.init_thread()
 
     def push(self, args):
-        sorted(self.threads, key=lambda t: len(t.buffer)+int(t.busy))[0].buffer_request(tuple([None]+list(args)))
+        self.pushf(None, args)
 
     def pushf(self, f, args):
-        sorted(self.threads, key=lambda t: len(t.buffer) + int(t.busy))[0].buffer_request(tuple([f] + list(args)))
-
+        with self.condition:
+            self.queue.insert(0, tuple([f] + list(args)))
+            self.condition.notify()
 
 class Maestro:
-    def __init__(self):
-        self.buffer = []
+    def __init__(self, condition, queue):
+        self.condition = condition
+        self.queue = queue
         self.thread = Thread(target=self.mainloop, daemon=True)
         self.running = True
         self.busy = False
 
     def init_thread(self):
         self.thread.start()
-
-    def buffer_request(self, args):
-        self.buffer.append(args)
 
     def terminate(self):
         self.running = False
@@ -40,11 +41,13 @@ class Maestro:
 
     def mainloop(self):
         while self.running:
-            try:
-                r = self.buffer.pop(0)
-            except IndexError:
-                sleep(0.001)
-                continue
+            r = None
+            with self.condition:
+                while True:
+                    if self.queue:
+                        r = self.queue.pop()
+                        break
+                    self.condition.wait()
 
             self.busy = True
 
