@@ -45,3 +45,9 @@ v0.0.7 (4/14/19)
 - Removed HEAD code because it's dumb
 - Allowed messages to be set for response codes
 - Added httpserver_main.py to replace main.py soon; it really doesn't need to hold much, thankfully
+
+v0.0.8 (4/14/19)
+- Can finally reboot
+- Renamed all the Mercury code to mercury_fname.py
+- Renamed all the modern files to their proper things
+- Added server rebooting; _main.py is now run remotely from main.py so it can manage that

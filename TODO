@@ -2,6 +2,7 @@ Backend (urgent):
     1. Server rebooting
     2. Proper logging mechanism
     3. SSL?
+    4. Client and implementation with Response
 
 Front-end (important):
     1. Fix up a decent home page demo
