@@ -51,3 +51,9 @@ v0.0.8 (4/14/19)
 - Renamed all the Mercury code to mercury_fname.py
 - Renamed all the modern files to their proper things
 - Added server rebooting; _main.py is now run remotely from main.py so it can manage that
+
+v0.0.9 (4/15/19)
+- Modified Overlord to manage a global buffer for performance
+- Added tee.py (broken atm) for logging
+- Threw Server.run() into a while loop so it doesn't quit after an exception
+- Minor fixes

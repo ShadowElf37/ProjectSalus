@@ -1,6 +1,6 @@
 import sys
-class Tee(object):
-    def __init__(self, name, mode="a"):
+class Tee:
+    def __init__(self, name, mode="a+"):
         self.file = open(name, mode)
         self.stdout = sys.stdout
         sys.stdout = self

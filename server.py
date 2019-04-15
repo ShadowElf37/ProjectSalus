@@ -27,14 +27,16 @@ class Server:
         self.overlord = Overlord(8)
 
     def run(self):
-        try:
-            self.overlord.launch()
-            self.server.serve_forever()
-        except (KeyboardInterrupt, SystemExit):
-            self.log('Server quit by user.')
-            exit(0)
-        except Exception as e:
-            self.log('An exception occurred:', e)
+        while True:
+            try:
+                self.overlord.launch()
+                self.server.serve_forever()
+            except (KeyboardInterrupt, SystemExit):
+                self.log('Server quit by user.')
+                self.close()
+                break
+            except Exception as e:
+                self.log('An exception occurred:', e)
 
     def reboot(self):
         os._exit(37)

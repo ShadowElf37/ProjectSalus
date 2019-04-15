@@ -41,7 +41,6 @@ class Maestro:
 
     def mainloop(self):
         while self.running:
-            r = None
             with self.condition:
                 while True:
                     if self.queue:
