@@ -1,3 +1,4 @@
 conf/passwords.cfg
 __pycache__
 .idea
+logs/
