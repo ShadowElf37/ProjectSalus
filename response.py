@@ -53,6 +53,7 @@ class Request:
 class Response:
     CONTENT_TYPE = {
         'html': 'text/html',
+        'htm': 'text/html',
         'css': 'text/css',
         'js': 'application/javascript',
         'txt': 'text/plain',
@@ -74,6 +75,13 @@ class Response:
         'h.265': 'video/h265',
         'avi': 'video/h265',
     }
+
+    RENDER = (
+        'html',
+        'htm',
+        'js',
+        'css',
+    )
 
     def __init__(self, request: Request):
         self.req = request.req
@@ -114,7 +122,6 @@ class Response:
         # self.add_header('Server', self.req.server_version)
         self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
-        self.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none')
 
     def set_body(self, string, append=False, specify_length=False, ctype='text'):
         if specify_length:
@@ -125,12 +132,12 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, render_opts=dict(), resolve_ctype=True, append=False, cache=True, binary=False):
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=False, **render_opts):
         if cache:
             f = self.server.cache.read(path, binary)
         else:
             f = open(path, 'rb' if binary else 'r').read()
-        if render:
+        if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
             for k,v in render_opts.items():
                 f = f.replace('[['+k+']]', str(v))
