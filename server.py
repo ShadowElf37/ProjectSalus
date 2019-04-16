@@ -8,6 +8,7 @@ import sys
 from sys import exit
 from subprocess import check_output
 from cache import FileCache
+import client
 
 class EpicAwesomeServer(HTTPServer):
     def __init__(self, macroserver, *args):
@@ -42,7 +43,8 @@ class Server:
                 self.log('An exception occurred:', e)
 
     def reboot(self):
-        self.cache.__exit__()
+        self.cache.close()
+        self.close()
         os._exit(37)
 
     def update(self):
@@ -52,6 +54,7 @@ class Server:
         self.running = False
         self.cache.close()
         self.server.server_close()
+        client.save_users()
         self.log('Server shut down safely by user.')
 
 
@@ -66,18 +69,19 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         req = Request(self)
-        rsp = Response(self)
+        rsp = Response(req)
         handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.call()
             rsp.finish()
         except Exception as e:
-            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
-            self.send_error(500, str(e) + 'line' + str(e.__traceback__.tb_lineno))
+            raise e
+            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno, e.__traceback__.tb_lasti, e.__traceback__.tb_next.tb_lasti)
+            self.send_error(500, str(e) + ' line ' + str(e.__traceback__.tb_lineno))
 
     def do_POST(self):
         req = Request(self)
-        rsp = Response(self)
+        rsp = Response(req)
         handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.call()

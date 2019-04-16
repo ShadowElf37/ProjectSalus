@@ -13,18 +13,24 @@ class Request:
         self.headers = self.req.headers
         self.server = self.req.server.macroserver
         self.addr = self.req.client_address
+        self.type = self.req.command
         self.cookie = SimpleCookie()
+
+        # Generate cookies
         c = self.get_header('Cookie')
         if c is not None:
             self.cookie.load(c)
-        self.type = self.req.command
+
+        # Generate POST vals
         self.post_vals = None
         if self.type == 'POST':
             content_len = int(self.get_header('content-length'))
             post_body = self.req.rfile.read(content_len)
             self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
             print(self.post_vals)
-        self.client = client.ClientObj(self.addr[0], self.get_cookie('login_key'), self.get_cookie('admin_key'))
+
+        # Generate client object
+        self.client = client.ClientObj(self.addr[0], self.get_cookie('key'))
 
     def get_header(self, key):
         return self.headers.get(key.lower())
@@ -35,6 +41,9 @@ class Request:
 
     def get_post(self, key):
         return self.post_vals.get(key)
+
+    def validate_account(self):
+        return self.client.account is not None
 
 
 class Response:
@@ -62,8 +71,9 @@ class Response:
         'avi': 'video/h265',
     }
 
-    def __init__(self, HTTPRequest: BaseHTTPRequestHandler):
-        self.req = HTTPRequest
+    def __init__(self, request: Request):
+        self.req = request.req
+        self.macroreq = request
         self.server = self.req.server.macroserver
         self.code = 200, None
         self.header = {}
@@ -76,6 +86,7 @@ class Response:
         }
         self.sent_prematurely = False
         self.head = False
+        self.client = self.macroreq.client
 
     @staticmethod
     def resolve_content_type(path):
@@ -88,8 +99,8 @@ class Response:
         self.req.send_error(n, msg)
         self.sent_prematurely = True
 
-    def redirect(self, location, permanent=False):
-        self.set_code(307 if not permanent else 308)
+    def redirect(self, location, permanent=False, get=False):
+        self.set_code(303 if get else 307 if not permanent else 308)
         self.add_header('Location', location)
 
     def load_base(self, content_type=None, cache_control='public'):
@@ -99,6 +110,7 @@ class Response:
         # self.add_header('Server', self.req.server_version)
         self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
+        self.add_cookie('key', self.client.account.new_key() if self.client.account is not None else '_none')
 
     def set_body(self, string, append=False, specify_length=False, ctype='text'):
         if specify_length:

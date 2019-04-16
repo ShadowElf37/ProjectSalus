@@ -3,6 +3,7 @@ import os.path as op
 import sys
 from tee import *
 from datetime import datetime
+import client
 
 # Obviously change these backslashes for Linux
 logfile = open(op.join(
