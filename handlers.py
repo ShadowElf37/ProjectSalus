@@ -24,7 +24,7 @@ class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='html')
-        if self.request.get_cookie('hello') is None:
+        if self.request.get_cookie('helo') is None:
             self.response.add_cookie('hello', 'world')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))

@@ -7,6 +7,7 @@ import os
 import sys
 from sys import exit
 from subprocess import check_output
+from cache import FileCache
 
 class EpicAwesomeServer(HTTPServer):
     def __init__(self, macroserver, *args):
@@ -25,9 +26,11 @@ class Server:
         self.server = EpicAwesomeServer(self, (host, port), HTTPMacroHandler)
         self.log('Server initialized.')
         self.overlord = Overlord(8)
+        self.cache = FileCache()
+        self.running = True
 
     def run(self):
-        while True:
+        while self.running:
             try:
                 self.overlord.launch()
                 self.server.serve_forever()
@@ -39,14 +42,18 @@ class Server:
                 self.log('An exception occurred:', e)
 
     def reboot(self):
+        self.cache.__exit__()
         os._exit(37)
 
     def update(self):
         return check_output(['git', 'pull'])
 
     def close(self):
+        self.running = False
+        self.cache.close()
         self.server.server_close()
         self.log('Server shut down safely by user.')
+
 
     def log(self, *string):
         print(time.strftime('%X'), *string)

@@ -1,7 +1,8 @@
 import time
 from wsgiref.handlers import format_date_time
-from http.cookies import SimpleCookie
+from http.cookies import SimpleCookie, Morsel
 from http.server import BaseHTTPRequestHandler
+import client
 
 ENCODING = 'UTF-8'
 
@@ -23,12 +24,14 @@ class Request:
             post_body = self.req.rfile.read(content_len)
             self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
             print(self.post_vals)
+        self.client = client.ClientObj(self.addr[0], self.get_cookie('login_key'), self.get_cookie('admin_key'))
 
     def get_header(self, key):
         return self.headers.get(key.lower())
 
     def get_cookie(self, key):
-        return self.cookie[key].value
+        v = self.cookie.get(key, Morsel()).value
+        return None if v is '_none' else v
 
     def get_post(self, key):
         return self.post_vals.get(key)
@@ -106,8 +109,11 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, render_opts=dict(), resolve_ctype=True, append=False):
-        f = open(path, 'r').read()
+    def attach_file(self, path, render=True, render_opts=dict(), resolve_ctype=True, append=False, cache=True, binary=False):
+        if cache:
+            f = self.server.cache.read(path, binary)
+        else:
+            f = open(path, 'rb' if binary else 'r').read()
         if render:
             render_opts.update(self.default_renderopts)
             for k,v in render_opts.items():
@@ -122,6 +128,9 @@ class Response:
 
     def add_header(self, k, v):
         self.header[k] = v
+
+    def clear_cookie(self, k):
+        self.add_cookie(k, 'none')
 
     def add_cookie(self, k, v, *args, expires_in_days=60, **kwargs):
         """

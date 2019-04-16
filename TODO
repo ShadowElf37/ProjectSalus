@@ -1,8 +1,5 @@
 Backend (urgent):
-    1. Server rebooting
-    2. Proper logging mechanism
-    3. SSL?
-    4. Client and implementation with Response
+    1. Client and implementation with Response
 
 Front-end (important):
     1. Fix up a decent home page demo
@@ -21,6 +18,7 @@ Actual pages (less important):
     9. User-friendly ways to edit all these
     10. Simple mass-email interface
     11. Remote access console and maintenance-in-progress backup system
+    12. SSL
 
 Post-deployment wishlist (far future):
     1. Integration with other clubs and sports (at least in the Calendar)
