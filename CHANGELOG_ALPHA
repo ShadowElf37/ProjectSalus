@@ -62,3 +62,6 @@ v0.0.10 (4/15/19)
 - Bad cookie retrieval attempts will no longer crash
 - Fixed tee.py
 - Added a server-side cache to increase performance
+
+v0.0.11 (4/15/19)
+- Added cross-platform pathing in main.py so we don't have to worry about Windows being retarded

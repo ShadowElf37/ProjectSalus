@@ -5,9 +5,10 @@ from tee import *
 from datetime import datetime
 
 # Obviously change these backslashes for Linux
-logfile = open("{here}\\logs\\{date}.log".format( \
-    here=op.dirname(op.abspath(__file__)), \
-    date=datetime.now().strftime("%Y-%m-%d %H.%M.%S")), "a", 1)
+logfile = open(op.join(
+        op.dirname(op.abspath(__file__)),
+        'logs',
+        '{}.log'.format(datetime.now().strftime("%Y-%m-%d %H.%M.%S"))), "a", 1)
 tees = (OutTee(logfile), ErrTee(logfile))
 
 print('Starting %s...' % __file__)
