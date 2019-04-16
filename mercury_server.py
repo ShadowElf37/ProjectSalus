@@ -9,14 +9,14 @@ from log import *
 from response import *
 import threading
 import ssl
+from config import get_config
+
+codes = get_config('errors')
 
 def get_error(num, let=''):
-    codes = open('conf/errors.cfg', 'r').readlines()
-    for line in codes:
-        line = line.strip()
-        if not (line == '' or line[0] == '#'):
-            if int(line[:line.find(':')]) == num:
-                return ('<center><div class="error">Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()+'</div></center>'
+    name = codes.get(num)
+    if name:
+        return ('<center><div class="error">Error %d%s: ' % (num, let)) + name + '</div></center>'
 
 class Server:
     def __init__(self, host=None, port=None, debug=False, include_debug_level=False):

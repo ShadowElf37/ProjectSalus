@@ -2,16 +2,12 @@ from wsgiref.handlers import format_date_time
 from time import time
 from secrets import token_urlsafe
 import pickle
+from config import get_config
+from persistent import PersistentDict
 
-try:
-    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
-except (EOFError, FileNotFoundError):
-    user_keys = dict()
+user_tokens = PersistentThing('accounts')
 
-def save_users():
-    pickle.dump(user_keys, open('data/accounts.dat', 'wb'))
-
-whitelist = open('conf/whitelist.cfg').read().split('\n')
+whitelist = get_config('whitelist').get('users')
 
 class Account:
     def __init__(self, name, password, key):
@@ -24,26 +20,24 @@ class Account:
 
     def register_self(self):
         k = ClientObj.new_key()
-        user_keys[k] = self
+        user_tokens.set(k, self)
         self.key = k
 
     def new_key(self):
-        del user_keys[self.key]
-        k = ClientObj.new_key()
-        self.key = k
-        user_keys[k] = self
+        user_tokens.delete(self.key)
+        register_self()
         return self.key
 
 class ClientObj:
     def __init__(self, ip, key=None):
         self.ip = ip
 
-        self.account = user_keys.get(key, None)
+        self.account = user_tokens.get(key)
         if self.account is not None:
-            del user_keys[key]
+            user_tokens.delete(key)
             k = self.new_key()
             self.account.key = k
-            user_keys[k] = self.account
+            user_tokens.set(k, self.account)
         # self.name = self.account.name
 
     @staticmethod

@@ -1,1 +1,3 @@
-passwords = open('conf/passwords.cfg').read().split('\n')
+from config import get_config
+
+passwords = get_config('passwords')
