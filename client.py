@@ -1,11 +1,11 @@
 from wsgiref.handlers import format_date_time
 from time import time
-from random import randint
+from secrets import token_urlsafe
 import pickle
 
 try:
     user_keys = pickle.load(open('data/accounts.dat', 'rb'))
-except EOFError:
+except (EOFError, FileNotFoundError):
     user_keys = dict()
 
 def save_users():
@@ -48,7 +48,7 @@ class ClientObj:
 
     @staticmethod
     def new_key():
-        return format(randint(0, 2**512-1), '0512b')
+        return token_urlsafe()
 
     def create_account(self, name, password):
         self.account = Account(name, password, self.new_key())

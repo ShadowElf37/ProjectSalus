@@ -1,6 +1,7 @@
 from _io import TextIOWrapper
 
 class FileCache:
+    ALL = object()
     def __init__(self):
         self.cache = dict()
 
@@ -22,8 +23,8 @@ class FileCache:
             raise IOError('Requested file is not opened.')
         ff.write(s)
 
-    def reload(self, f='_ALL'):
-        if f == '_ALL':
+    def reload(self, f="_ALL"):
+        if f == "_ALL":
             self.close()
             self.cache = dict()
         else:

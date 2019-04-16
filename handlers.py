@@ -43,13 +43,13 @@ class HandlerHome(RequestHandler):
 class HandlerSignupPage(RequestHandler):
     def call(self):
         self.response.set_body(
-            "<html><form method=\"POST\" action=\"/login\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"text\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
+            "<html><form method=\"POST\" action=\"/login\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
             ctype='html')
 
 class HandlerProtectedTest(RequestHandler):
     def call(self):
         if self.request.validate_account():
-            self.response.set_body('welcome!')
+            self.response.set_body('hello {}!'.format(self.request.get_account().name))
         else:
             self.response.set_body('bye bye!')
 
@@ -58,7 +58,7 @@ class HandlerSignup(RequestHandler):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
         self.request.client.create_account(name, password)
-        self.response.add_cookie('key', self.request.client.account.key)
+        self.response.add_cookie('user_token', self.request.client.account.key)
         self.response.redirect('/', get=True)
 
 

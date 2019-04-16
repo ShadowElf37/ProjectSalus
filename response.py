@@ -7,6 +7,7 @@ import client
 ENCODING = 'UTF-8'
 
 class Request:
+    NONE_COOKIE = object()
     def __init__(self, HTTPRequest):
         self.req = HTTPRequest
         self.path = self.req.path
@@ -30,7 +31,7 @@ class Request:
             print(self.post_vals)
 
         # Generate client object
-        self.client = client.ClientObj(self.addr[0], self.get_cookie('key'))
+        self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
 
     def get_header(self, key):
         return self.headers.get(key.lower())
@@ -41,9 +42,12 @@ class Request:
 
     def get_post(self, key):
         return self.post_vals.get(key)
-
+    
+    def get_account(self):
+        return self.client.account
+    
     def validate_account(self):
-        return self.client.account is not None
+        return self.get_account() is not None
 
 
 class Response:
@@ -110,7 +114,7 @@ class Response:
         # self.add_header('Server', self.req.server_version)
         self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
-        self.add_cookie('key', self.client.account.new_key() if self.client.account is not None else '_none')
+        self.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none')
 
     def set_body(self, string, append=False, specify_length=False, ctype='text'):
         if specify_length:
@@ -142,7 +146,7 @@ class Response:
         self.header[k] = v
 
     def clear_cookie(self, k):
-        self.add_cookie(k, 'none')
+        self.add_cookie(k, Request.NONE_COOKIE)
 
     def add_cookie(self, k, v, *args, expires_in_days=60, **kwargs):
         """
@@ -157,6 +161,9 @@ class Response:
             version [version]
         """
 
+        if v is Request.NONE_COOKIE:
+            del self.cookie[k]
+            return
         self.cookie[k] = v
         kwargs['expires'] = format_date_time(time.time()+expires_in_days*24*60*60)
         for i in args:
