@@ -1,5 +1,5 @@
 from subprocess import *
-from sys import exit
+from sys import exit, executable
 import os
 import sys
 
@@ -22,7 +22,7 @@ class Process:
 
 
 def reboot():
-    Popen(['python', __file__], cwd=os.getcwd())
+    Popen([executable, __file__], cwd=os.getcwd())
     exit(0)
 
 if __name__ == "__main__":
