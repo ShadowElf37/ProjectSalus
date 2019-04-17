@@ -47,3 +47,11 @@ class ClientObj:
     def create_account(self, name, password):
         self.account = Account(name, password, self.new_key())
         self.account.register_self()
+
+    def validate_account(self):
+        return self.account is not None
+
+try:
+    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
+except (EOFError, FileNotFoundError):
+    user_keys = dict()

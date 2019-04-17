@@ -72,3 +72,13 @@ v0.0.12 (4/15/19)
 - Added Account class in client.py
 - Added proper nonces to ClientObj after much debugging and work - clients can now log in nice and good
 - Added a test login and login-protected page
+
+v0.0.13 (4/15/19)
+- Moved user-token cookie to RequestHandler in handlers.py
+- Cleaned up some code, courtesy Alwinfy
+- Added default file type requirements for render
+
+v0.0.14 (4/16/19)
+- Fixed pickling issue in client.py
+- Made files load in binary by default and then decode so that you don't have to specify manually for unreadable files
+- Moved all client work to RequestHandler so that response.py is pure and abstract and easy to use in another project
