@@ -1,7 +1,6 @@
 Backend (urgent):
     1. Login (not signup)
-    2. Always read attach_file() as binary to make it simpler for the user and just try-except the encoding in finish()
-    3. Move ClientObj to RequestHandler?
+    2. Move ClientObj to RequestHandler?
 
 Front-end (important):
     1. Fix up a decent home page demo

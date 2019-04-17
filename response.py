@@ -30,8 +30,8 @@ class Request:
             self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
             print(self.post_vals)
 
-        # Generate client object
-        self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
+        # Generate client object (now done in handlers.py)
+        # self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
 
     def get_header(self, key):
         return self.headers.get(key.lower())
@@ -42,12 +42,6 @@ class Request:
 
     def get_post(self, key):
         return self.post_vals.get(key)
-    
-    def get_account(self):
-        return self.client.account
-    
-    def validate_account(self):
-        return self.get_account() is not None
 
 
 class Response:
@@ -98,7 +92,7 @@ class Response:
         }
         self.sent_prematurely = False
         self.head = False
-        self.client = self.macroreq.client
+        # self.client = self.macroreq.client (now done in handlers.py
 
     @staticmethod
     def resolve_content_type(path):
@@ -132,11 +126,16 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=False, **render_opts):
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=True, **render_opts):
         if cache:
             f = self.server.cache.read(path, binary)
         else:
             f = open(path, 'rb' if binary else 'r').read()
+            if isinstance(f, bytes):
+                try:
+                    f = f.decode(ENCODING)
+                except UnicodeDecodeError:
+                    pass
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
             for k,v in render_opts.items():
