@@ -27,7 +27,7 @@ class PersistentThing:
         self.fh.seek(0)
         self.value = pickle.load(self.fh)
     def autowrite(self):
-        if eachwrite:
+        if self.eachwrite:
             self.write()
     def write(self):
         self.fh.seek(0)
@@ -38,9 +38,9 @@ class PersistentDict(PersistentThing):
     def __init__(self, name, eachwrite=False):
         super().__init__(name, {}, eachwrite)
     def get(self, key, default=None):
-        return super().get().get(key, default)
+        return self.value.get(key, default)
     def set(self, key, value):
-        super().get()[key] = value
+        self.value[key] = value
         self.autowrite()
     def delete(self, key):
         del super().get()[key]

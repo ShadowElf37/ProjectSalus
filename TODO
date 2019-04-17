@@ -1,6 +1,5 @@
 Backend (urgent):
     1. Login (not signup)
-    2. Move ClientObj to RequestHandler?
 
 Front-end (important):
     1. Fix up a decent home page demo

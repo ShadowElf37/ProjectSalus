@@ -15,8 +15,6 @@ class RequestHandler:
         self.response.client = self.client = self.request.client
         self.response.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none')
 
-
-
     @staticmethod
     def handler(f):
         def wrapper(*args):
@@ -54,8 +52,8 @@ class HandlerSignupPage(RequestHandler):
 
 class HandlerProtectedTest(RequestHandler):
     def call(self):
-        if self.request.validate_account():
-            self.response.set_body('hello {}!'.format(self.request.get_account().name))
+        if self.client.validate_account():
+            self.response.set_body('hello {}!'.format(self.client.account.name))
         else:
             self.response.set_body('bye bye!')
 
@@ -63,8 +61,8 @@ class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
-        self.request.client.create_account(name, password)
-        self.response.add_cookie('user_token', self.request.client.account.key)
+        self.client.create_account(name, password)
+        self.response.add_cookie('user_token', self.client.account.key)
         self.response.redirect('/', get=True)
 
 

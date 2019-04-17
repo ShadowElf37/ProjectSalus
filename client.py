@@ -3,9 +3,9 @@ from time import time
 from secrets import token_urlsafe
 import pickle
 from config import get_config
-from persistent import PersistentDict
+from persistent import PersistentDict, PersistentThing
 
-user_tokens = PersistentThing('accounts')
+user_tokens = PersistentDict('accounts')
 
 whitelist = get_config('whitelist').get('users')
 
@@ -25,7 +25,7 @@ class Account:
 
     def new_key(self):
         user_tokens.delete(self.key)
-        register_self()
+        self.register_self()
         return self.key
 
 class ClientObj:
@@ -51,7 +51,7 @@ class ClientObj:
     def validate_account(self):
         return self.account is not None
 
-try:
-    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
-except (EOFError, FileNotFoundError):
-    user_keys = dict()
+#try:
+#    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
+#except (EOFError, FileNotFoundError):
+#    user_keys = dict()

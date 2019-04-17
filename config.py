@@ -9,7 +9,7 @@ class Config:
         self.data = {}
         for line in self.fh:
             line = line[:line.find('#')]
-            if not line or line.iswhitespace():
+            if not line or line.isspace():
                 continue
             try:
                 key, val = (t.strip() for t in line.strip().split(':', maxsplit=1))
