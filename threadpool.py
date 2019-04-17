@@ -13,6 +13,9 @@ class Overlord:
     def launch(self):
         for t in self.threads:
             t.init_thread()
+    def cleanup(self):
+        for t in self.threads:
+            t.stop_thread()
 
     def push(self, args):
         self.pushf(None, args)
@@ -32,6 +35,10 @@ class Maestro:
 
     def init_thread(self):
         self.thread.start()
+    
+    def stop_thread(self):
+        self.running = False
+        self.thread.join()
 
     def terminate(self):
         self.running = False

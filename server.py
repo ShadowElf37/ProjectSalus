@@ -42,6 +42,9 @@ class Server:
             except Exception as e:
                 raise e
                 # self.log('An exception occurred:', e)
+            finally:
+                self.cleanup()
+        self.cleanup()
 
     def reboot(self):
         self.cache.close()
@@ -52,11 +55,14 @@ class Server:
         return check_output(['git', 'pull'])
 
     def close(self):
+        self.cleanup()
+        self.log('Server shut down safely by user.')
+    def cleanup(self):
+        if not self.running: return
         self.running = False
         self.cache.close()
         self.server.server_close()
-        self.log('Server shut down safely by user.')
-
+    
     def log(self, *string):
         print(time.strftime('%X'), *string)
 
