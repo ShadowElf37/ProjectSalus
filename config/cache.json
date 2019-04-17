@@ -1,0 +1,11 @@
+{
+	"static-exts" :[
+		"css",
+		"js",
+		"png",
+		"jpg",
+		"ico",
+		"ttf",
+		"mp3"
+	]
+}

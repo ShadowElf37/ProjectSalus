@@ -1,27 +1,17 @@
+import json
 
-CONFIG_DIR = './conf'
-FMT_STR = '%s/{}.cfg' % CONFIG_DIR
+CONFIG_DIR = './config'
+FMT_STR = '%s/{}.json' % CONFIG_DIR
 
 class Config:
     def __init__(self, name: str):
         self.fh = open(FMT_STR.format(name), 'r+')
         self.name = name
-        self.data = {}
-        for line in self.fh:
-            line = line[:line.find('#')]
-            if not line or line.isspace():
-                continue
-            try:
-                key, val = (t.strip() for t in line.strip().split(':', maxsplit=1))
-            except ValueError:
-                self.die("Got malformed syntax in {}".format(self.name))
-            if val[0:2] == "[[":
-                val = val[2:].split(",")
-            self.data[key] = val
+        self.data = json.load(self.fh)
+        if not isinstance(self.data, dict):
+            raise ValueError("Top level JSON should always be an object!")
     def get(self, key):
         return self.data.get(str(key), None)
-    def die(self, msg):
-        raise ValueError(msg)
     def __del__(self):
         self.fh.close()
 
