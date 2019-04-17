@@ -2,7 +2,9 @@ from threading import *
 import handlers
 from time import sleep
 from response import *
+from config import get_config
 
+config = get_config('threads')
 
 class Overlord:
     def __init__(self, threadcount):
@@ -15,8 +17,10 @@ class Overlord:
             t.init_thread()
     def cleanup(self):
         for t in self.threads:
-            t.stop_thread()
-
+            t.terminate()
+        self.condition.notifyAll()
+        for t in self.threads:
+            t.join(config.get('cleanup-timeout'))
     def push(self, args):
         self.pushf(None, args)
 
@@ -36,13 +40,8 @@ class Maestro:
     def init_thread(self):
         self.thread.start()
     
-    def stop_thread(self):
-        self.running = False
-        self.thread.join()
-
     def terminate(self):
         self.running = False
-
     def alive(self):
         return self.thread.is_alive()
 
@@ -50,6 +49,7 @@ class Maestro:
         while self.running:
             with self.condition:
                 while True:
+                    if not self.running: break
                     if self.queue:
                         r = self.queue.pop()
                         break

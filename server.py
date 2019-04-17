@@ -62,6 +62,7 @@ class Server:
         self.running = False
         self.cache.close()
         self.server.server_close()
+        self.overlord.cleanup()
     
     def log(self, *string):
         print(time.strftime('%X'), *string)
