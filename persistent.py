@@ -8,12 +8,12 @@ class PersistentThing:
         self.name = name
         self.eachwrite = eachwrite
         self.fname = "{}/{}.dat".format(config.get('directory'), name)
+        self.value = default
         try:
             self.fh = open(self.fname, "rb+")
             self.read()
         except FileNotFoundError:
             self.fh = open(self.fname, "wb+")
-            self.value = default
             self.write()
     def __del__(self):
         self.write()
@@ -25,7 +25,10 @@ class PersistentThing:
         self.autowrite()
     def read(self):
         self.fh.seek(0)
-        self.value = pickle.load(self.fh)
+        try:
+            self.value = pickle.load(self.fh)
+        except EOFError:
+            pass
     def autowrite(self):
         if self.eachwrite:
             self.write()
