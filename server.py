@@ -40,7 +40,8 @@ class Server:
                 self.close()
                 break
             except Exception as e:
-                self.log('An exception occurred:', e)
+                raise e
+                # self.log('An exception occurred:', e)
 
     def reboot(self):
         self.cache.close()
@@ -54,9 +55,7 @@ class Server:
         self.running = False
         self.cache.close()
         self.server.server_close()
-        client.save_users()
         self.log('Server shut down safely by user.')
-
 
     def log(self, *string):
         print(time.strftime('%X'), *string)
