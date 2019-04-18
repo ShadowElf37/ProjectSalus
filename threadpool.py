@@ -15,6 +15,7 @@ class Overlord:
     def launch(self):
         for t in self.threads:
             t.init_thread()
+
     def cleanup(self):
         for t in self.threads:
             t.terminate()
