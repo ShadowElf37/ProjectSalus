@@ -9,10 +9,22 @@ class Config:
         self.name = name
         self.data = json.load(self.fh)
         if not isinstance(self.data, dict):
-            raise ValueError("Top level JSON should always be an object!")
+            raise ValueError("Top level JSON should always be a dictionary!")
+
     def get(self, key):
         return self.data.get(str(key), None)
+
+    def dump(self):
+        json.dump(self.data, self.fh)
+
+    def __getattr__(self, item):
+        return self.get(item)
+
+    def __setattr__(self, k, v):
+        self.data[k] = v
+
     def __del__(self):
+        self.dump()
         self.fh.close()
 
 def get_config(name):

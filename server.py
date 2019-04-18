@@ -57,6 +57,7 @@ class Server(HTTPServer):
     def close(self):
         self.cleanup()
         self.log('Server shut down safely by user.')
+
     def cleanup(self):
         if not self.running: return
         self.running = False

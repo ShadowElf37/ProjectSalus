@@ -82,3 +82,8 @@ v0.0.14 (4/16/19)
 - Fixed pickling issue in client.py
 - Made files load in binary by default and then decode so that you don't have to specify manually for unreadable files
 - Moved all client work to RequestHandler so that response.py is pure and abstract and easy to use in another project
+
+v0.0.15 (4/17/19)
+- Fixed rebooting issue by adding thread cleanup
+- Converted config file formats to json after some infighting
+- Added easy Config class and "persistent" objects for handling pickled dictionaries

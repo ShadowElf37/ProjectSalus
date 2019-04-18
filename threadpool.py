@@ -23,6 +23,7 @@ class Overlord:
             self.condition.notifyAll()
         for t in self.threads:
             t.thread.join(config.get('cleanup-timeout'))
+
     def push(self, args):
         self.pushf(None, args)
 
