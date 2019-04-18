@@ -20,11 +20,13 @@ class Server(HTTPServer):
         self.overlord = Overlord(8)
         self.cache = FileCache()
         self.running = True
+
     def process_request(self, request, client_address):
         self.overlord.push((self, request, client_address))
-    def serve_forever(self):
+
+    def serve_forever(self, shutdown_poll_interval=0.5):
         try:
-            super().serve_forever()
+            super().serve_forever(shutdown_poll_interval)
         except Exception as e:
             raise e
         finally:
@@ -81,7 +83,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             rsp.finish()
         except Exception as e:
             raise e
-            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno, e.__traceback__.tb_lasti, e.__traceback__.tb_next.tb_lasti)
+            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
             self.send_error(500, str(e) + ' line ' + str(e.__traceback__.tb_lineno))
 
     def do_POST(self):
