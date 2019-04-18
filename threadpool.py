@@ -18,9 +18,10 @@ class Overlord:
     def cleanup(self):
         for t in self.threads:
             t.terminate()
-        self.condition.notifyAll()
+        with self.condition:
+            self.condition.notifyAll()
         for t in self.threads:
-            t.join(config.get('cleanup-timeout'))
+            t.thread.join(config.get('cleanup-timeout'))
     def push(self, args):
         self.pushf(None, args)
 
@@ -49,12 +50,11 @@ class Maestro:
         while self.running:
             with self.condition:
                 while True:
-                    if not self.running: break
+                    if not self.running: return
                     if self.queue:
                         r = self.queue.pop()
                         break
                     self.condition.wait()
-
             self.busy = True
 
             if r[0] is not None:

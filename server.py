@@ -10,31 +10,32 @@ from subprocess import check_output
 from cache import FileCache
 import client
 
-class EpicAwesomeServer(HTTPServer):
-    def __init__(self, macroserver, *args):
-        super().__init__(*args)
-        self.macroserver = macroserver
-
-    def process_request(self, request, client_address):
-        self.macroserver.overlord.push((self, request, client_address))
-
-
-class Server:
-    def __init__(self, host='0.0.0.0', port=8080):
+class Server(HTTPServer):
+    def __init__(self, host='0.0.0.0', port=8080, *args):
+        super().__init__((host, port), HTTPMacroHandler, *args)
         self.host = host
         self.port = port
         self.domain = 'localhost'
-        self.server = EpicAwesomeServer(self, (host, port), HTTPMacroHandler)
         self.log('Server initialized.')
         self.overlord = Overlord(8)
         self.cache = FileCache()
         self.running = True
+    def process_request(self, request, client_address):
+        self.overlord.push((self, request, client_address))
+    def serve_forever(self):
+        try:
+            super().serve_forever()
+        except Exception as e:
+            raise e
+        finally:
+            self.cache.close()
+            self.overlord.cleanup()
 
     def run(self):
         while self.running:
             try:
                 self.overlord.launch()
-                self.server.serve_forever()
+                self.serve_forever()
             except (KeyboardInterrupt, SystemExit):
                 self.log('Server quit by user.')
                 self.close()
@@ -47,7 +48,6 @@ class Server:
         self.cleanup()
 
     def reboot(self):
-        self.cache.close()
         self.close()
         os._exit(37)
 
@@ -60,9 +60,7 @@ class Server:
     def cleanup(self):
         if not self.running: return
         self.running = False
-        self.cache.close()
-        self.server.server_close()
-        self.overlord.cleanup()
+        self.server_close()
     
     def log(self, *string):
         print(time.strftime('%X'), *string)

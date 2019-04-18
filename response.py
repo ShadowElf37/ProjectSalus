@@ -12,7 +12,7 @@ class Request:
         self.req = HTTPRequest
         self.path = self.req.path
         self.headers = self.req.headers
-        self.server = self.req.server.macroserver
+        self.server = self.req.server
         self.addr = self.req.client_address
         self.type = self.req.command
         self.cookie = SimpleCookie()
@@ -80,7 +80,7 @@ class Response:
     def __init__(self, request: Request):
         self.req = request.req
         self.macroreq = request
-        self.server = self.req.server.macroserver
+        self.server = self.req.server
         self.code = 200, None
         self.header = {}
         self.cookie = SimpleCookie()

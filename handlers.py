@@ -6,8 +6,7 @@ class RequestHandler:
         self.request = request
         self.response = response
         self.path = self.request.path
-        self.microserver = self.request.req.server
-        self.server = self.microserver.macroserver
+        self.server = self.request.req.server
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
