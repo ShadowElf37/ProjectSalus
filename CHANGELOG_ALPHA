@@ -87,3 +87,7 @@ v0.0.15 (4/17/19)
 - Fixed rebooting issue by adding thread cleanup
 - Converted config file formats to json after some infighting
 - Added easy Config class and "persistent" objects for handling pickled dictionaries
+- Cleaned up some code
+
+v0.0.16 (4/18/19)
+- 
