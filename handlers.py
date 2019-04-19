@@ -25,7 +25,7 @@ class RequestHandler:
 
 class DefaultHandler(RequestHandler):
     def call(self):
-        self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='html')
+        self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='text/html')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
@@ -47,7 +47,7 @@ class HandlerSignupPage(RequestHandler):
     def call(self):
         self.response.set_body(
             "<html><form method=\"POST\" action=\"/login\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
-            ctype='html')
+            ctype='text/html')
 
 class HandlerProtectedTest(RequestHandler):
     def call(self):
