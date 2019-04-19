@@ -76,6 +76,16 @@ class Response:
         self.sent_prematurely = False
         self.head = False
         # self.client = self.macroreq.client (now done in handlers.py
+    
+    @staticmethod
+    def cache_lookup(path, cache_db=cache_db):
+        val = cache_db.get('file').get(basename(path), None)
+        mimetype = guess_type(path)
+        if val: return val
+        for mt in cache_db.get('mime-type'):
+            if fnmatch(mimetype, mt['type']):
+                return mt['length']
+        return cache_db.get('default')
 
     def set_code(self, n, msg=None):
         self.code = n, msg
@@ -104,15 +114,7 @@ class Response:
         else:
             self.body = string
         self.set_content_type(ctype)
-    @staticmethod
-    def cache_lookup(path, cache_db=cache_db):
-        val = cache_db.get('file').get(basename(path), None)
-        mimetype = guess_type(path)
-        if val: return val
-        for mt in cache_db.get('mime-type'):
-            if fnmatch(mimetype, mt['type']):
-                return mt['length']
-        return cache_db.get('default')
+
     def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=True, **render_opts):
         if cache:
             f = self.server.cache.read(path, binary)
