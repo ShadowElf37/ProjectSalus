@@ -94,3 +94,7 @@ v0.0.16 (4/18/19)
 - Cleaned up lots of bad errors
 - Fixed some headers
 - Switched responses to HTTP/1.1
+
+v0.0.17 (4/18/19)
+- Abolished obsolete code
+- Minor fixes

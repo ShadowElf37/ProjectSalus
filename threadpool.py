@@ -45,6 +45,7 @@ class Fish:
     
     def terminate(self):
         self.running = False
+
     def alive(self):
         return self.thread.is_alive()
 
