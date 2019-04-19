@@ -1,11 +1,24 @@
 {
-	"static-exts" :[
-		"css",
-		"js",
-		"png",
-		"jpg",
-		"ico",
-		"ttf",
-		"mp3"
-	]
+	"default": 86400,
+	"mime-type": [
+		{
+			"type": "text/css",
+			"length": 0
+		}, {
+			"type": "application/javascript",
+			"length": 0
+		}, {
+			"type": "text/*",
+			"length": 0
+		}, {
+			"type": "application/font-sfnt",
+			"length": 604800
+		}, {
+			"type": "audio/*",
+			"length": 604800
+		}
+	],
+	"file": {
+		"white-background.png": -1
+	}
 }
