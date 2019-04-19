@@ -6,11 +6,11 @@ from config import get_config
 
 config = get_config('threads')
 
-class Overlord:
+class Pool:
     def __init__(self, threadcount):
         self.condition = Condition()
         self.queue = []
-        self.threads = [Maestro(self.condition, self.queue) for i in range(threadcount)]
+        self.threads = [Fish(self.condition, self.queue) for i in range(threadcount)]
 
     def launch(self):
         for t in self.threads:
@@ -32,7 +32,7 @@ class Overlord:
             self.queue.insert(0, tuple([f] + list(args)))
             self.condition.notify()
 
-class Maestro:
+class Fish:
     def __init__(self, condition, queue):
         self.condition = condition
         self.queue = queue

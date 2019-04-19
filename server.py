@@ -17,12 +17,12 @@ class Server(HTTPServer):
         self.port = port
         self.domain = 'localhost'
         self.log('Server initialized.')
-        self.overlord = Overlord(8)
+        self.pool = Pool(8)
         self.cache = FileCache()
         self.running = True
 
     def process_request(self, request, client_address):
-        self.overlord.push((self, request, client_address))
+        self.pool.push((self, request, client_address))
 
     def serve_forever(self, shutdown_poll_interval=0.5):
         try:
@@ -31,12 +31,12 @@ class Server(HTTPServer):
             raise e
         finally:
             self.cache.close()
-            self.overlord.cleanup()
+            self.pool.cleanup()
 
     def run(self):
         while self.running:
             try:
-                self.overlord.launch()
+                self.pool.launch()
                 self.serve_forever()
             except (KeyboardInterrupt, SystemExit):
                 self.log('Server quit by user.')
