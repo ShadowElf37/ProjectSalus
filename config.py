@@ -14,17 +14,8 @@ class Config:
     def get(self, key):
         return self.data.get(str(key), None)
 
-    def dump(self):
-        json.dump(self.data, self.fh)
-
-    def __getattr__(self, item):
-        return self.get(item)
-
-    def __setattr__(self, k, v):
-        self.data[k] = v
-
+    # To whom it may concern: self.fh is opened with r+. This means append. Call seek(0) and truncate() before dumping data. Thanks. Also, these configs are supposed to be read-only rn. Dynamic config editing only leads to pain. Thanks again, Alwinfy
     def __del__(self):
-        self.dump()
         self.fh.close()
 
 def get_config(name):
