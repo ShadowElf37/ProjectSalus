@@ -6,6 +6,13 @@ import client
 
 ENCODING = 'UTF-8'
 
+from config import get_config
+from fnmatch import fnmatch # for mime-type matching
+from mimetypes import guess_type # ditto
+from os.path import basename
+
+cache_db = get_config('cache')
+
 class Request:
     NONE_COOKIE = object()
     def __init__(self, HTTPRequest):
@@ -45,30 +52,6 @@ class Request:
 
 
 class Response:
-    CONTENT_TYPE = {
-        'html': 'text/html',
-        'htm': 'text/html',
-        'css': 'text/css',
-        'js': 'application/javascript',
-        'txt': 'text/plain',
-        'text': 'text/plain',
-        'xml': 'text/xml',
-        'ttf': 'font/ttf',
-        'font': 'font/ttf',
-        'mp3': 'audio/mpeg',
-        'wav': 'audio/x-wav',
-        'ogg': 'audio/ogg',
-        'png': 'image/png',
-        'jpg': 'image/jpeg',
-        'gif': 'image/gif',
-        'bmp': 'image/bmp',
-        'svg': 'image/svg+xml',
-        'mp4': 'video/mp4',
-        'mov': 'video/quicktime',
-        'h265': 'video/h265',
-        'h.265': 'video/h265',
-        'avi': 'video/h265',
-    }
 
     RENDER = (
         'html',
@@ -94,10 +77,6 @@ class Response:
         self.head = False
         # self.client = self.macroreq.client (now done in handlers.py
 
-    @staticmethod
-    def resolve_content_type(path):
-        return Response.CONTENT_TYPE.get(path.split('.')[-1], 'text/plain')
-
     def set_code(self, n, msg=None):
         self.code = n, msg
 
@@ -117,7 +96,7 @@ class Response:
         self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
 
-    def set_body(self, string, append=False, specify_length=False, ctype='text'):
+    def set_body(self, string, append=False, specify_length=False, ctype='text/plain'):
         if specify_length:
             self.add_header('Content-Length', len(string))
         if append:
@@ -125,7 +104,14 @@ class Response:
         else:
             self.body = string
         self.set_content_type(ctype)
-
+    @staticmethod
+    def cache_lookup(path, cache_db=cache_db):
+        val = cache_db.get('file').get(basename(path), None)
+        if val: return val
+        for mt of cache_db.get('mime-type'):
+            if fnmatch(mimetype, mt['type']):
+                return mt['length']
+        return cache_db.get('default')
     def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=True, **render_opts):
         if cache:
             f = self.server.cache.read(path, binary)
@@ -136,6 +122,12 @@ class Response:
                     f = f.decode(ENCODING)
                 except UnicodeDecodeError:
                     pass
+                
+        if cache:
+            cachelen = Response.cache_lookup(path)
+            if cachelen == -1:
+                cachelen = '31536000, public'
+            self.add_header('Cache-Control', 'max-age={}'.format(cachelen) if cachelen else 'no-store')
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
             for k,v in render_opts.items():
@@ -143,10 +135,10 @@ class Response:
         self.set_body(f, append=append)
 
         if resolve_ctype:
-            self.add_header('Content-Type', self.resolve_content_type(path))
+            self.add_header('Content-Type', guess_type(path))
 
     def set_content_type(self, type):
-        self.add_header('Content-Type', Response.CONTENT_TYPE[type])
+        self.add_header('Content-Type', guess_type(path))
 
     def add_header(self, k, v):
         self.header[k] = v
