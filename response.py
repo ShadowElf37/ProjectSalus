@@ -108,7 +108,7 @@ class Response:
     def cache_lookup(path, cache_db=cache_db):
         val = cache_db.get('file').get(basename(path), None)
         if val: return val
-        for mt of cache_db.get('mime-type'):
+        for mt in cache_db.get('mime-type'):
             if fnmatch(mimetype, mt['type']):
                 return mt['length']
         return cache_db.get('default')
@@ -138,7 +138,7 @@ class Response:
             self.add_header('Content-Type', guess_type(path))
 
     def set_content_type(self, type):
-        self.add_header('Content-Type', guess_type(path))
+        self.add_header('Content-Type', type)
 
     def add_header(self, k, v):
         self.header[k] = v
