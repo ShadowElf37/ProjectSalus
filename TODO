@@ -1,7 +1,6 @@
 Backend (urgent):
     1. Login (not signup)
-    2. Cache durations being automatically loaded
-    3. Recursive resource locating
+    2. Recursive resource locating
 
 Front-end (important):
     1. Fix up a decent home page demo

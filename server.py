@@ -70,6 +70,8 @@ class Server(HTTPServer):
 
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
     def do_HEAD(self):
         self.send_response(200, 'OK')
         self.end_headers()

@@ -90,4 +90,7 @@ v0.0.15 (4/17/19)
 - Cleaned up some code
 
 v0.0.16 (4/18/19)
--
+- Added client-side file caching
+- Cleaned up lots of bad errors
+- Fixed some headers
+- Switched responses to HTTP/1.1
