@@ -125,16 +125,16 @@ class Response:
                     f = f.decode(ENCODING)
                 except UnicodeDecodeError:
                     pass
-                
-        if cache:
-            cachelen = Response.cache_lookup(path)
-            if cachelen == -1:
-                cachelen = '31536000, public'
-            self.add_header('Cache-Control', 'max-age={}'.format(cachelen) if cachelen else 'no-store')
+
+        cachelen = Response.cache_lookup(path)
+        if cachelen == -1:
+            cachelen = '31536000, public'
+        self.add_header('Cache-Control', 'max-age={}'.format(cachelen) if cachelen else 'no-store')
+
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
             for k,v in render_opts.items():
-                f = f.replace('[['+k+']]', str(v))
+                f = f.replace(b'[['+bytes(str(k), ENCODING)+b']]', bytes(str(v), ENCODING))
         self.set_body(f, append=append)
 
         if resolve_ctype:
@@ -187,4 +187,9 @@ class Response:
         self.compile_header()
         if self.head:
             return
-        self.req.wfile.write(self.body.encode(ENCODING))
+
+        try:
+            b = self.body.encode(ENCODING)
+        except AttributeError:
+            b = self.body
+        self.req.wfile.write(b)

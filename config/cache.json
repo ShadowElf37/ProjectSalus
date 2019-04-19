@@ -3,10 +3,10 @@
 	"mime-type": [
 		{
 			"type": "text/css",
-			"length": 0
+			"length": 60
 		}, {
 			"type": "application/javascript",
-			"length": 0
+			"length": 60
 		}, {
 			"type": "text/*",
 			"length": 60

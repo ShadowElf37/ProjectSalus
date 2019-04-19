@@ -8,13 +8,13 @@ class FileCache:
     def read(self, f, binary=False):
         ff = self.cache.get(f)
         if ff is None:
-            self.cache[f] = open(f, 'rb' if binary else 'r').read()
+            self.cache[f] = ff = open(f, 'rb' if binary else 'r').read()
         return ff
 
     def open(self, f, mode='w'):
         ff = self.cache.get(f)
         if ff is None:
-            self.cache[f] = open(f, mode)
+            self.cache[f] = ff = open(f, mode)
         return ff
 
     def write(self, f, s):
