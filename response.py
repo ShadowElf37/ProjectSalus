@@ -98,13 +98,11 @@ class Response:
         self.set_code(303 if get else 307 if not permanent else 308)
         self.add_header('Location', location)
 
-    def load_base(self, content_type=None, cache_control='public'):
+    def load_base(self, content_type=None):
         if content_type is not None:
             self.set_content_type(content_type)
-        # self.add_header('Date', format_date_time(time.time()))
-        # self.add_header('Server', self.req.server_version)
-        self.add_header('Cache-Control', cache_control)
         self.add_header('Accept-Ranges', 'none')
+        self.add_header('Content-Length', str(len(self.body)))
 
     def set_body(self, string, append=False, specify_length=False, ctype='text/plain'):
         if specify_length:
