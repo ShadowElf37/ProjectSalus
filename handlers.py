@@ -64,12 +64,16 @@ class HandlerSignup(RequestHandler):
         self.response.add_cookie('user_token', self.client.account.key)
         self.response.redirect('/', get=True)
 
+class HandlerTestPage(RequestHandler):
+    def call(self):
+        self.response.attach_file('web/test/index.html')
 
 GET = {
     '/': DefaultHandler,
     '/reboot': HandlerReboot,
     '/signup': HandlerSignupPage,
     '/protected': HandlerProtectedTest,
+    '/test': HandlerTestPage,
 }
 
 POST = {
