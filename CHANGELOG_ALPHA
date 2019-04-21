@@ -1,7 +1,87 @@
-v0.0.0 (4/6/19)
-- Added changelog
-- Added handlers.py, main.py, server.py, response.py, mail.py
-- Copied some smtp code from SO into mail.py and set it with Emery mail account
+v0.0.17 (4/18/19)
+- Abolished obsolete code
+- Minor fixes
+
+v0.0.16 (4/18/19)
+- Added client-side file caching
+- Cleaned up lots of bad errors
+- Fixed some headers
+- Switched responses to HTTP/1.1
+
+v0.0.15 (4/17/19)
+- Fixed rebooting issue by adding thread cleanup
+- Converted config file formats to json after some infighting
+- Added easy Config class and "persistent" objects for handling pickled dictionaries
+- Cleaned up some code
+
+v0.0.14 (4/16/19)
+- Fixed pickling issue in client.py
+- Made files load in binary by default and then decode so that you don't have to specify manually for unreadable files
+- Moved all client work to RequestHandler so that response.py is pure and abstract and easy to use in another project
+
+v0.0.13 (4/15/19)
+- Moved user-token cookie to RequestHandler in handlers.py
+- Cleaned up some code, courtesy Alwinfy
+- Added default file type requirements for render
+
+v0.0.12 (4/15/19)
+- Added whitelist.cfg
+- Added accounts.dat
+- Added Account class in client.py
+- Added proper nonces to ClientObj after much debugging and work - clients can now log in nice and good
+- Added a test login and login-protected page
+
+v0.0.11 (4/15/19)
+- Added cross-platform pathing in main.py so we don't have to worry about Windows being retarded
+
+v0.0.10 (4/15/19)
+- Bad cookie retrieval attempts will no longer crash
+- Fixed tee.py
+- Added a server-side cache to increase performance
+
+v0.0.9 (4/15/19)
+- Modified Overlord to manage a global buffer for performance
+- Added tee.py (broken atm) for logging
+- Threw Server.run() into a while loop so it doesn't quit after an exception
+- Minor fixes
+
+v0.0.8 (4/14/19)
+- Can finally reboot
+- Renamed all the Mercury code to mercury_fname.py
+- Renamed all the modern files to their proper things
+- Added server rebooting; _main.py is now run remotely from main.py so it can manage that
+
+v0.0.7 (4/14/19)
+- Removed HEAD code because it's dumb
+- Allowed messages to be set for response codes
+- Added httpserver_main.py to replace main.py soon; it really doesn't need to hold much, thankfully
+
+v0.0.6 (4/14/19)
+- Cleaner Overlord function pushing (now push() and pushf())
+- Removed codes.cfg now that we have a real server
+- Added support for POST requests
+- Added easy response.redirect() function
+- Updated TODO_
+- Added a try-except into the server so errors won't crash the whole server
+- Threw GET code into HEAD but added a Response.head variable to limit it to a header
+
+v0.0.5 (4/14/19)
+- High quality cookie support
+- Support for custom functions being pushed to the Overlord in an emergency
+
+v0.0.4 (4/14/19)
+- Fixed the thread Overlord not running its threads
+- Overrode some stuff to get the thread Overlord to handle requests properly
+
+v0.0.3 (4/13/19)
+- Work in progress server overhaul to use http.server in requisitioned_httpserver.py
+- Added proc_manager.py to try and do server reboots; will replace with something neater later
+- Added thread Overlord and Maestro in threadpool.py
+
+v0.0.2 (4/7/19)
+- Hid passwords in a git-ignored file
+- Added passwords.py to get passwords from secret file
+- Added fileify.js, courtesty of Alwinfy
 
 v0.0.1 (4/7/19)
 - Stole response code from Mercury
@@ -14,87 +94,7 @@ v0.0.1 (4/7/19)
 - Removed brute force protections (it was kinda stupid)
 - Created TODO_ list
 
-v0.0.2 (4/7/19)
-- Hid passwords in a git-ignored file
-- Added passwords.py to get passwords from secret file
-- Added fileify.js, courtesty of Alwinfy
-
-v0.0.3 (4/13/19)
-- Work in progress server overhaul to use http.server in requisitioned_httpserver.py
-- Added proc_manager.py to try and do server reboots; will replace with something neater later
-- Added thread Overlord and Maestro in threadpool.py
-
-v0.0.4 (4/14/19)
-- Fixed the thread Overlord not running its threads
-- Overrode some stuff to get the thread Overlord to handle requests properly
-
-v0.0.5 (4/14/19)
-- High quality cookie support
-- Support for custom functions being pushed to the Overlord in an emergency
-
-v0.0.6 (4/14/19)
-- Cleaner Overlord function pushing (now push() and pushf())
-- Removed codes.cfg now that we have a real server
-- Added support for POST requests
-- Added easy response.redirect() function
-- Updated TODO_
-- Added a try-except into the server so errors won't crash the whole server
-- Threw GET code into HEAD but added a Response.head variable to limit it to a header
-
-v0.0.7 (4/14/19)
-- Removed HEAD code because it's dumb
-- Allowed messages to be set for response codes
-- Added httpserver_main.py to replace main.py soon; it really doesn't need to hold much, thankfully
-
-v0.0.8 (4/14/19)
-- Can finally reboot
-- Renamed all the Mercury code to mercury_fname.py
-- Renamed all the modern files to their proper things
-- Added server rebooting; _main.py is now run remotely from main.py so it can manage that
-
-v0.0.9 (4/15/19)
-- Modified Overlord to manage a global buffer for performance
-- Added tee.py (broken atm) for logging
-- Threw Server.run() into a while loop so it doesn't quit after an exception
-- Minor fixes
-
-v0.0.10 (4/15/19)
-- Bad cookie retrieval attempts will no longer crash
-- Fixed tee.py
-- Added a server-side cache to increase performance
-
-v0.0.11 (4/15/19)
-- Added cross-platform pathing in main.py so we don't have to worry about Windows being retarded
-
-v0.0.12 (4/15/19)
-- Added whitelist.cfg
-- Added accounts.dat
-- Added Account class in client.py
-- Added proper nonces to ClientObj after much debugging and work - clients can now log in nice and good
-- Added a test login and login-protected page
-
-v0.0.13 (4/15/19)
-- Moved user-token cookie to RequestHandler in handlers.py
-- Cleaned up some code, courtesy Alwinfy
-- Added default file type requirements for render
-
-v0.0.14 (4/16/19)
-- Fixed pickling issue in client.py
-- Made files load in binary by default and then decode so that you don't have to specify manually for unreadable files
-- Moved all client work to RequestHandler so that response.py is pure and abstract and easy to use in another project
-
-v0.0.15 (4/17/19)
-- Fixed rebooting issue by adding thread cleanup
-- Converted config file formats to json after some infighting
-- Added easy Config class and "persistent" objects for handling pickled dictionaries
-- Cleaned up some code
-
-v0.0.16 (4/18/19)
-- Added client-side file caching
-- Cleaned up lots of bad errors
-- Fixed some headers
-- Switched responses to HTTP/1.1
-
-v0.0.17 (4/18/19)
-- Abolished obsolete code
-- Minor fixes
+v0.0.0 (4/6/19)
+- Added changelog
+- Added handlers.py, main.py, server.py, response.py, mail.py
+- Copied some smtp code from SO into mail.py and set it with Emery mail account
