@@ -1,3 +1,8 @@
+v0.0.18 (4/25/19)
+- Added find_item() and items() to PersistentDict
+- Added login() to client - haven't implemented login page yet to test
+- Abolished obsolete log.py
+
 v0.0.17 (4/18/19)
 - Abolished obsolete code
 - Minor fixes

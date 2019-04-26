@@ -10,9 +10,10 @@ user_tokens = PersistentDict('accounts')
 whitelist = get_config('whitelist').get('users')
 
 class Account:
-    def __init__(self, name, password, key):
+    def __init__(self, name, password, key, email=""):
         self.ips = []
         self.name = name
+        self.email = email
         self.password = password
         self.last_activity = format_date_time(time())
         self.admin = False
@@ -47,6 +48,12 @@ class ClientObj:
     def create_account(self, name, password):
         self.account = Account(name, password, self.new_key())
         self.account.register_self()
+        return self.account
+
+    def login(self, name, password):
+        self.account = user_tokens.find_item(lambda a: a.name.lower() == name.lower() and a.password == password)
+        self.account.register_self()
+        return self.account
 
     def validate_account(self):
         return self.account is not None

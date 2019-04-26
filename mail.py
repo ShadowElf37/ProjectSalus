@@ -26,7 +26,7 @@ def send_mail(subject, text, *recipients, cc=[], bcc=[], sender='ykey-cohen@emer
     server.ehlo()
     server.starttls()
     if debug: print('SMTP initialized.')
-    server.login("ykey-cohen@emeryweiner.org", password=pwds.get('0'))
+    server.login("ykey-cohen@emeryweiner.org", password=pwds.get(0))
     if debug: print('Logged into server.')
     server.sendmail(sender, recipients, message)
     print('Mail sent.')
