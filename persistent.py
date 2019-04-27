@@ -55,9 +55,9 @@ class PersistentDict(PersistentThing):
         self.autowrite()
 
     def items(self):
-        return list(self.value.items())
+        return self.value.items()
 
-    def find_item(self, condition):
+    def find(self, condition):
         try:
             return next(filter(condition, self.items()))
         except StopIteration:
