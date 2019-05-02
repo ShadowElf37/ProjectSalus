@@ -1,6 +1,33 @@
 from _io import TextIOWrapper
 import os.path as op
 from server.config import get_config
+from mimetypes import guess_type
+from fnmatch import fnmatch
+
+CONTENT_TYPE = {
+        'html': 'text/html',
+        'htm': 'text/html',
+        'css': 'text/css',
+        'js': 'application/javascript',
+        'txt': 'text/plain',
+        'text': 'text/plain',
+        'xml': 'text/xml',
+        'ttf': 'font/ttf',
+        'font': 'font/ttf',
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/x-wav',
+        'ogg': 'audio/ogg',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'gif': 'image/gif',
+        'bmp': 'image/bmp',
+        'svg': 'image/svg+xml',
+        'mp4': 'video/mp4',
+        'mov': 'video/quicktime',
+        'h265': 'video/h265',
+        'h.265': 'video/h265',
+        'avi': 'video/h265',
+    }
 
 class FileCache:
     ALL = object()
@@ -10,7 +37,11 @@ class FileCache:
     def read(self, f, binary=True, cache=True):
         ff = self.cache.get(f)
         of = f
-        tfolder = get_config('locations').get(op.splitext(f)[1])
+        tfolder = None
+        for pair in get_config('locations').items():
+            if fnmatch(pair[0], CONTENT_TYPE.get(f, 'text/plain')): # guess_type(f)
+                tfolder = pair[1]
+        # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f
         if ff is None:
             #while op.split(f)[0] != '/':
@@ -24,7 +55,7 @@ class FileCache:
             if tfolder:
                 # print('web/assets' + tfolder + '/' + op.split(of)[1])
                 try:
-                    ff = open('web/assets'+tfolder + '/' + op.split(of)[1], 'rb' if binary else 'r').read()
+                    ff = open('web/assets' + tfolder + '/' + op.split(of)[1], 'rb' if binary else 'r').read()
                 except FileNotFoundError:
                     pass
 
