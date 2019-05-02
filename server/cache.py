@@ -39,7 +39,7 @@ class FileCache:
         of = f
         tfolder = None
         for pair in get_config('locations').items():
-            if fnmatch(pair[0], CONTENT_TYPE.get(f, 'text/plain')): # guess_type(f)
+            if fnmatch(pair[0], CONTENT_TYPE.get(op.splitext(f)[1], 'text/plain')): # guess_type(f)
                 tfolder = pair[1]
         # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f

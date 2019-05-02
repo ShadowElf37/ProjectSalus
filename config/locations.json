@@ -1,10 +1,7 @@
 {
   "text/css": "/css",
   "application/js": "/js",
-  ".ttf": "/fonts",
-  ".mp3": "/audio",
-  ".ogg": "/audio",
-  ".png": "/image",
-  ".jpg": "/image",
-  ".gif": "/image"
+  "font/ttf": "/fonts",
+  "audio/*": "/audio",
+  "image/*": "/image"
 }
