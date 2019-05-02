@@ -81,6 +81,8 @@ class Response:
     def cache_lookup(path, cache_db=cache_db):
         val = cache_db.get('file').get(basename(path), None)
         mimetype = guess_type(path)[0]
+        if mimetype is None:
+            mimetype = 'text/plain'
         if val: return val
         for mt in cache_db.get('mime-type'):
             if fnmatch(mimetype, mt['type']):
@@ -102,7 +104,7 @@ class Response:
         if content_type is not None:
             self.set_content_type(content_type)
         self.add_header('Accept-Ranges', 'none')
-        self.add_header('Content-Length', str(len(self.body)))
+        self.add_header('Content-Length', str(len(self.body if self.body is not None else '')))
 
     def set_body(self, string, append=False, specify_length=False, ctype='text/plain'):
         if specify_length:
@@ -114,16 +116,23 @@ class Response:
         self.set_content_type(ctype)
 
     def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=True, **render_opts):
-        if cache:
-            f = self.server.cache.read(path, binary)
-        else:
-            f = open(path, 'rb' if binary else 'r').read()
-            if isinstance(f, bytes):
-                try:
-                    f = f.decode(ENCODING)
-                except UnicodeDecodeError:
-                    pass
+        """This function has a fair number of very important features to understand.
+            Firstly, the path. The path will default to be in /web/, and the cache will automatically search folders from the given path all the way back up to /web/ for a requested file.
+            The path here can also accept /../ in order to escape /web/.
 
+            Secondly, rendering. render= will determine whether or not the file will render. force_render= will attempt to render the file even if it's not typically renderable.
+            resolve_ctype= will automatically append a Content-Type header by being intelligent.
+            cache= will determine whether or not the file should be server-cached (client-caching is defined through cache.cfg)
+            binary= will manually decide whether or not the file should be read in binary - this is enabled by default, and the class still handles plain text appropriately.
+
+            Finally, **render_opts decides what, aside from the default_renderopts decided topside, will be rendered with what text."""
+
+        f = self.server.cache.read(path, binary, cache)
+        if f == None:
+            self.send_error(404)
+            return None
+
+        # print(path)
         cachelen = Response.cache_lookup(path)
         if cachelen == -1:
             cachelen = '31536000, public'
@@ -190,4 +199,4 @@ class Response:
             b = self.body.encode(ENCODING)
         except AttributeError:
             b = self.body
-        self.req.wfile.write(b)
+        self.req.wfile.write(b if b else b'')

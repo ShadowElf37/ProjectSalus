@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 from subprocess import Popen
 import sys
+import os
+
+here = os.path.dirname(os.path.realpath(__file__))
+os.chdir(here)
 
 while True:
     process = Popen([sys.executable, '_main.py'],

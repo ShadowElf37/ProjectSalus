@@ -1,7 +1,6 @@
 Backend (urgent):
-    1. Login (not signup)
-    2. Recursive resource locating
-    3. Delete obsolete code
+    1. Automatically check /assets for media etc. based on MIME type & using locations.json
+    2. Delete obsolete and redundant code - generally clean up
 
 Front-end (important):
     1. Fix up a decent home page demo

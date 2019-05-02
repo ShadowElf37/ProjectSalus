@@ -24,7 +24,8 @@ class RequestHandler:
 
 class DefaultHandler(RequestHandler):
     def call(self):
-        self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='text/html')
+        self.response.attach_file(self.path)
+        # self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='text/html')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
@@ -33,7 +34,7 @@ class DefaultHandler(RequestHandler):
 
 class HandlerBlank(RequestHandler):
     def call(self):
-        self.response.redirect('/home/index.html')
+        self.response.redirect('/test/index.html')
 
 class HandlerReboot(RequestHandler):
     def call(self):
@@ -46,6 +47,10 @@ class HandlerReboot(RequestHandler):
 class HandlerHome(RequestHandler):
     def call(self):
         ...
+
+class HandlerReadme(RequestHandler):
+    def call(self):
+        self.response.attach_file('/../README.md')
 
 class HandlerSignupPage(RequestHandler):
     def call(self):
@@ -92,13 +97,15 @@ class HandlerTestPage(RequestHandler):
         self.response.attach_file('web/test/index.html')
 
 GET = {
-    '/': DefaultHandler,
+    '/': HandlerBlank,
     '/reboot': HandlerReboot,
     '/signup': HandlerSignupPage,
     '/login': HandlerLoginPage,
     '/protected': HandlerProtectedTest,
     '/test': HandlerTestPage,
-    '/logout': HandlerLogout
+    '/logout': HandlerLogout,
+    '/readme': HandlerReadme,
+    #'/home/index.html': ...
 }
 
 POST = {

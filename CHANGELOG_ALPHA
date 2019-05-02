@@ -1,3 +1,8 @@
+v0.0.20 (5/1/19)
+- Added recursive file searching
+- Added more flexible pathing to the cache
+- Added quality docstring to attach_file()
+
 v0.0.19 (5/1/19)
 - Cleaned up some things
 - Added a couple things to fix and support the now-working login system
