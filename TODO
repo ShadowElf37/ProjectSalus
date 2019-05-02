@@ -7,7 +7,6 @@ Front-end (important):
     3. Set navbar items for user, admin, and maybe an intermediate rank too
     4. Create login page for admin
     5. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    6. MIME-type file searching in FileCache.read() for assets/ and locations.json
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
