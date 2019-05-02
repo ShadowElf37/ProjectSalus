@@ -12,7 +12,7 @@ class RequestHandler:
         self.ip = self.request.server.host
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
-        #self.make_client()
+        self.make_client()
 
     def make_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
