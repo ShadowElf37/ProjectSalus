@@ -1,8 +1,9 @@
 {
-  "text/css": "/assets/css/",
-  "test/js": "/assets/js/",
-  "application/js": "/assets/js/",
-  "text/font": "/assets/fonts/",
-  "audio/*": "/assets/audio/",
-  "image/*": "/assets/image/"
+  ".css": "/css",
+  ".js": "/js",
+  ".ttf": "/fonts",
+  ".mp3": "/audio",
+  ".png": "/image",
+  ".jpg": "/image",
+  ".gif": "/image"
 }
