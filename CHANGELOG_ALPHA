@@ -1,3 +1,7 @@
+v0.0.19 (5/1/19)
+- Cleaned up some things
+- Added a couple things to fix and support the now-working login system
+
 v0.0.18 (4/25/19)
 - Added find_item() and items() to PersistentDict
 - Added login() to client - haven't implemented login page yet to test

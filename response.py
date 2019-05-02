@@ -35,7 +35,7 @@ class Request:
             content_len = int(self.get_header('content-length'))
             post_body = self.req.rfile.read(content_len)
             self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
-            print(self.post_vals)
+            # print(self.post_vals)
 
         # Generate client object (now done in handlers.py)
         # self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
@@ -163,7 +163,7 @@ class Response:
         if v is Request.NONE_COOKIE:
             del self.cookie[k]
             return
-        self.cookie[k] = v
+        self.cookie[k] = v if v is not None else '_none'
         kwargs['expires'] = format_date_time(time.time()+expires_in_days*24*60*60)
         for i in args:
             kwargs[i] = True

@@ -49,17 +49,18 @@ class PersistentDict(PersistentThing):
 
     def get(self, key, default=None):
         return self.value.get(key, default)
-
     def set(self, key, value):
         self.value[key] = value
         self.autowrite()
 
+    def values(self):
+        return list(self.value.values())
     def items(self):
         return list(self.value.items())
 
     def find_item(self, condition):
         try:
-            return next(filter(condition, self.items()))
+            return next(filter(condition, self.values()))
         except StopIteration:
             return None
 

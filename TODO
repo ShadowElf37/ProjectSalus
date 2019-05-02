@@ -7,6 +7,7 @@ Front-end (important):
     1. Fix up a decent home page demo
     2. Set navbar items for user, admin, and maybe an intermediate rank too
     3. Create login page for admin
+    4. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
 
 Actual pages (less important):
     1. SGA feedback form & email forwarding system

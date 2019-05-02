@@ -96,6 +96,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             handler.call()
             rsp.finish()
         except Exception as e:
+            raise e
             print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
             self.send_error(500, str(e)+' (line '+str(e.__traceback__.tb_lineno))
 

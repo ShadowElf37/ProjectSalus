@@ -29,6 +29,10 @@ class Account:
         self.register_self()
         return self.key
 
+    def check_pwd(self, pwd):
+        return self.password == pwd
+
+
 class ClientObj:
     def __init__(self, ip, key=None):
         self.ip = ip
@@ -52,7 +56,8 @@ class ClientObj:
 
     def login(self, name, password):
         self.account = user_tokens.find_item(lambda a: a.name.lower() == name.lower() and a.password == password)
-        self.account.register_self()
+        if self.account:
+            self.account.register_self()
         return self.account
 
     def validate_account(self):

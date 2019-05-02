@@ -10,8 +10,7 @@ class RequestHandler:
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
-        self.request.client = ClientObj(self.request.addr[0], self.request.get_cookie('user_token'))
-        self.response.client = self.client = self.request.client
+        self.response.client = self.client =  self.request.client = ClientObj(self.request.addr[0], self.request.get_cookie('user_token'))
         self.response.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none')
 
     @staticmethod
@@ -30,20 +29,31 @@ class DefaultHandler(RequestHandler):
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
 
-# Handlers
+# Important universal handlers
+
 class HandlerBlank(RequestHandler):
     def call(self):
         self.response.redirect('/home/index.html')
 
 class HandlerReboot(RequestHandler):
     def call(self):
+        self.response.set_body('Server rebooting.')
         self.server.reboot()
+
+
+# Project-specific handlers
 
 class HandlerHome(RequestHandler):
     def call(self):
         ...
 
 class HandlerSignupPage(RequestHandler):
+    def call(self):
+        self.response.set_body(
+            "<html><form method=\"POST\" action=\"/signup\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
+            ctype='text/html')
+
+class HandlerLoginPage(RequestHandler):
     def call(self):
         self.response.set_body(
             "<html><form method=\"POST\" action=\"/login\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
@@ -64,6 +74,19 @@ class HandlerSignup(RequestHandler):
         self.response.add_cookie('user_token', self.client.account.key)
         self.response.redirect('/', get=True)
 
+class HandlerLogin(RequestHandler):
+    def call(self):
+        name = self.request.get_post('name')
+        password = self.request.get_post('pwd')
+        self.client.login(name, password)
+        self.response.add_cookie('user_token', self.client.account.key)
+        self.response.redirect('/', get=True)
+
+class HandlerLogout(RequestHandler):
+    def call(self):
+        self.response.add_cookie('user_token', None)
+        self.response.redirect('/', get=True)
+
 class HandlerTestPage(RequestHandler):
     def call(self):
         self.response.attach_file('web/test/index.html')
@@ -72,12 +95,15 @@ GET = {
     '/': DefaultHandler,
     '/reboot': HandlerReboot,
     '/signup': HandlerSignupPage,
+    '/login': HandlerLoginPage,
     '/protected': HandlerProtectedTest,
     '/test': HandlerTestPage,
+    '/logout': HandlerLogout
 }
 
 POST = {
-    '/login': HandlerSignup
+    '/signup': HandlerSignup,
+    '/login': HandlerLogin
 }
 
 INDEX = {}
