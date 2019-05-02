@@ -13,13 +13,13 @@ class FileCache:
         tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f
         if ff is None:
-            while op.split(f)[0] != '/':
+            #while op.split(f)[0] != '/':
                 # print(op.split(f))
-                try:
-                    ff = open(f, 'rb' if binary else 'r').read()
-                except FileNotFoundError:
-                    pass
-                f = '/'.join(op.split(f)[0].split('/')[:-1]) + '/' + op.split(f)[1]
+            try:
+                ff = open(f, 'rb' if binary else 'r').read()
+            except FileNotFoundError:
+                pass
+            # f = '/'.join(op.split(f)[0].split('/')[:-1]) + '/' + op.split(f)[1]
 
             if tfolder:
                 # print('web/assets' + tfolder + '/' + op.split(of)[1])
