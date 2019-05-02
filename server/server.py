@@ -1,14 +1,12 @@
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from response import *
-from threadpool import *
-from handlers import *
+from server.response import *
+from server.threadpool import *
+from server.handlers import *
+import server.handlers as handlers
 import os
-import sys
-from sys import exit
 from subprocess import check_output
-from cache import FileCache
-import client
+from server.cache import FileCache
+
 
 class Server(HTTPServer):
     def __init__(self, host='0.0.0.0', port=8080, *args):

@@ -1,6 +1,6 @@
 from _io import TextIOWrapper
 import os.path as op
-from config import get_config
+from server.config import get_config
 
 class FileCache:
     ALL = object()
@@ -22,7 +22,7 @@ class FileCache:
                 f = '/'.join(op.split(f)[0].split('/')[:-1]) + '/' + op.split(f)[1]
 
             if tfolder:
-                print('web/assets' + tfolder + '/' + op.split(of)[1])
+                # print('web/assets' + tfolder + '/' + op.split(of)[1])
                 try:
                     ff = open('web/assets'+tfolder + '/' + op.split(of)[1], 'rb' if binary else 'r').read()
                 except FileNotFoundError:

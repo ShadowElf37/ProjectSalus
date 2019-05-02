@@ -1,9 +1,8 @@
 from wsgiref.handlers import format_date_time
 from time import time
 from secrets import token_urlsafe
-import pickle
-from config import get_config
-from persistent import PersistentDict, PersistentThing
+from server.config import get_config
+from server.persistent import PersistentDict
 
 user_tokens = PersistentDict('accounts')
 
@@ -16,7 +15,7 @@ class Account:
         self.email = email
         self.password = password
         self.last_activity = format_date_time(time())
-        self.admin = False
+        self.rank = 1
         self.key = key
 
     def register_self(self):
@@ -55,7 +54,7 @@ class ClientObj:
         return self.account
 
     def login(self, name, password):
-        self.account = user_tokens.find_item(lambda a: a.name.lower() == name.lower() and a.password == password)
+        self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password == password)
         if self.account:
             self.account.register_self()
         return self.account

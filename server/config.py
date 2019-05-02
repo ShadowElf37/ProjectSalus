@@ -18,5 +18,6 @@ class Config:
     def __del__(self):
         self.fh.close()
 
+
 def get_config(name):
     return Config(name)

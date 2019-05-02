@@ -1,4 +1,5 @@
 import sys
+
 class OutTee:
     def __init__(self, handle):
         self.file = handle
@@ -11,6 +12,7 @@ class OutTee:
         self.stdout.write(data)
     def flush(self):
         self.file.flush()
+
 class ErrTee:
     def __init__(self, handle):
         self.file = handle

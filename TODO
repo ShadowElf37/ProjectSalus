@@ -1,14 +1,15 @@
 Backend (urgent):
-    1. Delete obsolete and redundant code - generally clean up
+    All done!
 
 Front-end (important):
     1. Fix up a decent home page demo
-    2. Set navbar items for user, admin, and maybe an intermediate rank too
-    3. Create login page for admin
-    4. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    5. MIME-type file searching in FileCache.read() for assets/ and locations.json
+    2. More helpful error handling - this is awful!
+    3. Set navbar items for user, admin, and maybe an intermediate rank too
+    4. Create login page for admin
+    5. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
+    6. MIME-type file searching in FileCache.read() for assets/ and locations.json
 
-Actual pages (less important):
+Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
     2. Snack polls
     3. Referendums / Surveys
@@ -21,6 +22,8 @@ Actual pages (less important):
     10. Simple mass-email interface
     11. Remote access console and maintenance-in-progress backup system
     12. SSL
+    13. Error handling!
+    14. Student life board?
 
 Post-deployment wishlist (far future):
     1. Integration with other clubs and sports (at least in the Calendar)

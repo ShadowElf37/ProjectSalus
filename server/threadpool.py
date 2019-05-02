@@ -1,8 +1,5 @@
 from threading import *
-import handlers
-from time import sleep
-from response import *
-from config import get_config
+from server.config import get_config
 
 config = get_config('threads')
 

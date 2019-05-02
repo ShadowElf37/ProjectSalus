@@ -1,5 +1,5 @@
-from response import Request, Response
-from client import ClientObj
+from server.response import Request, Response
+from server.client import ClientObj
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -10,8 +10,10 @@ class RequestHandler:
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
-        self.response.client = self.client =  self.request.client = ClientObj(self.request.addr[0], self.request.get_cookie('user_token'))
-        self.response.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none')
+        token = self.request.get_cookie('user_token')
+        self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], token)
+        print(self.path, token)
+        self.response.add_cookie('user_token', self.client.account.new_key() if self.client.account is not None else '_none', 'httponly')
 
     @staticmethod
     def handler(f):

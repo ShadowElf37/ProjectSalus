@@ -1,13 +1,13 @@
-from config import get_config
+from server.config import get_config
 import pickle
 
-config = get_config('persistent')
+cfg = get_config('persistent')
 
 class PersistentThing:
     def __init__(self, name, default, eachwrite=False):
         self.name = name
         self.eachwrite = eachwrite
-        self.fname = "{}/{}.dat".format(config.get('directory'), name)
+        self.fname = "{}/{}.dat".format(cfg.get('directory'), name)
         self.value = default
         try:
             self.fh = open(self.fname, "rb+")

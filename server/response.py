@@ -1,15 +1,12 @@
 import time
 from wsgiref.handlers import format_date_time
 from http.cookies import SimpleCookie, Morsel
-from http.server import BaseHTTPRequestHandler
-import client
+from server.config import get_config
+from fnmatch import fnmatch  # for mime-type matching
+from mimetypes import guess_type  # ditto
+from os.path import basename
 
 ENCODING = 'UTF-8'
-
-from config import get_config
-from fnmatch import fnmatch # for mime-type matching
-from mimetypes import guess_type # ditto
-from os.path import basename
 
 cache_db = get_config('cache')
 
@@ -35,7 +32,6 @@ class Request:
             content_len = int(self.get_header('content-length'))
             post_body = self.req.rfile.read(content_len)
             self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
-            # print(self.post_vals)
 
         # Generate client object (now done in handlers.py)
         # self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
@@ -75,7 +71,7 @@ class Response:
         }
         self.sent_prematurely = False
         self.head = False
-        # self.client = self.macroreq.client (now done in handlers.py
+        # self.client = self.macroreq.client (now done in handlers.py)
     
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):

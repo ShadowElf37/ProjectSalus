@@ -1,9 +1,7 @@
-from server import Server
+from server.server import Server
 import os.path as op
-import sys
-from tee import *
+from server.tee import *
 from datetime import datetime
-import client
 
 # Obviously change these backslashes for Linux
 logfile = open(op.join(

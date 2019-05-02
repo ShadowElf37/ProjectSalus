@@ -1,3 +1,11 @@
+v0.1.0 (5/1/19)
+- Threw all the server code into server/ to remind us not to touch it unless we have to - it's also portable!
+- Fixed imports
+- Minor edits all around
+- Fixed a major issue where getting css etc. would result in new validators that broke the login system
+
+=MAJOR=
+
 v0.0.21 (5/1/19)
 - Added file searching for assets/ based on locations.json in FileCache.read() - right now it uses ext, consider switching to MIME type
 
