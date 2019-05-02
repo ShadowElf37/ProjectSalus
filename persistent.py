@@ -54,9 +54,13 @@ class PersistentDict(PersistentThing):
         self.autowrite()
 
     def values(self):
+        return self.value.values()
+    def valuesl(self):
         return list(self.value.values())
     def items(self):
         return self.value.items()
+    def itemsl(self):
+        return list(self.value.items())
 
     def find(self, condition):
         try:
