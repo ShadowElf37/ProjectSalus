@@ -12,9 +12,9 @@ class RequestHandler:
         self.ip = self.request.server.host
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
-        self.make_client()
+        self.load_client()
 
-    def make_client(self):
+    def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
         self.response.add_cookie('user_token',
                                  self.client.account.new_key() if self.client.account is not None else '_none',

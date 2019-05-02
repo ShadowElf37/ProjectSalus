@@ -1,4 +1,7 @@
-v0.1.0 (5/1/19)
+v0.1.1 (5/2/19)
+- Switched locations.json to use mimetypes and did some funny tinkering to get it to work with the cache and server
+
+v0.1.0 (5/2/19)
 - Threw all the server code into server/ to remind us not to touch it unless we have to - it's also portable!
 - Fixed imports
 - Minor edits all around

@@ -1,7 +1,7 @@
 from _io import TextIOWrapper
 import os.path as op
 from server.config import get_config
-from mimetypes import guess_type
+from mimetypes import guess_type, add_type
 from fnmatch import fnmatch
 
 CONTENT_TYPE = {
@@ -10,10 +10,8 @@ CONTENT_TYPE = {
         'css': 'text/css',
         'js': 'application/javascript',
         'txt': 'text/plain',
-        'text': 'text/plain',
         'xml': 'text/xml',
         'ttf': 'font/ttf',
-        'font': 'font/ttf',
         'mp3': 'audio/mpeg',
         'wav': 'audio/x-wav',
         'ogg': 'audio/ogg',
@@ -25,9 +23,11 @@ CONTENT_TYPE = {
         'mp4': 'video/mp4',
         'mov': 'video/quicktime',
         'h265': 'video/h265',
-        'h.265': 'video/h265',
         'avi': 'video/h265',
     }
+
+for k,v in CONTENT_TYPE.items():
+    add_type(v, k)
 
 class FileCache:
     ALL = object()
@@ -38,9 +38,9 @@ class FileCache:
         ff = self.cache.get(f)
         of = f
         tfolder = None
-        for pair in get_config('locations').items():
-            if fnmatch(pair[0], CONTENT_TYPE.get(op.splitext(f)[1], 'text/plain')): # guess_type(f)
-                tfolder = pair[1]
+        for t, dir in get_config('locations').data.items():
+            if fnmatch(t, guess_type(f)[0]):
+                tfolder = dir
         # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f
         if ff is None:

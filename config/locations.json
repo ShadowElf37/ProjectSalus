@@ -1,6 +1,6 @@
 {
   "text/css": "/css",
-  "application/js": "/js",
+  "application/javascript": "/js",
   "font/ttf": "/fonts",
   "audio/*": "/audio",
   "image/*": "/image"
