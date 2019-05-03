@@ -7,6 +7,7 @@ from mimetypes import guess_type  # ditto
 from os.path import basename
 
 ENCODING = 'UTF-8'
+Morsel._reserved['samesite'] = 'SameSite'
 
 cache_db = get_config('cache')
 

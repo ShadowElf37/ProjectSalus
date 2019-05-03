@@ -18,7 +18,7 @@ class RequestHandler:
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
         self.response.add_cookie('user_token',
                                  self.client.account.new_key() if self.client.account is not None else '_none',
-                                 'httponly', path='/')
+                                 'httponly', samesite='strict', path='/')
 
     @staticmethod
     def handler(f):
