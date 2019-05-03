@@ -13,6 +13,9 @@ class RequestHandler:
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
         self.load_client()
+        self.response.default_renderopts.update(
+            test='hello'
+        )
 
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
