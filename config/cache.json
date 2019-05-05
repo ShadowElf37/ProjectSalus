@@ -3,13 +3,13 @@
 	"mime-type": [
 		{
 			"type": "text/css",
-			"length": 60
+			"length": 0
 		}, {
 			"type": "application/javascript",
-			"length": 60
+			"length": 0
 		}, {
 			"type": "text/*",
-			"length": 60
+			"length": 0
 		}, {
 			"type": "application/font-sfnt",
 			"length": 604800

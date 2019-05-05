@@ -1,3 +1,8 @@
+v0.1.2 (5/4/19)
+- Added general.css
+- Made lots of important CSS (navbar, bottombar, main container)
+- Minor bug fixes and tweaks
+
 v0.1.1 (5/2/19)
 - Switched locations.json to use mimetypes and did some funny tinkering to get it to work with the cache and server
 

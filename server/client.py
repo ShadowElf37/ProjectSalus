@@ -15,7 +15,7 @@ class Account:
         self.email = email
         self.password = password
         self.last_activity = format_date_time(time())
-        self.rank = 1
+        self.rank = 0
         self.key = key
 
     def register_self(self):

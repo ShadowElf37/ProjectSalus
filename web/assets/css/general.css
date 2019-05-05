@@ -1,0 +1,92 @@
+body{
+    background-color: #eee;
+    padding: 0px;
+    overflow-x: hidden;
+}
+
+.navbar{
+    background-color: [[themeblue]];
+    position: fixed;
+    margin: -8px 0px 0px -8px;
+    height: 70px;
+    padding: 0px;
+    width: 100%;
+    border-bottom: 1px solid #999;
+    z-index: 1000;
+}
+
+.navbar *{
+    color: #fff;
+    text-decoration: none;
+    font-family: arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.navbar-items{
+    list-style: none;
+    font-size: 24px;
+    float: right;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+}
+
+.navbar-items li{
+    text-align: center;
+    padding: 21px 0px;
+    width: 120px;
+    margin: 0px;
+    height: 100%;
+    display: inline;
+    float: left;
+    letter-spacing: 0px;
+}
+
+.navbar-items a{
+    display: block;
+    height: 100%;
+    width: 100%;
+    user-select: none;
+    -moz-user-select: none;
+}
+
+.navbar-items li:hover, .active{
+    background-color: #00429c;
+}
+
+.navbar-header{
+    font-size: 40px;
+    font-weight: bold;
+    float: left;
+    padding: 10px;
+}
+
+.navbar-header a:hover{
+    color: #ddd;
+}
+
+.page-container{
+    background-color: white;
+    height: 1000px;
+    width: 85%;
+    top: 90px;
+    position: relative;
+    border: 0px solid [[themeblue]];
+    border-radius: 0px;
+    box-shadow: 0 0 20px #ccc;
+    margin: 0px;
+    padding: 0px;
+}
+
+.info-bar{
+    background-color: [[themeblue]];
+    width: 100%;
+    height: 130px;
+    bottom: -1%;
+    margin-left: -8px;
+    margin-top: 170px;
+    padding: 10px;
+    position: relative;
+    color: white;
+}

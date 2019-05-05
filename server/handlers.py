@@ -14,8 +14,10 @@ class RequestHandler:
         self.token = self.request.get_cookie('user_token')
         self.load_client()
         self.response.default_renderopts.update(
-            test='hello'
+            test='hello',
+            themeblue='#0052ac',
         )
+        # self.server.cache.reload()
 
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
@@ -34,7 +36,7 @@ class RequestHandler:
 
 class DefaultHandler(RequestHandler):
     def call(self):
-        self.response.attach_file(self.path)
+        self.response.attach_file(self.path, cache=False)
         # self.response.set_body("<html><form method=\"POST\"><input type=\"text\" name=\"test\"><input type=\"submit\"></form></html>", ctype='text/html')
         #self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
         #                    nb_page='account/dashboard/index.html')#'/'.join(self.request.address))

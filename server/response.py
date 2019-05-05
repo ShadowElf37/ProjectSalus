@@ -142,7 +142,7 @@ class Response:
         self.set_body(f, append=append)
 
         if resolve_ctype:
-            self.add_header('Content-Type', guess_type(path))
+            self.add_header('Content-Type', guess_type(path)[0])
 
     def set_content_type(self, type):
         self.add_header('Content-Type', type)
