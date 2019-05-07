@@ -1,3 +1,7 @@
+v0.1.3 (5/6/19)
+- Lots of good work on home and general.css
+- Fixed up navbar.json and added to handler
+
 v0.1.2 (5/4/19)
 - Added general.css
 - Made lots of important CSS (navbar, bottombar, main container)

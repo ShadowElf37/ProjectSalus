@@ -1,8 +1,8 @@
-// I don't even know. You fix this.
-
-Home|News home/index.html e
-About|_ home/about.html e
-Login|Account account/dashboard/index.html e
-_|Hunts hunt/list/index.html e
-_|Progress home/progress/index.html e
-_|Logout logout.act e
+{
+  "0":
+  [
+    ["Home", "/home/index.html", false],
+    ["About", "/home/about.html", true],
+    ["Calendar", "/home/calendar.html", true]
+  ]
+}

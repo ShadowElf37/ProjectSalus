@@ -1,15 +1,16 @@
 body{
     background-color: #eee;
-    padding: 0px;
+    padding: 0;
     overflow-x: hidden;
+    margin: 0;
 }
 
 .navbar{
     background-color: [[themeblue]];
     position: fixed;
-    margin: -8px 0px 0px -8px;
+    margin: 0;
     height: 70px;
-    padding: 0px;
+    padding: 0;
     width: 100%;
     border-bottom: 1px solid #999;
     z-index: 1000;
@@ -27,8 +28,8 @@ body{
     list-style: none;
     font-size: 24px;
     float: right;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     height: 100%;
 }
 
@@ -36,7 +37,7 @@ body{
     text-align: center;
     padding: 21px 0px;
     width: 120px;
-    margin: 0px;
+    margin: 0;
     height: 100%;
     display: inline;
     float: left;
@@ -51,6 +52,10 @@ body{
     -moz-user-select: none;
 }
 
+.disabled{
+    background-color: #99c !important;
+}
+
 .navbar-items li:hover, .active{
     background-color: #00429c;
 }
@@ -60,6 +65,7 @@ body{
     font-weight: bold;
     float: left;
     padding: 10px;
+    padding-left: 20px;
 }
 
 .navbar-header a:hover{
@@ -70,20 +76,19 @@ body{
     background-color: white;
     height: 1000px;
     width: 85%;
-    top: 90px;
+    margin: 0;
+    top: 110px;
     position: relative;
     border: 0px solid [[themeblue]];
     border-radius: 0px;
     box-shadow: 0 0 20px #d5d5d5;
-    margin: 0px;
-    padding: 0px;
+    padding: 0;
 }
 
 .info-bar{
     background-color: [[themeblue]];
     width: 100%;
-    height: 130px;
-    margin-left: -8px;
+    height: 150px;
     margin-top: 170px;
     padding: 10px;
     position: relative;

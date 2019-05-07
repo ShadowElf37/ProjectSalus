@@ -1,6 +1,9 @@
 from server.response import Request, Response
 from server.client import ClientObj
+from server.config import get_config
 import os.path as op
+
+navbar = get_config('navbar')
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -13,14 +16,19 @@ class RequestHandler:
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
         self.load_client()
+        self.rank = 0
+        if self.account:
+            self.rank = self.account.rank
         self.response.default_renderopts.update(
             test='hello',
             themeblue='#0052ac',
+            navbar='\n'.join(['<li{}><a{}>{}</a></li>'.format(' class="active"' if self.path == li[1] else ' class="disabled"' if li[2] else '', (' href="'+li[1]+'"') if not li[2] else '', li[0]) for li in navbar.get(self.rank)])
         )
         # self.server.cache.reload()
 
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
+        self.account = self.client.account
         self.response.add_cookie('user_token',
                                  self.client.account.new_key() if self.client.account is not None else '_none',
                                  'httponly', samesite='strict', path='/')
