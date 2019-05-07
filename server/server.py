@@ -6,6 +6,7 @@ import server.handlers as handlers
 import os
 from subprocess import check_output
 from server.cache import FileCache
+from server.config import CONFIG_CACHE
 
 
 class Server(HTTPServer):
@@ -16,6 +17,7 @@ class Server(HTTPServer):
         self.domain = 'localhost'
         self.log('Server initialized.')
         self.pool = Pool(8)
+        self.config_cache = CONFIG_CACHE
         self.cache = FileCache()
         self.configs = []
         self.running = True
@@ -51,6 +53,12 @@ class Server(HTTPServer):
     def reboot(self):
         self.close()
         os._exit(37)
+
+    def reload_config(self):
+        self.config_cache.reload()
+
+    def reload_cache(self):
+        self.cache.reload()
 
     def update(self):
         return check_output(['git', 'pull'])

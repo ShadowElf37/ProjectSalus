@@ -3,6 +3,16 @@ import json
 CONFIG_DIR = './config'
 FMT_STR = '%s/{}.json' % CONFIG_DIR
 
+class ConfigCache:
+    def __init__(self):
+        self.configs = []
+
+    def reload(self):
+        for c in self.configs:
+            c.reload()
+
+CONFIG_CACHE = ConfigCache()
+
 class Config:
     def __init__(self, name: str):
         self.fh = open(FMT_STR.format(name), 'r+')
@@ -13,6 +23,9 @@ class Config:
 
     def get(self, key):
         return self.data.get(str(key), None)
+
+    def reload(self):
+        self.__init__(self.name)
 
     # To whom it may concern: self.fh is opened with r+. This means append. Call seek(0) and truncate() before dumping data. Thanks. Also, these configs are supposed to be read-only rn. Dynamic config editing only leads to pain. Thanks again, Alwinfy
     def __del__(self):
