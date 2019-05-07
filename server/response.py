@@ -95,6 +95,14 @@ class Response:
         # self.req.send_error(n, msg)
         # self.sent_prematurely = True
 
+    def no_response(self):
+        self.set_code(204)
+        self.head = True
+
+    def refuse(self):
+        self.set_code(403)
+        self.head = True
+
     def redirect(self, location, permanent=False, force_get=False):
         self.set_code(303 if force_get else 307 if not permanent else 308)
         self.add_header('Location', location)

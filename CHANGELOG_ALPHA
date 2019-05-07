@@ -1,5 +1,6 @@
 v0.1.5 (5/7/19)
-- Bug fixes
+- Important bug fixes
+- QOL tweaks, including a couple easy function responses in response, a post_call() called, and removal of obsolete code
 
 v0.1.4 (5/6/19)
 - Added global config cache

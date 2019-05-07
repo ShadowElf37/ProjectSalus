@@ -89,6 +89,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.call()
+            handler.post_call()
             rsp.finish()
         except Exception as e:
             raise e
@@ -101,6 +102,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.call()
+            handler.post_call()
             rsp.finish()
         except Exception as e:
             raise e

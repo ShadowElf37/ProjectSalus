@@ -15,7 +15,6 @@ class RequestHandler:
         self.ip = self.request.server.host
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
-        print(self.token)
         self.load_client()
         self.rank = 0
         if self.account:
@@ -34,13 +33,9 @@ class RequestHandler:
                                  self.client.account.new_key() if self.client.account is not None else '_none',
                                  'httponly', samesite='strict', path='/')
 
-    @staticmethod
-    def handler(f):
-        def wrapper(*args):
-            if f(*args) is not None:
-                return None
-            return args[0].response
-        return wrapper
+    def post_call(self):
+        return
+
 
 
 class DefaultHandler(RequestHandler):
