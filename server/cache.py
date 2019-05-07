@@ -8,7 +8,7 @@ CONTENT_TYPE = {
         'html': 'text/html',
         'htm': 'text/html',
         'css': 'text/css',
-        'js': 'text/javascript',
+        'js': 'application/javascript',
         'txt': 'text/plain',
         'xml': 'text/xml',
         'ttf': 'font/ttf',
