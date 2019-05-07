@@ -17,6 +17,7 @@ class Server(HTTPServer):
         self.log('Server initialized.')
         self.pool = Pool(8)
         self.cache = FileCache()
+        self.configs = []
         self.running = True
 
     def process_request(self, request, client_address):
