@@ -2,7 +2,7 @@
   "0":
   [
     ["Home", "/home/index.html", false],
-    ["About", "/home/about.html", true],
-    ["Calendar", "/home/calendar.html", true]
+    ["About", "/home/about.html", false],
+    ["Calendar", "/home/calendar.html", false]
   ]
 }

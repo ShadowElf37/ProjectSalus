@@ -15,6 +15,7 @@ class RequestHandler:
         self.ip = self.request.server.host
         self.port = self.request.server.port
         self.token = self.request.get_cookie('user_token')
+        print(self.token)
         self.load_client()
         self.rank = 0
         if self.account:

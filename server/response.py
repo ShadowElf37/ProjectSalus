@@ -90,8 +90,10 @@ class Response:
         self.code = n, msg
 
     def send_error(self, n, msg=None):
-        self.req.send_error(n, msg)
-        self.sent_prematurely = True
+        self.set_code(n, msg)
+        self.head = True
+        # self.req.send_error(n, msg)
+        # self.sent_prematurely = True
 
     def redirect(self, location, permanent=False, get=False):
         self.set_code(303 if get else 307 if not permanent else 308)
