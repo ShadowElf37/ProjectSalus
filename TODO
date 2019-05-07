@@ -2,11 +2,12 @@ Backend (urgent):
     All done!
 
 Front-end (important):
-    1. Fix up a decent home page demo
+    1. Home page demo
     2. More helpful error handling - this is awful!
-    3. Set navbar items for user, admin, and maybe an intermediate rank too
-    4. Create login page for admin
+    3. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
+    4. Create login page
     5. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
+    6. Reboot/reload buttons for rank 4
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system

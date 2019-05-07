@@ -1,3 +1,6 @@
+v0.1.5 (5/7/19)
+- Bug fixes
+
 v0.1.4 (5/6/19)
 - Added global config cache
 - Server can now reload config and filecache internally
@@ -20,7 +23,9 @@ v0.1.0 (5/2/19)
 - Minor edits all around
 - Fixed a major issue where path wasn't set on cookies, causing cookie access to fail spectacularly on alternate-dir reqs
 
-=MAJOR=
+
+=== MAJOR ===
+
 
 v0.0.21 (5/1/19)
 - Added file searching for assets/ based on locations.json in FileCache.read() - right now it uses ext, consider switching to MIME type
