@@ -19,19 +19,44 @@ class RequestHandler:
         self.rank = 0
         if self.account:
             self.rank = self.account.rank
-        self.response.default_renderopts.update(
+        self.render_register(
             test='hello',
             themeblue='#0052ac',
-            navbar='\n'.join(['<li{}><a{}>{}</a></li>'.format(' class="active"' if self.path == li[1] else ' class="disabled"' if li[2] else '', (' href="'+li[1]+'"') if not li[2] else '', li[0]) for li in navbar.get(self.rank)])
+            navbar='\n'.join(['<li{}><a{}>{}</a></li>'.format(' class="active"' if self.path == li[1] else ' class="disabled"' if li[2] else '', (' href="'+li[1]+'"') if not li[2] else '', li[0]) for li in navbar.get(self.rank)]),
+            reboot_controls='',
         )
         # self.server.cache.reload()
+
+    def render_register(self, **kwargs):
+        self.response.default_renderopts.update(**kwargs)
 
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
         self.account = self.client.account
         self.response.add_cookie('user_token',
-                                 self.client.account.new_key() if self.client.account is not None else '_none',
+                                 self.account.new_key() if self.account is not None else '_none',
                                  'httponly', samesite='strict', path='/')
+
+    def pre_call(self):
+        # For debug - remove and put only in rank 4 later
+        self.render_register(
+            reboot_controls='\n'.join([
+                '<button type="button" class="ctrl-button" onclick="void(0);">{}</button>'.format(i) for i in
+                ('Reboot', 'Clear Config', 'Clear Cache')])
+        )
+
+        if self.rank == 0:
+            ...
+        elif self.rank == 1:
+            ...
+        elif self.rank == 2:
+            ...
+        elif self.rank == 3:
+            ...
+        elif self.rank == 4:
+            self.render_register(
+                reboot_controls='\n'.join('<button type="button" class="ctrl-button" onclick="void(0);">{}</button>'.format(i) for i in ('Reboot', 'Clear Config', 'Clear Cache'))
+            )
 
     def post_call(self):
         return

@@ -88,6 +88,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         rsp = Response(req)
         handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
+            handler.pre_call()
             handler.call()
             handler.post_call()
             rsp.finish()
@@ -101,6 +102,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         rsp = Response(req)
         handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
+            handler.pre_call()
             handler.call()
             handler.post_call()
             rsp.finish()

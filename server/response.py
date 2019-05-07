@@ -151,9 +151,9 @@ class Response:
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
 
-            argrender = re.findall(b'\[\[(.[^}]*)\]\]', f)
+            argrender = re.findall(b'\[\[(.[^\]]*)\]\]', f)
             for arg in argrender:
-                f = f.replace(b'[[' + arg + b']]', str(render_opts[arg.decode()]).encode(ENCODING))
+                f = f.replace(b'[[' + arg + b']]', str(render_opts.get(arg.decode(), 'ERROR')).encode(ENCODING))
 
             kwrender = re.findall(b'{{(.[^}]*)}}', f)
             for kw in kwrender:
