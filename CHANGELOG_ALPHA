@@ -1,3 +1,8 @@
+v0.1.6 (5/7/19)
+- Added Python rendering (use {{x}} to eval x) for attach_file()
+- Redesigned rendering system to use regex
+- Created htmlutil.py to house functions for more easily generating CSS links, etc.
+
 v0.1.5 (5/7/19)
 - Important bug fixes
 - QOL tweaks, including a couple easy function responses in response, a post_call() called, and removal of obsolete code

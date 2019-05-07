@@ -5,6 +5,9 @@ from server.config import get_config
 from fnmatch import fnmatch  # for mime-type matching
 from mimetypes import guess_type  # ditto
 from os.path import basename
+import re
+import server.htmlutil as htmlutil
+from server.htmlutil import *
 
 ENCODING = 'UTF-8'
 Morsel._reserved['samesite'] = 'SameSite'
@@ -147,8 +150,14 @@ class Response:
 
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             render_opts.update(self.default_renderopts)
-            for k,v in render_opts.items():
-                f = f.replace(b'[['+bytes(str(k), ENCODING)+b']]', bytes(str(v), ENCODING))
+
+            argrender = re.findall(b'\[\[(.[^}]*)\]\]', f)
+            for arg in argrender:
+                f = f.replace(b'[[' + arg + b']]', str(render_opts[arg.decode()]).encode(ENCODING))
+
+            kwrender = re.findall(b'{{(.[^}]*)}}', f)
+            for kw in kwrender:
+                f = f.replace(b'{{' + kw + b'}}', str(eval(kw.decode())).encode(ENCODING))
         self.set_body(f, append=append)
 
         if resolve_ctype:
