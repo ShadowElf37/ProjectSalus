@@ -4,6 +4,7 @@ Backend (urgent):
 Bugs:
     1. Bad requests with no ext will crash on mime-type lookup if trying to attach_file(), as in DefaultHandler
     2. Login without signup will crash
+    3. Mime-type breaks on /../README.md for some reason (md is probably not a mimetype...)
 
 Front-end (important):
     1. JS and post value escapes; '+' should be ' ', '%21' should be '!', etc.

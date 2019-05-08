@@ -75,6 +75,7 @@ class Response:
         }
         self.sent_prematurely = False
         self.head = False
+        # self.send_error = self.set_code
         # self.client = self.macroreq.client (now done in handlers.py)
     
     @staticmethod
@@ -94,7 +95,6 @@ class Response:
 
     def send_error(self, n, msg=None):
         self.set_code(n, msg)
-        self.head = True
         # self.req.send_error(n, msg)
         # self.sent_prematurely = True
 
