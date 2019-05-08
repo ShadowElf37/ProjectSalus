@@ -1,12 +1,17 @@
 Backend (urgent):
     All done!
 
+Bugs:
+    1. Bad requests with no ext will crash on mime-type lookup if trying to attach_file(), as in DefaultHandler
+    2. Login without signup will crash
+
 Front-end (important):
     1. JS and post value escapes; '+' should be ' ', '%21' should be '!', etc.
     2. Home page demo
-    3. More helpful error handling - this is awful!
-    4. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
-    5. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
+    3. Logged in home page?
+    4. More helpful error handling - this is awful!
+    5. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
+    6. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
