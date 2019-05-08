@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+        {{css('general.css')}}
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-header"><a href="#">Project Salus</a></div>
+            <div class="reboot-controls">
+                [[reboot_controls]]
+            </div>
+            <ul class="navbar-items">
+                [[navbar]]
+            </ul>
+        </div>
+
+        <center>
+            <h3 class="singular-form-header">Login</h3><br>
+            <div class="singular-form">
+                <form method="POST" action="/login">
+                    <p>Full Name</p><br>
+                    <input type="text" name="name"><br>
+                    <p>Password</p><br>
+                    <input type="password" name="pwd"><br>
+                    <input type="submit">
+                </form>
+            </div>
+
+            <a href="/home/signup.html">Sign up here.</a>
+        </center>
+        <div class="info-bar" style="bottom: 0; position: absolute">
+            <p>Project Salus</p>
+            <p>Made by Yovel Key-Cohen</p>
+        </div>
+    </body>
+</html>

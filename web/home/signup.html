@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Home</title>
+        <title>Sign Up</title>
         {{css('general.css')}}
     </head>
     <body>
@@ -16,12 +16,18 @@
         </div>
 
         <center>
-            <div class="page-container">
-                test
+            <h3 class="singular-form-header">Sign Up</h3><br>
+            <div class="singular-form">
+                <form method="POST" action="/signup">
+                    <p>Full Name</p><br>
+                    <input type="text" name="name"><br>
+                    <p>Password</p><br>
+                    <input type="password" name="pwd"><br>
+                    <input type="submit">
+                </form>
             </div>
         </center>
-
-        <div class="info-bar">
+        <div class="info-bar" style="bottom: 0; position: absolute">
             <p>Project Salus</p>
             <p>Made by Yovel Key-Cohen</p>
         </div>

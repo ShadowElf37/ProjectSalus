@@ -1,3 +1,8 @@
+v0.1.8 (5/7/19)
+- Created login page
+- Created signup page
+- Created login and signup CSS (a tad janky)
+
 v0.1.7 (5/7/19)
 - Added pre_call() to handle rank-specific rendering and any other things we may need some day
 - Added js-less control buttons as rendered [[reboot_controls]]

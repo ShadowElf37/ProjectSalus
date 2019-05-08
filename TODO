@@ -2,12 +2,11 @@ Backend (urgent):
     All done!
 
 Front-end (important):
-    1. Home page demo
-    2. More helpful error handling - this is awful!
-    3. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
-    4. Create login page
+    1. JS and post value escapes; '+' should be ' ', '%21' should be '!', etc.
+    2. Home page demo
+    3. More helpful error handling - this is awful!
+    4. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
     5. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    6. Reboot/reload buttons for rank 4
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system

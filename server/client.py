@@ -3,6 +3,7 @@ from time import time
 from secrets import token_urlsafe
 from server.config import get_config
 from server.persistent import PersistentDict
+from random import randint
 
 user_tokens = PersistentDict('accounts')
 
@@ -17,6 +18,7 @@ class Account:
         self.last_activity = format_date_time(time())
         self.rank = 0
         self.key = key
+        self.id = randint(0, 2**64-1)
 
     def register_self(self):
         k = ClientObj.new_key()

@@ -22,8 +22,11 @@ class RequestHandler:
         self.render_register(
             test='hello',
             themeblue='#0052ac',
+            themedarkblue='#00429c',
+            themeoffwhite='#eeeeee',
+            themegrey='#cccccc',
             navbar='\n'.join(['<li{}><a{}>{}</a></li>'.format(' class="active"' if self.path == li[1] else ' class="disabled"' if li[2] else '', (' href="'+li[1]+'"') if not li[2] else '', li[0]) for li in navbar.get(self.rank)]),
-            reboot_controls='',
+            reboot_controls=''
         )
         # self.server.cache.reload()
 
@@ -128,7 +131,7 @@ class HandlerSignup(RequestHandler):
         password = self.request.get_post('pwd')
         self.client.create_account(name, password)
         self.response.add_cookie('user_token', self.client.account.key)
-        self.response.redirect('/', get=True)
+        self.response.redirect('/', force_get=True)
 
 class HandlerLogin(RequestHandler):
     def call(self):
@@ -136,12 +139,12 @@ class HandlerLogin(RequestHandler):
         password = self.request.get_post('pwd')
         self.client.login(name, password)
         self.response.add_cookie('user_token', self.client.account.key)
-        self.response.redirect('/', get=True)
+        self.response.redirect('/', force_get=True)
 
 class HandlerLogout(RequestHandler):
     def call(self):
         self.response.add_cookie('user_token', None)
-        self.response.redirect('/', get=True)
+        self.response.redirect('/', force_get=True)
 
 class HandlerTestPage(RequestHandler):
     def call(self):

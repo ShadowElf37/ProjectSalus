@@ -1,5 +1,6 @@
 body{
-    background-color: #eee;
+    background-color: [[themeoffwhite]];
+    font-family: calibri, sans-serif;
     padding: 0;
     overflow-x: hidden;
     margin: 0;
@@ -14,6 +15,7 @@ body{
     width: 100%;
     border-bottom: 1px solid #999;
     z-index: 1000;
+    top: 0;
 }
 .navbar *{
     color: #fff;
@@ -103,10 +105,46 @@ body{
     padding: 20px;
 }
 
+.singular-form{
+    position: relative;
+    margin-top: 0px;
+    text-align: left;
+    display: block;
+    margin-left: 0;
+    width: 12%;
+    padding: 20px;
+}
+.singular-form p{
+    width: 100%;
+    font-size: 20px;
+}
+.singular-form-header{
+    text-align: center;
+    margin: 0;
+    margin-top: 12%;
+    font-size: 60px;
+}
+.singular-form input{
+    margin-left: -7px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    border: 1px solid [[themegrey]];
+    border-radius: 2px;
+    font-size: 20px;
+    padding: 5px;
+    width: 100%;
+    font-family: inherit;
+}
+.singular-form *{
+    display: inline;
+    outline: none;
+}
+
 .info-bar{
     background-color: [[themeblue]];
     width: 100%;
     height: 150px;
+    bottom: 0%;
     margin-top: 170px;
     padding: 10px;
     position: relative;
