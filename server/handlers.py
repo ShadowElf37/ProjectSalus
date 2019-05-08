@@ -82,6 +82,16 @@ class HandlerReboot(RequestHandler):
         self.response.set_body('Server rebooting.')
         self.server.reboot()
 
+class HandlerControlWords(RequestHandler):
+    def call(self):
+        self.response.set_body('0')
+        cmd = self.request.get_post('cmd')
+        if cmd == 'reboot':
+            self.server.reboot()
+        elif cmd == 'refresh-cache':
+            self.server.reload_cache()
+        elif cmd == 'refresh-config':
+            self.server.reload_config()
 
 # Project-specific handlers
 
@@ -146,12 +156,13 @@ GET = {
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
     '/readme': HandlerReadme,
-    #'/home/index.html': ...
+    # '/home/index.html': ...    remove default_handler from important pages like this
 }
 
 POST = {
     '/signup': HandlerSignup,
-    '/login': HandlerLogin
+    '/login': HandlerLogin,
+    '/ctrl-words': HandlerControlWords,
 }
 
 INDEX = {}
