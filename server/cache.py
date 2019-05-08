@@ -29,6 +29,10 @@ CONTENT_TYPE = {
 for k,v in CONTENT_TYPE.items():
     add_type(v, k)
 
+def guess_mime(path):
+    r = guess_type(path)[0]
+    return r if r is not None else 'application/octet-stream'
+
 class FileCache:
     ALL = object()
     def __init__(self):
@@ -39,7 +43,7 @@ class FileCache:
         of = f
         tfolder = None
         for t, dir in get_config('locations').data.items():
-            if fnmatch(t, guess_type(f)[0]):
+            if fnmatch(t, guess_mime(f)):
                 tfolder = dir
         # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f

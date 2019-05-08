@@ -2,9 +2,10 @@ import time
 from wsgiref.handlers import format_date_time
 from http.cookies import SimpleCookie, Morsel
 from server.config import get_config
+from server.cache import guess_mime
 from fnmatch import fnmatch  # for mime-type matching
-from mimetypes import guess_type  # ditto
 from os.path import basename
+import os.path as op
 import re
 import server.htmlutil as htmlutil
 from server.htmlutil import *
@@ -64,7 +65,7 @@ class Response:
         self.req = request.req
         self.macroreq = request
         self.server = self.req.server
-        self.code = 200, None
+        self.code = 200, 'OK'
         self.header = {}
         self.cookie = SimpleCookie()
         self.body = ''
@@ -81,7 +82,7 @@ class Response:
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):
         val = cache_db.get('file').get(basename(path), None)
-        mimetype = guess_type(path)[0]
+        mimetype = guess_mime(path)
         if mimetype is None:
             mimetype = 'text/plain'
         if val: return val
@@ -161,7 +162,7 @@ class Response:
         self.set_body(f, append=append)
 
         if resolve_ctype:
-            self.add_header('Content-Type', guess_type(path)[0])
+            self.add_header('Content-Type', guess_mime(path))
 
     def set_content_type(self, type):
         self.add_header('Content-Type', type)
