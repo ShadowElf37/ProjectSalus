@@ -1,3 +1,10 @@
+v0.1.9 (5/8/19)
+- Added ShellAccount for guests so we don't have explosions everywhere
+- Edited login CSS
+- Added ranks 0 and 1 navbars with login (navbars themselves are incomplete)
+- Switched to a new function wrapper for mime guessing to avoid errors
+- Added three current pages to handler dict, set proper handlers for them
+
 v0.1.8 (5/7/19)
 - Created login page
 - Created signup page

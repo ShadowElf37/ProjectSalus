@@ -37,7 +37,7 @@ class RequestHandler:
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
         self.account = self.client.account
         self.response.add_cookie('user_token',
-                                 self.account.new_key() if self.account is not None else '_none',
+                                 self.account.new_key() if self.account.is_real() else '_none',
                                  'httponly', samesite='strict', path='/')
 
     def pre_call(self):
@@ -78,7 +78,7 @@ class DefaultHandler(RequestHandler):
 
 class HandlerBlank(RequestHandler):
     def call(self):
-        self.response.redirect('/test/index.html')
+        self.response.redirect('/home/index.html')
 
 class HandlerReboot(RequestHandler):
     def call(self):
@@ -100,7 +100,7 @@ class HandlerControlWords(RequestHandler):
 
 class HandlerHome(RequestHandler):
     def call(self):
-        ...
+        self.response.attach_file('/home/index.html')
 
 class HandlerReadme(RequestHandler):
     def call(self):
@@ -108,19 +108,15 @@ class HandlerReadme(RequestHandler):
 
 class HandlerSignupPage(RequestHandler):
     def call(self):
-        self.response.set_body(
-            "<html><form method=\"POST\" action=\"/signup\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
-            ctype='text/html')
+        self.response.attach_file('/home/signup.html')
 
 class HandlerLoginPage(RequestHandler):
     def call(self):
-        self.response.set_body(
-            "<html><form method=\"POST\" action=\"/login\">Username<br><input type=\"text\" name=\"name\"><br>Password<br><input type=\"password\" name=\"pwd\"><br><input type=\"submit\"></form></html>",
-            ctype='text/html')
+        self.response.attach_file('/home/login.html')
 
 class HandlerProtectedTest(RequestHandler):
     def call(self):
-        if self.client.validate_account():
+        if self.account.is_real():
             self.response.set_body('hello {}!'.format(self.client.account.name))
         else:
             self.response.set_body('bye bye!')
@@ -131,30 +127,34 @@ class HandlerSignup(RequestHandler):
         password = self.request.get_post('pwd')
         self.client.create_account(name, password)
         self.response.add_cookie('user_token', self.client.account.key)
-        self.response.redirect('/', force_get=True)
+        self.response.redirect('/home/index.html')
 
 class HandlerLogin(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
         self.client.login(name, password)
-        self.response.add_cookie('user_token', self.client.account.key)
-        self.response.redirect('/', force_get=True)
+        self.response.add_cookie('user_token', self.account.key)
+        if self.account.is_real():
+            self.response.redirect('/home/index.html')
+        else:
+            self.response.redirect('/home/login.html')
 
 class HandlerLogout(RequestHandler):
     def call(self):
         self.response.add_cookie('user_token', None)
-        self.response.redirect('/', force_get=True)
+        self.response.redirect('/home/login.html')
 
 class HandlerTestPage(RequestHandler):
     def call(self):
-        self.response.attach_file('web/test/index.html')
+        self.response.attach_file('/test/index.html')
 
 GET = {
     '/': HandlerBlank,
     '/reboot': HandlerReboot,
-    '/signup': HandlerSignupPage,
-    '/login': HandlerLoginPage,
+    '/home/signup.html': HandlerSignupPage,
+    '/home/login.html': HandlerLoginPage,
+    '/home/index.html': HandlerHome,
     '/protected': HandlerProtectedTest,
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,

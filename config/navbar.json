@@ -1,8 +1,16 @@
 {
   "0":
-  [
-    ["Home", "/home/index.html", false],
-    ["About", "/home/about.html", false],
-    ["Calendar", "/home/calendar.html", false]
-  ]
+    [
+      ["Home", "/home/index.html", false],
+      ["About", "/home/about.html", false],
+      ["Calendar", "/home/calendar.html", false],
+      ["Login", "/home/login.html", false]
+    ],
+  "1":
+    [
+      ["Home", "home/index.html", false],
+      ["About", "/home/about.html", false],
+      ["Calendar", "/home/calendar.html", false],
+      ["Logout", "/logout", false]
+    ]
 }

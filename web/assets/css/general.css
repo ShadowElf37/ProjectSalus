@@ -111,8 +111,10 @@ body{
     text-align: left;
     display: block;
     margin-left: 0;
-    width: 12%;
+    width: 300px;
     padding: 20px;
+    border: 1px solid black;
+    overflow: hidden;
 }
 .singular-form p{
     width: 100%;
@@ -132,8 +134,19 @@ body{
     border-radius: 2px;
     font-size: 20px;
     padding: 5px;
-    width: 100%;
+    width: 300px;
     font-family: inherit;
+}
+.singular-form input[type="submit"]{
+    width: 150px;
+    margin: 0;
+    padding: 8px;
+}
+.submit{
+    position: relative;
+    text-align: center;
+    border: 1px solid black;
+    padding: 25%;
 }
 .singular-form *{
     display: inline;

@@ -16,9 +16,10 @@ class Account:
         self.email = email
         self.password = password
         self.last_activity = format_date_time(time())
-        self.rank = 0
+        self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
+        self.shell = False
 
     def register_self(self):
         k = ClientObj.new_key()
@@ -33,13 +34,40 @@ class Account:
     def check_pwd(self, pwd):
         return self.password == pwd
 
+    def is_real(self):
+        return True
+
+class ShellAccount:
+    def __init__(self, *args):
+        self.rank = 0
+        self.key = None
+        self.id = None
+        self.password = ''
+        self.name = ''
+        self.email = ''
+        self.shell = True
+
+    def new_key(self):
+        return
+    def check_pwd(self, pwd):
+        return
+    def register_self(self):
+        return
+
+    def is_real(self):
+        return False
+
+    def __eq__(self, other):
+        if other is None:
+            return True
+        return self == other
 
 class ClientObj:
     def __init__(self, ip, key=None):
         self.ip = ip
 
-        self.account = user_tokens.get(key)
-        if self.account is not None:
+        self.account = user_tokens.get(key, ShellAccount())
+        if self.account.is_real():
             user_tokens.delete(key)
             k = self.new_key()
             self.account.key = k
@@ -59,10 +87,12 @@ class ClientObj:
         self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password == password)
         if self.account:
             self.account.register_self()
+        else:
+            self.account = ShellAccount()
         return self.account
 
-    def validate_account(self):
-        return self.account is not None
+    def is_real(self):
+        return self.account is not None and self.account.is_real()
 
 #try:
 #    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
