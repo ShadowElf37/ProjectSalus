@@ -1,3 +1,7 @@
+v0.1.10 (5/8/19)
+- Fixed bug preventing login
+- Made navbar more scalable
+
 v0.1.9 (5/8/19)
 - Added ShellAccount for guests so we don't have explosions everywhere
 - Edited login CSS

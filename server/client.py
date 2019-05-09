@@ -85,7 +85,7 @@ class ClientObj:
 
     def login(self, name, password):
         self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password == password)
-        if self.account:
+        if self.account is not None:
             self.account.register_self()
         else:
             self.account = ShellAccount()

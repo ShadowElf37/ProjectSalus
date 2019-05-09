@@ -134,8 +134,8 @@ class HandlerLogin(RequestHandler):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
         self.client.login(name, password)
-        self.response.add_cookie('user_token', self.account.key)
-        if self.account.is_real():
+        self.response.add_cookie('user_token', self.client.account.key)
+        if self.client.is_real():
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/home/login.html')

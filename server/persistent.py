@@ -64,7 +64,7 @@ class PersistentDict(PersistentThing):
 
     def find(self, condition):
         try:
-            return next(filter(condition, self.values()))
+            return next(filter(condition, self.value.values()))
         except StopIteration:
             return None
 

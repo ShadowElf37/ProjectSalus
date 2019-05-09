@@ -1,10 +1,6 @@
 Backend (urgent):
     All done!
 
-Bugs:
-    1. Login without signup will crash
-    2. Login after signup broke
-
 Front-end (important):
     1. JS and post value escapes; '+' should be ' ', '%21' should be '!', etc.
     2. Home page demo
