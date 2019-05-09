@@ -63,7 +63,15 @@ class RequestHandler:
             )
 
     def post_call(self):
-        return
+        r = self.request
+        if r.get_query:
+            a = r.get_query.get('action')
+            if a is not None and self.rank >= 4:
+                ...
+                #self.server.finish_request(r.req, r.addr)
+                #self.server.shutdown_request(r.req)
+                #if a == 'reboot':
+
 
 
 

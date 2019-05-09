@@ -32,6 +32,12 @@ class Request:
         if c is not None:
             self.cookie.load(c)
 
+        # Search for GET query
+        self.get_query = None
+        q = self.path.split('?')
+        if len(q) > 1:
+            self.get_query = parse_qs(q[1])
+
         # Generate POST vals
         self.post_vals = None
         if self.type == 'POST':
