@@ -8,6 +8,7 @@ from subprocess import check_output
 from server.cache import FileCache
 from server.config import CONFIG_CACHE
 
+RESPONSE_QUEUE = []
 
 class Server(HTTPServer):
     def __init__(self, host='0.0.0.0', port=8080, *args):
@@ -86,6 +87,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         req = Request(self)
         rsp = Response(req)
+        RESPONSE_QUEUE.append(rsp)
         handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.pre_call()
@@ -97,9 +99,14 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
             self.send_error(500, str(e) + ' line ' + str(e.__traceback__.tb_lineno))
 
+        while not RESPONSE_QUEUE[0] == rsp:
+            sleep(0.0001)
+        del RESPONSE_QUEUE[0]
+
     def do_POST(self):
         req = Request(self)
         rsp = Response(req)
+        RESPONSE_QUEUE.append(rsp)
         handler = handlers.POST.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
             handler.pre_call()
@@ -110,6 +117,10 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             raise e
             print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
             self.send_error(500, str(e)+' (line '+str(e.__traceback__.tb_lineno))
+
+        while not RESPONSE_QUEUE[0] == rsp:
+            sleep(0.0001)
+        del RESPONSE_QUEUE[0]
 
 
 if __name__ == '__main__':

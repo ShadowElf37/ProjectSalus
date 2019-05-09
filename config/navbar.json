@@ -2,14 +2,19 @@
   "0":
       [
           ["Home", "/home/index.html", false],
-          ["About", "/home/about.html", false],
-          ["Login", "/home/login.html", false]
+          ["SLB", "/home/slb.html", true],
+          ["About", "/accounts/about.html", true],
+          ["Login", "/accounts/login.html", false]
       ],
   "1":
       [
           ["Home", "/home/index.html", false],
-          ["About", "/home/about.html", false],
-          ["Calendar", "/home/calendar.html", false],
+          ["SLB", "/home/slb.html", true],
+          ["Town Hall", "/townhall/index.html", true],
+          ["Surveys", "/townhall/surveys.html", true],
+          ["Calendar", "/home/calendar.html", true],
+          ["SGA", "/sga/index.html", true],
+          ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],
   "2":

@@ -108,6 +108,7 @@ class Response:
 
     def send_error(self, n, msg=None):
         self.set_code(n, msg)
+        self.set_body('Error ' + str(n))
         # self.req.send_error(n, msg)
         # self.sent_prematurely = True
 
