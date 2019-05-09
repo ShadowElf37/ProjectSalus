@@ -91,7 +91,6 @@ class HandlerBlank(RequestHandler):
 
 class HandlerReboot(RequestHandler):
     def call(self):
-        self.response.set_body('Server rebooting.')
         self.server.reboot()
 
 class HandlerControlWords(RequestHandler):
