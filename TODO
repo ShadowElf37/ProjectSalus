@@ -26,8 +26,13 @@ Actual pages and functionality (less important):
     12. SSL
     13. Student life board?
     14. Push notifications?
+    15. Student directory
+    16. Sage menu
+    17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
 
 Post-deployment wishlist (far future):
-    1. Integration with other clubs and sports (at least in the Calendar)
+    1. Integration with other clubs and sports (calendar, push notifications, etc.)
     2. Mercury-style tutor/help board
     3. Mercury-style messaging (but more advanced please)
+    4. Possibly replace Outlook with IMAP/SMTP because it's annoying
+    5. Mercury currency for tutoring/trades?

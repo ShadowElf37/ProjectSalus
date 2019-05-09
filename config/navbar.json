@@ -7,28 +7,28 @@
       ],
   "1":
       [
-          ["Home", "home/index.html", false],
+          ["Home", "/home/index.html", false],
           ["About", "/home/about.html", false],
           ["Calendar", "/home/calendar.html", false],
           ["Logout", "/logout", false]
       ],
   "2":
       [
-          ["Home", "home/index.html", false],
+          ["Home", "/home/index.html", false],
           ["About", "/home/about.html", false],
           ["Calendar", "/home/calendar.html", false],
           ["Logout", "/logout", false]
       ],
   "3":
       [
-          ["Home", "home/index.html", false],
+          ["Home", "/home/index.html", false],
           ["About", "/home/about.html", false],
           ["Calendar", "/home/calendar.html", false],
           ["Logout", "/logout", false]
       ],
   "4":
       [
-          ["Home", "home/index.html", false],
+          ["Home", "/home/index.html", false],
           ["About", "/home/about.html", false],
           ["Calendar", "/home/calendar.html", false],
           ["Logout", "/logout", false]
