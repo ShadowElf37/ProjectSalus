@@ -9,6 +9,7 @@ import os.path as op
 import re
 import server.htmlutil as htmlutil
 from server.htmlutil import *
+from urllib.parse import parse_qs
 
 ENCODING = 'UTF-8'
 Morsel._reserved['samesite'] = 'SameSite'
@@ -36,7 +37,7 @@ class Request:
         if self.type == 'POST':
             content_len = int(self.get_header('content-length'))
             post_body = self.req.rfile.read(content_len)
-            self.post_vals = dict(pair.split('=') for pair in post_body.decode(ENCODING).split('&'))
+            self.post_vals = parse_qs(post_body.decode(ENCODING))
 
         # Generate client object (now done in handlers.py)
         # self.client = client.ClientObj(self.addr[0], self.get_cookie('user_token'))
@@ -49,7 +50,12 @@ class Request:
         return None if v is '_none' else v
 
     def get_post(self, key):
-        return self.post_vals.get(key)
+        v = self.post_vals.get(key)
+        if v is None:
+            return
+        if len(v) == 1:
+            v = v[0]
+        return v
 
 
 class Response:

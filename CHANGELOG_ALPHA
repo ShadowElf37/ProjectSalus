@@ -1,3 +1,6 @@
+v0.1.11 (5/8/19)
+- Escaped post request and replaced parser with an imported function
+
 v0.1.10 (5/8/19)
 - Fixed bug preventing login
 - Made navbar more scalable

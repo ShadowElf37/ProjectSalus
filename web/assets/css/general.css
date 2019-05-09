@@ -101,6 +101,7 @@ body{
     border-radius: 0px;
     box-shadow: 0 0 20px #d5d5d5;
     padding: 20px;
+    align-text: left;
 }
 
 .singular-form{

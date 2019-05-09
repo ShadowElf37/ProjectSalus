@@ -20,6 +20,7 @@ class RequestHandler:
         if self.account:
             self.rank = self.account.rank
         self.render_register(
+            name=self.account.name,
             test='hello',
             themeblue='#0052ac',
             themedarkblue='#00429c',
