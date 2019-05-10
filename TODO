@@ -9,7 +9,8 @@ Front-end (important):
     1. Home page demo
     2. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
     3. JS async POSTing for admin buttons
-    4. Fix persistent.py, it isn't writing.
+    4. Fix persistent.py - it isn't writing
+    5. Read/write lock account to avoid race conditions and reading/writing outdated information
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
