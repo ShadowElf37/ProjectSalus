@@ -97,12 +97,12 @@ class HandlerUpdate(RequestHandler):
     def call(self):
         self.server.update()
 
-class HandlerRefreshConfig(RequestHandler):
+class HandlerReloadConfig(RequestHandler):
     def call(self):
         self.server.reload_config()
         self.server.reload_cache()
 
-class HandlerReloadCache(RequestHandler):
+class HandlerRefreshCache(RequestHandler):
     def call(self):
         self.server.reload_cache()
 
@@ -176,8 +176,8 @@ GET = {
     '/': HandlerBlank,
     '/reboot': HandlerReboot,
     '/update': HandlerUpdate,
-    '/cache': HandlerReloadCache,
-    '/config': HandlerRefreshConfig,
+    '/cache': HandlerRefreshCache,
+    '/config': HandlerReloadConfig,
     '/home/signup.html': HandlerSignupPage,
     '/home/login.html': HandlerLoginPage,
     '/home/index.html': HandlerHome,
