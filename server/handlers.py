@@ -45,8 +45,8 @@ class RequestHandler:
         # For debug - remove and put only in rank 4 later
         self.render_register(
             reboot_controls='\n'.join([
-                '<button type="button" class="ctrl-button" onclick="void(0);">{}</button>'.format(i) for i in
-                ('Reboot', 'Clear Config', 'Clear Cache')])
+                '<button type="button" class="ctrl-button" onclick="return \"{}\"">{}</button>'.format(j,i) for i,j in
+                (('Update', 'update'), ('Reboot', 'reboot'), ('Clear Config', 'refresh-config'), ('Clear Cache', 'refresh-cache'))])
         )
 
         if self.rank == 0:
@@ -103,6 +103,8 @@ class HandlerControlWords(RequestHandler):
             self.server.reload_cache()
         elif cmd == 'refresh-config':
             self.server.reload_config()
+        elif cmd == 'update':
+            self.server.update()
 
 # Project-specific handlers
 

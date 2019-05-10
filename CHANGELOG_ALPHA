@@ -2,6 +2,7 @@ v0.1.12 (5/9/19)
 - Get queries are now parsed from ? onward
 - Responses now queue to send to avoid cookie race conditions
 - Set navbar for ranks 0 and 1
+- Added a bunch of html skeleton for future features
 
 v0.1.11 (5/8/19)
 - Escaped post request and replaced parser with an imported function
