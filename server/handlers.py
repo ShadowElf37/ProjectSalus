@@ -100,11 +100,15 @@ class HandlerUpdate(RequestHandler):
 class HandlerReloadConfig(RequestHandler):
     def call(self):
         self.server.reload_config()
-        self.server.reload_cache()
 
 class HandlerRefreshCache(RequestHandler):
     def call(self):
         self.server.reload_cache()
+
+class HandlerUpdateReboot(RequestHandler):
+    def call(self):
+        self.server.update()
+        self.server.reboot()
 
 class HandlerControlWords(RequestHandler):
     def call(self):
@@ -135,7 +139,7 @@ class HandlerSignupPage(RequestHandler):
 
 class HandlerLoginPage(RequestHandler):
     def call(self):
-        self.response.attach_file('/home/login.html')
+        self.response.attach_file('/accounts/login.html')
 
 class HandlerProtectedTest(RequestHandler):
     def call(self):
@@ -161,12 +165,12 @@ class HandlerLogin(RequestHandler):
         if self.client.is_real():
             self.response.redirect('/home/index.html')
         else:
-            self.response.redirect('/home/login.html')
+            self.response.redirect('/accounts/login.html')
 
 class HandlerLogout(RequestHandler):
     def call(self):
         self.response.add_cookie('user_token', None)
-        self.response.redirect('/home/login.html')
+        self.response.redirect('/accounts/login.html')
 
 class HandlerTestPage(RequestHandler):
     def call(self):
@@ -176,10 +180,11 @@ GET = {
     '/': HandlerBlank,
     '/reboot': HandlerReboot,
     '/update': HandlerUpdate,
+    '/ur': HandlerUpdateReboot,
     '/cache': HandlerRefreshCache,
     '/config': HandlerReloadConfig,
-    '/home/signup.html': HandlerSignupPage,
-    '/home/login.html': HandlerLoginPage,
+    '/accounts/signup.html': HandlerSignupPage,
+    '/accounts/login.html': HandlerLoginPage,
     '/home/index.html': HandlerHome,
     '/protected': HandlerProtectedTest,
     '/test': HandlerTestPage,
