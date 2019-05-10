@@ -7,9 +7,7 @@ Backend (urgent):
 
 Front-end (important):
     1. Home page demo
-    2. More helpful error handling - this is awful!
-    3. Set navbar items for ranks 0-4 (guest, user, poster, admin, me)
-    4. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
+    2. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
