@@ -131,7 +131,7 @@ class HandlerHome(RequestHandler):
 
 class HandlerSignupPage(RequestHandler):
     def call(self):
-        self.response.attach_file('/home/signup.html')
+        self.response.attach_file('/accounts/signup.html')
 
 class HandlerLoginPage(RequestHandler):
     def call(self):

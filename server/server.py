@@ -4,6 +4,7 @@ from server.threadpool import *
 from server.handlers import *
 import server.handlers as handlers
 import os
+import sys
 from subprocess import check_output
 from server.cache import FileCache
 from server.config import CONFIG_CACHE
@@ -71,13 +72,21 @@ class Server(HTTPServer):
         if not self.running: return
         self.running = False
         self.server_close()
-    
-    def log(self, *string):
-        print(time.strftime('%X'), *string)
+
+    @staticmethod
+    def log(*string):
+        print('Server ['+time.strftime('%D %X')+'] - ', *string)
 
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+
+    def log_message(self, msg, *subs):
+        sys.stderr.write("%s [%s] -  %s\n" %
+                         (self.address_string(),
+                          time.strftime('%D %X'),
+                          msg%subs)
+                         )
 
     def do_HEAD(self):
         self.send_response(200, 'OK')
