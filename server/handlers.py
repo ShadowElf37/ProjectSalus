@@ -93,6 +93,10 @@ class HandlerReboot(RequestHandler):
     def call(self):
         self.server.reboot()
 
+class HandlerUpdate(RequestHandler):
+    def call(self):
+        self.server.update()
+
 class HandlerControlWords(RequestHandler):
     def call(self):
         self.response.set_body('0')
