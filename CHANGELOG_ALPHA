@@ -1,3 +1,8 @@
+v0.1.13 (5/10/19)
+- Added admin/controlboard.html
+- Added GET addresses for update etc. while we wait on @Alwinfy; tested, is working
+- Finished navbar
+
 v0.1.12 (5/9/19)
 - Get queries are now parsed from ? onward
 - Responses now queue to send to avoid cookie race conditions

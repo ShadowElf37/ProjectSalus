@@ -14,28 +14,45 @@
           ["Surveys", "/townhall/surveys.html", true],
           ["Calendar", "/home/calendar.html", true],
           ["SGA", "/sga/index.html", true],
+          ["Clubs", "/sga/clubs.html", true],
           ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],
   "2":
       [
           ["Home", "/home/index.html", false],
-          ["About", "/home/about.html", false],
-          ["Calendar", "/home/calendar.html", false],
+          ["SLB", "/home/slb.html", true],
+          ["Town Hall", "/townhall/index.html", true],
+          ["Surveys", "/townhall/surveys.html", true],
+          ["Calendar", "/home/calendar.html", true],
+          ["SGA", "/sga/index.html", true],
+          ["Clubs", "/sga/clubs.html", true],
+          ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],
   "3":
       [
           ["Home", "/home/index.html", false],
-          ["About", "/home/about.html", false],
-          ["Calendar", "/home/calendar.html", false],
+          ["SLB", "/home/slb.html", true],
+          ["Town Hall", "/townhall/index.html", true],
+          ["Surveys", "/townhall/surveys.html", true],
+          ["Calendar", "/home/calendar.html", true],
+          ["SGA", "/sga/index.html", true],
+          ["Clubs", "/sga/clubs.html", true],
+          ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],
   "4":
       [
           ["Home", "/home/index.html", false],
-          ["About", "/home/about.html", false],
-          ["Calendar", "/home/calendar.html", false],
+          ["SLB", "/home/slb.html", true],
+          ["Town Hall", "/townhall/index.html", true],
+          ["Surveys", "/townhall/surveys.html", true],
+          ["Calendar", "/home/calendar.html", true],
+          ["SGA", "/sga/index.html", true],
+          ["Clubs", "/sga/clubs.html", true],
+          ["Directory", "/accounts/directory.html", true],
+          ["Controls", "/admin/controlboard.html"]
           ["Logout", "/logout", false]
       ]
 }

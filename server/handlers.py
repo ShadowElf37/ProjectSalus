@@ -129,10 +129,6 @@ class HandlerHome(RequestHandler):
     def call(self):
         self.response.attach_file('/home/index.html')
 
-class HandlerReadme(RequestHandler):
-    def call(self):
-        self.response.attach_file('/../README.md')
-
 class HandlerSignupPage(RequestHandler):
     def call(self):
         self.response.attach_file('/home/signup.html')
@@ -140,13 +136,6 @@ class HandlerSignupPage(RequestHandler):
 class HandlerLoginPage(RequestHandler):
     def call(self):
         self.response.attach_file('/accounts/login.html')
-
-class HandlerProtectedTest(RequestHandler):
-    def call(self):
-        if self.account.is_real():
-            self.response.set_body('hello {}!'.format(self.client.account.name))
-        else:
-            self.response.set_body('bye bye!')
 
 class HandlerSignup(RequestHandler):
     def call(self):
@@ -176,6 +165,14 @@ class HandlerTestPage(RequestHandler):
     def call(self):
         self.response.attach_file('/test/index.html')
 
+
+class HandlerAdminBoard(RequestHandler):
+    def call(self):
+        if self.rank >= 4:
+            self.response.attach_file('/admin/controlboard.html')
+        else:
+            self.response.refuse()
+
 GET = {
     '/': HandlerBlank,
     '/reboot': HandlerReboot,
@@ -186,10 +183,8 @@ GET = {
     '/accounts/signup.html': HandlerSignupPage,
     '/accounts/login.html': HandlerLoginPage,
     '/home/index.html': HandlerHome,
-    '/protected': HandlerProtectedTest,
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
-    '/readme': HandlerReadme,
     # '/home/index.html': ...    remove default_handler from important pages like this
 }
 
