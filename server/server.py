@@ -20,7 +20,6 @@ class Server(HTTPServer):
         self.pool = Pool(8)
         self.config_cache = CONFIG_CACHE
         self.cache = FileCache()
-        self.configs = []
         self.running = True
 
     def process_request(self, request, client_address):

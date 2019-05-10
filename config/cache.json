@@ -14,6 +14,9 @@
 			"type": "application/font-sfnt",
 			"length": 604800
 		}, {
+			"type": "font/*",
+			"length": 604800
+		}, {
 			"type": "audio/*",
 			"length": 604800
 		}

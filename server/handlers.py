@@ -39,7 +39,7 @@ class RequestHandler:
         self.account = self.client.account
         self.response.add_cookie('user_token',
                                  self.account.new_key() if self.account.is_real() else '_none',
-                                 'httponly', samesite='strict', path='/')
+                                 samesite='strict', path='/')
 
     def pre_call(self):
         # For debug - remove and put only in rank 4 later

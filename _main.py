@@ -13,6 +13,5 @@ tees = (OutTee(logfile), ErrTee(logfile))
 
 print('Starting %s...' % __file__)
 s = Server()
-server.config.SERVER = s
 s.run()
 logfile.close()

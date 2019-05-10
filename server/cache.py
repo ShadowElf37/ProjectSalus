@@ -4,27 +4,28 @@ from server.config import get_config
 from mimetypes import guess_type, add_type
 from fnmatch import fnmatch
 
+
 CONTENT_TYPE = {
-        'html': 'text/html',
-        'htm': 'text/html',
-        'css': 'text/css',
-        'js': 'application/javascript',
-        'txt': 'text/plain',
-        'xml': 'text/xml',
-        'ttf': 'font/ttf',
-        'mp3': 'audio/mpeg',
-        'wav': 'audio/x-wav',
-        'ogg': 'audio/ogg',
-        'png': 'image/png',
-        'jpg': 'image/jpeg',
-        'gif': 'image/gif',
-        'bmp': 'image/bmp',
-        'svg': 'image/svg+xml',
-        'mp4': 'video/mp4',
-        'mov': 'video/quicktime',
-        'h265': 'video/h265',
-        'avi': 'video/h265',
-    }
+    'html': 'text/html',
+    'htm': 'text/html',
+    'css': 'text/css',
+    'js': 'application/javascript',
+    'txt': 'text/plain',
+    'xml': 'text/xml',
+    'ttf': 'font/ttf',
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/x-wav',
+    'ogg': 'audio/ogg',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'gif': 'image/gif',
+    'bmp': 'image/bmp',
+    'svg': 'image/svg+xml',
+    'mp4': 'video/mp4',
+    'mov': 'video/quicktime',
+    'h265': 'video/h265',
+    'avi': 'video/h265',
+}
 
 for k,v in CONTENT_TYPE.items():
     add_type(v, k)

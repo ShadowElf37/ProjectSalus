@@ -52,7 +52,7 @@
           ["SGA", "/sga/index.html", true],
           ["Clubs", "/sga/clubs.html", true],
           ["Directory", "/accounts/directory.html", true],
-          ["Controls", "/admin/controlboard.html"]
+          ["Controls", "/admin/controlboard.html", false],
           ["Logout", "/logout", false]
       ]
 }

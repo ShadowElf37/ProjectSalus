@@ -1,24 +1,31 @@
 import time
+import re
 from wsgiref.handlers import format_date_time
 from http.cookies import SimpleCookie, Morsel
 from server.config import get_config
-from server.cache import guess_mime
+from server.cache import guess_mime, CONTENT_TYPE
 from fnmatch import fnmatch  # for mime-type matching
 from os.path import basename
-import os.path as op
-import re
+from http.server import BaseHTTPRequestHandler, HTTPStatus
+from urllib.parse import parse_qs
 import server.htmlutil as htmlutil
 from server.htmlutil import *
-from urllib.parse import parse_qs
 
 ENCODING = 'UTF-8'
+HTTPCODES = {v: v.phrase for v in HTTPStatus.__members__.values()}
 Morsel._reserved['samesite'] = 'SameSite'
 
 cache_db = get_config('cache')
 
+
+class BinDict(dict):
+    def __getitem__(self, item):
+        return self.get(item.decode(ENCODING), 'ERROR').encode(ENCODING)
+
+
 class Request:
     NONE_COOKIE = object()
-    def __init__(self, HTTPRequest):
+    def __init__(self, HTTPRequest: BaseHTTPRequestHandler):
         self.req = HTTPRequest
         self.path = self.req.path
         self.headers = self.req.headers
@@ -65,7 +72,6 @@ class Request:
 
 
 class Response:
-
     RENDER = (
         'html',
         'htm',
@@ -81,22 +87,19 @@ class Response:
         self.header = {}
         self.cookie = SimpleCookie()
         self.body = ''
-        self.default_renderopts = {
-            'ip':self.server.host,
-            'port':self.server.port,
-            'addr':self.server.host+str(self.server.port),
-        }
+        self.default_renderopts = BinDict(
+            ip=self.server.host,
+            port=self.server.port,
+            addr=self.server.host+':'+str(self.server.port),
+        )
         self.sent_prematurely = False
         self.head = False
-        # self.send_error = self.set_code
-        # self.client = self.macroreq.client (now done in handlers.py)
+        self.content_type = 'application/octet-stream'
     
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):
         val = cache_db.get('file').get(basename(path), None)
         mimetype = guess_mime(path)
-        if mimetype is None:
-            mimetype = 'text/plain'
         if val: return val
         for mt in cache_db.get('mime-type'):
             if fnmatch(mimetype, mt['type']):
@@ -107,21 +110,22 @@ class Response:
         self.code = n, msg
 
     def send_error(self, n, msg=None):
+        if msg is None:
+            msg = HTTPCODES.get(n)
         self.set_code(n, msg)
-        self.set_body('Error ' + str(n))
-        # self.req.send_error(n, msg)
-        # self.sent_prematurely = True
+        self.set_body('Error ' + str(n) + '\nMessage: '+str(msg))
+        self.req.log_error('Client threw %s, %s', n, msg)
+        self.add_header('Connection', 'close')
 
     def no_response(self):
         self.set_code(204)
         self.head = True
 
     def refuse(self):
-        self.set_code(403)
-        self.head = True
+        self.send_error(403, 'You do not have permission to view this page.')
 
     def redirect(self, location, permanent=False, get=True):
-        self.set_code(303 if get else 307 if not permanent else 308)
+        self.set_code(303 if get else 307 if not permanent else 308, 'Redirect')
         self.add_header('Location', location)
 
     def load_base(self, content_type=None):
@@ -139,7 +143,7 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, binary=True, **render_opts):
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, **render_opts):
         """This function has a fair number of very important features to understand.
             Firstly, the path. The path will default to be in /web/, and the cache will automatically search folders from the given path all the way back up to /web/ for a requested file.
             The path here can also accept /../ in order to escape /web/.
@@ -147,14 +151,13 @@ class Response:
             Secondly, rendering. render= will determine whether or not the file will render. force_render= will attempt to render the file even if it's not typically renderable.
             resolve_ctype= will automatically append a Content-Type header by being intelligent.
             cache= will determine whether or not the file should be server-cached (client-caching is defined through cache.cfg)
-            binary= will manually decide whether or not the file should be read in binary - this is enabled by default, and the class still handles plain text appropriately.
 
             Finally, **render_opts decides what, aside from the default_renderopts decided topside, will be rendered with what text."""
 
-        f = self.server.cache.read(path, binary, cache)
+        f = self.server.cache.read(path, True, cache)
         if f == None:
-            self.send_error(404)
-            return None
+            self.send_error(404, 'Requested page not found.')
+            return
 
         # print(path)
         cachelen = Response.cache_lookup(path)
@@ -163,22 +166,27 @@ class Response:
         self.add_header('Cache-Control', 'max-age={}'.format(cachelen) if cachelen else 'no-store')
 
         if render and path.split('.')[-1] in Response.RENDER or force_render:
-            render_opts.update(self.default_renderopts)
+            self.default_renderopts.update(render_opts)
+            render_opts = self.default_renderopts
 
-            argrender = re.findall(b'\[\[(.[^\]]*)\]\]', f)
+            argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
             for arg in argrender:
-                f = f.replace(b'[[' + arg + b']]', str(render_opts.get(arg.decode(), 'ERROR')).encode(ENCODING))
+                f = f.replace(b'[[' + arg + b']]', render_opts[arg])
 
-            kwrender = re.findall(b'{{(.[^}]*)}}', f)
+            kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
             for kw in kwrender:
-                f = f.replace(b'{{' + kw + b'}}', str(eval(kw.decode())).encode(ENCODING))
-        self.set_body(f, append=append)
+                r = eval(kw)
+                if type(r) != bytes:
+                    r = bytes(str(r), ENCODING)
+                f = f.replace(b'{{' + kw + b'}}', r)
 
         if resolve_ctype:
-            self.add_header('Content-Type', guess_mime(path))
+            self.set_content_type(guess_mime(path))
+        self.set_body(f, append=append, ctype=self.content_type)
 
     def set_content_type(self, type):
         self.add_header('Content-Type', type)
+        self.content_type = type
 
     def add_header(self, k, v):
         self.header[k] = v
