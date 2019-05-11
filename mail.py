@@ -1,4 +1,4 @@
-from server.config import get_config
+from httpserver.config import get_config
 
 pwds = get_config('passwords')
 

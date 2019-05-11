@@ -1,8 +1,8 @@
-from server.server import Server
+from httpserver.server import Server
 import os.path as op
-from server.tee import *
+from httpserver.tee import *
 from datetime import datetime
-import server.config
+import httpserver.config
 
 # Obviously change these backslashes for Linux
 logfile = open(op.join(

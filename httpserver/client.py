@@ -1,14 +1,14 @@
 from wsgiref.handlers import format_date_time
 from time import time
 from secrets import token_urlsafe
-from server.config import get_config
-from server.persistent import PersistentDict
+from httpserver.config import get_config
+from httpserver.persistent import PersistentDict
 from random import randint
-
-user_tokens = PersistentDict('accounts')
+from httpserver.serial import Serialized, JSONSerializer as JSER
 
 whitelist = get_config('whitelist').get('users')
 
+@Serialized('accounts', '', '', '')
 class Account:
     def __init__(self, name, password, key, email=""):
         self.ips = []
@@ -65,7 +65,7 @@ class ShellAccount:
 class ClientObj:
     def __init__(self, ip, key=None):
         self.ip = ip
-
+        # print('Available accounts:', user_tokens.value)
         self.account = user_tokens.get(key, ShellAccount())
         if self.account.is_real():
             user_tokens.delete(key)
@@ -94,7 +94,7 @@ class ClientObj:
     def is_real(self):
         return self.account is not None and self.account.is_real()
 
-#try:
-#    user_keys = pickle.load(open('data/accounts.dat', 'rb'))
-#except (EOFError, FileNotFoundError):
-#    user_keys = dict()
+try:
+    user_tokens = next(filter(lambda o: type(o) == PersistentDict, JSER('data/accounts.json').load()))
+except StopIteration:
+    user_tokens = PersistentDict()

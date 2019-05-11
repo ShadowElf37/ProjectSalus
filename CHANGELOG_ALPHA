@@ -1,3 +1,6 @@
+v0.1.15 (5/11/19)
+- Through a wrecking ball through all of the code everywhere and made a new serializer - @Serialized('file')
+
 v0.1.14 (5/10/19)
 - Improved error communication with the client
 - Small improvements to mime guessing

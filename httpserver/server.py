@@ -1,13 +1,14 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from server.response import *
-from server.threadpool import *
-from server.handlers import *
-import server.handlers as handlers
+from httpserver.response import *
+from httpserver.threadpool import *
+from httpserver.handlers import *
+import httpserver.handlers as handlers
 import os
 import sys
 from subprocess import check_output
-from server.cache import FileCache
-from server.config import CONFIG_CACHE
+from httpserver.cache import FileCache
+from httpserver.config import CONFIG_CACHE
+import httpserver.serial as serial
 
 RESPONSE_QUEUE = []
 
@@ -71,6 +72,7 @@ class Server(HTTPServer):
     def cleanup(self):
         if not self.running: return
         self.running = False
+        serial.cleanup()
         self.server_close()
 
     @staticmethod
