@@ -50,7 +50,7 @@ if __name__ == "__main__":
     o = alex.request('one1')
     print(o)
     print(o.twos)
-    print('===================================\nResult: %d us' % (time()-t)*1000)
+    print('===================================\nResult: %d us' % ((time()-t)*1000000))
 
     print('Now for Yovel\'s drastic improvement...\n===================================')
     t = time()
@@ -67,4 +67,4 @@ if __name__ == "__main__":
     o = yovel.request('one2')
     print(o)
     print(o.twos)
-    print('===================================\nResult: %d ms' % (time()-t))
+    print('===================================\nResult: %d ms' % ((time()-t)*1000000))
