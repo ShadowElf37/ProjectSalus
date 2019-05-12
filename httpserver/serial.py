@@ -159,7 +159,6 @@ class JSONSerializer:
             # Split the module from the class name and import it
             *module, name = objtype.split('.')
             module = '.'.join(module)
-            from httpserver.persistent import PersistentDict
             # Summon the object class
             if module:
                 obj = getattr(importlib.import_module(module), name)
