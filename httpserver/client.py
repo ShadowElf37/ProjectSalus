@@ -2,12 +2,13 @@ from wsgiref.handlers import format_date_time
 from time import time
 from secrets import token_urlsafe
 from httpserver.config import get_config
-from httpserver.persistent import PersistentDict
+from httpserver.persistent import PersistentDict, AccountsSerializer
 from random import randint
-from httpserver.serial import Serialized, JSONSerializer as JSER
+# from httpserver.serial import Serialized, JSONSerializer as JSER
 
-whitelist = get_config('whitelist').get('users')
+# whitelist = get_config('whitelist').get('users')
 
+@AccountsSerializer.serialized(name='', password='', key='')
 class Account:
     def __init__(self, name, password, key, email=""):
         self.ips = []
@@ -93,7 +94,15 @@ class ClientObj:
     def is_real(self):
         return self.account is not None and self.account.is_real()
 
+from json.decoder import JSONDecodeError
+
 try:
-    user_tokens = next(filter(lambda o: type(o) == PersistentDict, JSER('data/accounts.json').load()))
-except StopIteration:
+    AccountsSerializer.initialize()
+    user_tokens = AccountsSerializer.request('accounts')
+except (JSONDecodeError, KeyError):
     user_tokens = PersistentDict()
+    AccountsSerializer.register('accounts', user_tokens)
+# try:
+    # user_tokens = next(filter(lambda o: type(o) == PersistentDict, JSER('data/accounts.json').load()))
+# except StopIteration:
+    # user_tokens = PersistentDict()

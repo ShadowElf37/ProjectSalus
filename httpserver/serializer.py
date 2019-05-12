@@ -4,10 +4,18 @@ from functools  import wraps
 from importlib  import import_module
 from sys        import stderr
 import json
+from json.decoder import JSONDecodeError
 #from config import get_config
 localconf = {"dir": ".", "ref_prefix": "REF##"}; get_config = lambda x: localconf
 
 config = get_config("serializer")
+
+SERIALIZERS = []
+DIR = 'data/'
+
+def cleanup():
+    for ser in SERIALIZERS:
+        ser.commit()
 
 class Dummy:
     pass
@@ -17,12 +25,21 @@ def noop(*args, **kwargs):
 class Nonce:
     def __init__(self, desc=None):
         self.desc = desc or "{} object".format(self.__class__.__name__)
-    __repr__ = lambda self: "{%s}" % (self.desc)
+    def __repr__(self):
+        return "{%s}" % (self.desc)
 
 class Serializer:
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
     ITERABLE_TYPES  = (list, set, tuple)
-    def __init__(self):
+    def __init__(self, f):
+        self.fpath = f
+        try:
+            self.fmode = 'r'
+            self.f = open(DIR+f, 'r')
+        except FileNotFoundError:
+            self.fmode = 'w'
+            self.f = open(DIR+f, 'w+')
+        SERIALIZERS.append(self)
         self.names = dict()
         self.antipool = dict() # map uuid to serialized data
         self.pool = dict() # map uuid to name
@@ -32,8 +49,11 @@ class Serializer:
     def __del__(self):
         pass
 
-    def initialize(self, file):
+    def initialize(self, file=None):
         """Read serialized data from a file."""
+        if file is None:
+            self.assert_fmode('r')
+            file = self.f
         stuff = json.load(file)
         self.names.update(stuff["names"])
         self.antipool.update(stuff["pool"])
@@ -43,19 +63,29 @@ class Serializer:
         """Deserialize an object by its name."""
         return self._deserialize(self.names[name])
 
-    def commit(self, file):
+    def assert_fmode(self, m):
+        if self.fmode != m:
+            self.fmode = m
+            # self.f.close()
+            self.f = open(DIR+self.fpath, m)
+
+    def commit(self, file=None):
         """Dump the objects to be serialized to a file."""
+        if file is None:
+            self.assert_fmode('w')
+            file = self.f
         pool = dict()
         
         for (k, v) in self._pool_iterator():
             pool[k] = v._serialize()
-        json.dump({"names": self.names, "pool": pool}, file)
+        json.dump({"names": self.names, "pool": pool}, file, indent=4)
+        self.f.flush()
     
     def register(self, name, obj):
         """Mark an object for serialization"""
         self.names[name] = self._serialize(obj)
 
-    def serializable(self, postinst, **kwargs):
+    def serialized(self, postinst=None, **kwargs):
         """Register a class as serialiable, calling postinst after deserialization"""
         def s_decor(cls):
             cls._serializable = True
@@ -168,6 +198,7 @@ class Serializer:
         assert self._is_sclass(cls)
         obj = Dummy()
         obj.__class__ = cls
+        # obj = cls()  # Work on signature
         fields = data["data"]
         # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
         obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})

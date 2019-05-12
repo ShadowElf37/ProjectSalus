@@ -28,8 +28,8 @@ class Config:
         self.__init__(self.name)
 
     # To whom it may concern: self.fh is opened with r+. This means append. Call seek(0) and truncate() before dumping data. Thanks. Also, these configs are supposed to be read-only rn. Dynamic config editing only leads to pain. Thanks again, Alwinfy
-    def __del__(self):
-        self.fh.close()
+    #def __del__(self):
+        #self.fh.close()
 
 
 def get_config(name):

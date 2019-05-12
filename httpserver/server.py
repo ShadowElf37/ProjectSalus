@@ -8,7 +8,7 @@ import sys
 from subprocess import check_output
 from httpserver.cache import FileCache
 from httpserver.config import CONFIG_CACHE
-import httpserver.serial as serial
+import httpserver.serializer as serializer
 
 RESPONSE_QUEUE = []
 
@@ -72,7 +72,7 @@ class Server(HTTPServer):
     def cleanup(self):
         if not self.running: return
         self.running = False
-        serial.cleanup()
+        serializer.cleanup()
         self.server_close()
 
     @staticmethod

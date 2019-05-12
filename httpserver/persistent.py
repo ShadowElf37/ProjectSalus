@@ -1,10 +1,12 @@
 from httpserver.config import get_config
 import pickle
-from httpserver.serial import Serialized
+from httpserver.serializer import Serializer
 
-cfg = get_config('persistent')
+#cfg = get_config('persistent')
 
-@Serialized('accounts')
+AccountsSerializer = Serializer('atest.json')
+
+@AccountsSerializer.serialized(value={})
 class PersistentDict:
     def __init__(self):
         self.value = {}
