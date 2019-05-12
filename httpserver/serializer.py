@@ -169,6 +169,7 @@ class Serializer:
         obj = Dummy()
         obj.__class__ = cls
         fields = data["data"]
+        # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
         obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})
         obj._postinst()
         return obj
