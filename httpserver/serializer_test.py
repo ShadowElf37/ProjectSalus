@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print(o)
     print(o.twos)
     print('===================================\nResult: %d us' % ((time()-t)*1000000))
-
+    f = StringIO()
     print('Now for Yovel\'s drastic improvement...\n===================================')
     t = time()
     o = One2(5)
