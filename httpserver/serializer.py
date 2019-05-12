@@ -22,8 +22,7 @@ class Nonce:
 class Serializer:
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
     ITERABLE_TYPES  = (list, set, tuple)
-    def __init__(self, do_alex_dumb=False):
-        self.do_alex_dumb = do_alex_dumb
+    def __init__(self):
         self.names = dict()
         self.antipool = dict() # map uuid to serialized data
         self.pool = dict() # map uuid to name
@@ -170,10 +169,6 @@ class Serializer:
         obj = Dummy()
         obj.__class__ = cls
         fields = data["data"]
-        if self.do_alex_dumb:
-            for k, v in cls._defaults.items():
-                setattr(obj, k, self._deserialize(fields[k]) if (k in fields) else v)
-        else:
-            obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})
+        obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})
         obj._postinst()
         return obj
