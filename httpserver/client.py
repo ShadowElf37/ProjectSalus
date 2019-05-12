@@ -8,7 +8,6 @@ from httpserver.serial import Serialized, JSONSerializer as JSER
 
 whitelist = get_config('whitelist').get('users')
 
-@Serialized('accounts', '', '', '')
 class Account:
     def __init__(self, name, password, key, email=""):
         self.ips = []
