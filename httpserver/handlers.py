@@ -1,7 +1,6 @@
 from httpserver.response import Request, Response
-from httpserver.client import ClientObj
+from httpserver.client import ClientObj, Account, ShellAccount
 from httpserver.config import get_config
-import os.path as op
 
 navbar = get_config('navbar')
 
@@ -9,12 +8,13 @@ class RequestHandler:
     def __init__(self, request: Request, response: Response):
         self.request = request
         self.response = response
-        self.path = self.request.path
+        self.path: str = self.request.path
         self.server = self.request.req.server
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
-        self.token = self.request.get_cookie('user_token')
+        self.token: str = self.request.get_cookie('user_token')
+        self.account = ShellAccount()
         self.load_client()
         self.rank = 0
         if self.account:
@@ -36,7 +36,7 @@ class RequestHandler:
 
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
-        self.account = self.client.account
+        self.account: Account  = self.client.account
         self.response.add_cookie('user_token',
                                  self.account.new_key() if self.account.is_real() else '_none',
                                  samesite='strict', path='/')
@@ -45,8 +45,15 @@ class RequestHandler:
         # For debug - remove and put only in rank 4 later
         self.render_register(
             reboot_controls='\n'.join([
-                '<button type="button" class="ctrl-button" onclick="return \"{}\"">{}</button>'.format(j,i) for i,j in
-                (('Update', 'update'), ('Reboot', 'reboot'), ('Clear Config', 'refresh-config'), ('Clear Cache', 'refresh-cache'))])
+                '<button type="button" class="ctrl-button" onclick="sendControlKey(\'{1}\')">{0}</button>'.format(i,j) for i,j in
+                {
+                    'Update': 'update',
+                    'Reboot': 'reboot',
+                    'Clear Config': 'refresh-config',
+                    'Clear Cache': 'refresh-cache',
+                    'Update and Restart': 'update-reboot',
+                    'Shutdown': 'shutdown',
+                }.items()])
         )
 
         if self.rank == 0:
@@ -89,39 +96,39 @@ class HandlerBlank(RequestHandler):
     def call(self):
         self.response.redirect('/home/index.html')
 
-class HandlerReboot(RequestHandler):
+class HandlerLog(RequestHandler):
     def call(self):
-        self.server.reboot()
-
-class HandlerUpdate(RequestHandler):
-    def call(self):
-        self.server.update()
-
-class HandlerReloadConfig(RequestHandler):
-    def call(self):
-        self.server.reload_config()
-
-class HandlerRefreshCache(RequestHandler):
-    def call(self):
-        self.server.reload_cache()
-
-class HandlerUpdateReboot(RequestHandler):
-    def call(self):
-        self.server.update()
-        self.server.reboot()
+        self.response.set_body(self.server.get_log())
 
 class HandlerControlWords(RequestHandler):
     def call(self):
         self.response.set_body('0')
         cmd = self.request.get_post('cmd')
+
+        self.response.add_cookie('user_token', self.token, samesite='strict', path='/')
+        self.account.manual_key()
+
+        # if self.rank >= 4:
         if cmd == 'reboot':
+            self.server.log('Request to reboot granted.')
             self.server.reboot()
         elif cmd == 'refresh-cache':
+            self.server.log('Request to refresh server cache granted.')
             self.server.reload_cache()
         elif cmd == 'refresh-config':
+            self.server.log('Request to reload config granted.')
             self.server.reload_config()
         elif cmd == 'update':
+            self.server.log('Request to update granted.')
             self.server.update()
+        elif cmd == 'update-reboot':
+            self.server.log('Request to update and reboot granted.')
+            self.server.update()
+            self.server.reboot()
+        elif cmd == 'shutdown':
+            self.server.shutdown()
+        else:
+            self.server.log('An unknown control word was received:', cmd)
 
 # Project-specific handlers
 
@@ -175,16 +182,12 @@ class HandlerAdminBoard(RequestHandler):
 
 GET = {
     '/': HandlerBlank,
-    '/reboot': HandlerReboot,
-    '/update': HandlerUpdate,
-    '/ur': HandlerUpdateReboot,
-    '/cache': HandlerRefreshCache,
-    '/config': HandlerReloadConfig,
     '/accounts/signup.html': HandlerSignupPage,
     '/accounts/login.html': HandlerLoginPage,
     '/home/index.html': HandlerHome,
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
+    '/logfile': HandlerLog,
     # '/home/index.html': ...    remove default_handler from important pages like this
 }
 

@@ -16,4 +16,7 @@ while True:
         process.kill()
         print('REBOOTING')
         continue
+    elif process.returncode == 0:
+        print('Shut down gracefully.')
+        process.kill()
     break
