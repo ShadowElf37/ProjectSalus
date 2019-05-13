@@ -1,3 +1,8 @@
+v0.1.17 (5/12/19)
+- Added shutdown function to server
+- Finished improving error handling; it can now run safely
+- Added /logfile to view the current log - modified Tees to write to a StringIO buffer that the server can read from in get_log()
+
 v0.1.16 (5/12/19)
 - Added asyncpost.js for control words, along with the functions to handle them all
 - Working on new serializer that's "cleaner" and "more robust" according to Alex (it's broken af)

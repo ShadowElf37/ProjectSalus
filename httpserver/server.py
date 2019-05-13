@@ -1,4 +1,4 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import HTTPServer
 from httpserver.response import *
 from httpserver.threadpool import *
 from httpserver.handlers import *
@@ -10,11 +10,13 @@ from subprocess import check_output
 from httpserver.cache import FileCache
 from httpserver.config import CONFIG_CACHE
 import httpserver.serializer as serializer
+from traceback import format_exc
+import random
 
 RESPONSE_QUEUE = []
 
 class Server(HTTPServer):
-    def __init__(self, host='0.0.0.0', port=8080, *args):
+    def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
         super().__init__((host, port), HTTPMacroHandler, *args)
         self.host = host
         self.port = port
@@ -23,6 +25,7 @@ class Server(HTTPServer):
         self.pool = Pool(8)
         self.config_cache = CONFIG_CACHE
         self.cache = FileCache()
+        self.buffer = stdout_buffer
         self.running = True
 
     def process_request(self, request, client_address):
@@ -47,8 +50,7 @@ class Server(HTTPServer):
                 self.close()
                 break
             except Exception as e:
-                raise e
-                # self.log('An exception occurred:', e)
+                self.log('=*'*50+'Very bad server-level error:\n' + format_exc()+'\n'+'*='*50)
             finally:
                 self.cleanup()
         self.cleanup()
@@ -56,6 +58,9 @@ class Server(HTTPServer):
     def reboot(self):
         self.close()
         os._exit(37)
+
+    def get_log(self):
+        return self.buffer.getvalue() if self.buffer else None
 
     def reload_config(self):
         self.config_cache.reload()
@@ -95,24 +100,33 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
                           msg%subs)
                          )
 
+    def make_error(self, e):
+        responses = [
+                'Well this is embarrassing.',
+                'Oopsie!',
+                'Oh, uh, you weren\'t supposed to see this...',
+                'That\'s not quite what I thought would happen...'
+            ]
+        print('='*100+'\nA fatal error was caught in handler:\n' + format_exc()+'\n'+'='*100)
+        self.send_error(500, (random.choice(responses) + ' ' + str(e)[0].upper() + str(e)[1:]))
+        return 0
+
     def do_HEAD(self):
-        self.send_response(200, 'OK')
+        self.send_response(200)
         self.end_headers()
 
     def do_GET(self):
         req = Request(self)
         rsp = Response(req)
         RESPONSE_QUEUE.append(rsp)
-        handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
         try:
+            handler = handlers.GET.get(req.path, handlers.DefaultHandler)(req, rsp)
             handler.pre_call()
             handler.call()
             handler.post_call()
             rsp.finish()
         except Exception as e:
-            raise e
-            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
-            self.send_error(500, str(e) + ' line ' + str(e.__traceback__.tb_lineno))
+            self.make_error(e)
 
         while not RESPONSE_QUEUE[0] == rsp:
             sleep(0.0001)
@@ -129,9 +143,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             handler.post_call()
             rsp.finish()
         except Exception as e:
-            raise e
-            print('A fatal error occurred:', e, 'line', e.__traceback__.tb_lineno)
-            self.send_error(500, str(e)+' (line '+str(e.__traceback__.tb_lineno))
+            self.make_error(e)
 
         while not RESPONSE_QUEUE[0] == rsp:
             sleep(0.0001)

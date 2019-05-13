@@ -4,15 +4,16 @@ from httpserver.tee import *
 from datetime import datetime
 import httpserver.config
 
-# Obviously change these backslashes for Linux
 logfile = open(op.join(
         op.dirname(op.abspath(__file__)),
         'logs',
         '{}.log'.format(datetime.now().strftime("%Y-%m-%d %H.%M.%S"))), "a", 1)
-tees = (OutTee(logfile), ErrTee(logfile))
+
+BUFFER = io.StringIO()
+tees = (OutTee(logfile, BUFFER), ErrTee(logfile, BUFFER))
 
 print('Starting %s...' % __file__)
-s = Server()
+s = Server(stdout_buffer=BUFFER)
 s.run()
 logfile.close()
 print('Server shut down gently.')

@@ -1,7 +1,6 @@
 from httpserver.response import Request, Response
 from httpserver.client import ClientObj, Account, ShellAccount
 from httpserver.config import get_config
-import os.path as op
 
 navbar = get_config('navbar')
 
@@ -97,6 +96,10 @@ class HandlerBlank(RequestHandler):
     def call(self):
         self.response.redirect('/home/index.html')
 
+class HandlerLog(RequestHandler):
+    def call(self):
+        self.response.set_body(self.server.get_log())
+
 class HandlerControlWords(RequestHandler):
     def call(self):
         self.response.set_body('0')
@@ -184,6 +187,7 @@ GET = {
     '/home/index.html': HandlerHome,
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
+    '/logfile': HandlerLog,
     # '/home/index.html': ...    remove default_handler from important pages like this
 }
 
