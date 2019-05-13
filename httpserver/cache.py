@@ -28,7 +28,7 @@ CONTENT_TYPE = {
 }
 
 for k,v in CONTENT_TYPE.items():
-    add_type(v, k)
+    add_type(v, ('.' if k[0] is not '.' else '')+k)
 
 def guess_mime(path):
     r = guess_type(path)[0]
@@ -43,19 +43,19 @@ class FileCache:
         ff = self.cache.get(f)
         of = f
         tfolder = None
+        m = guess_mime(f)
         for t, dir in get_config('locations').data.items():
-            if fnmatch(t, guess_mime(f)):
+            if fnmatch(t, m):
                 tfolder = dir
         # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f
         if ff is None:
-            #while op.split(f)[0] != '/':
-                # print(op.split(f))
+            # recursive search      while op.split(f)[0] != '/':
             try:
                 ff = open(f, 'rb' if binary else 'r').read()
             except FileNotFoundError:
                 pass
-            # f = '/'.join(op.split(f)[0].split('/')[:-1]) + '/' + op.split(f)[1]
+            # recursive search      f = '/'.join(op.split(f)[0].split('/')[:-1]) + '/' + op.split(f)[1]
 
             if tfolder:
                 # print('web/assets' + tfolder + '/' + op.split(of)[1])

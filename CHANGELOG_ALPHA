@@ -1,3 +1,7 @@
+v0.1.16 (5/12/19)
+- Added asyncpost.js for control words, along with the functions to handle them all
+- Working on new serializer that's "cleaner" and "more robust" according to Alex (it's broken af)
+
 v0.1.15 (5/11/19)
 - Through a wrecking ball through all of the code everywhere and made a new serializer - @Serialized('file')
 

@@ -5,6 +5,7 @@ from httpserver.handlers import *
 import httpserver.handlers as handlers
 import os
 import sys
+from time import sleep
 from subprocess import check_output
 from httpserver.cache import FileCache
 from httpserver.config import CONFIG_CACHE
@@ -69,6 +70,10 @@ class Server(HTTPServer):
         self.cleanup()
         self.log('Server shut down safely by user.')
 
+    def shutdown(self):
+        self.close()
+        os._exit(0)
+
     def cleanup(self):
         if not self.running: return
         self.running = False
@@ -77,14 +82,14 @@ class Server(HTTPServer):
 
     @staticmethod
     def log(*string):
-        print('Server ['+time.strftime('%D %X')+'] - ', *string)
+        print('Server ['+time.strftime('%D %X')+'] -', *string)
 
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
     def log_message(self, msg, *subs):
-        sys.stderr.write("%s [%s] -  %s\n" %
+        sys.stderr.write("%s [%s] - %s\n" %
                          (self.address_string(),
                           time.strftime('%D %X'),
                           msg%subs)

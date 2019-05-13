@@ -31,6 +31,11 @@ class Account:
         self.register_self()
         return self.key
 
+    def manual_key(self, key):
+        user_tokens.delete(self.key)
+        user_tokens.set(key, self)
+        self.key = key
+
     def check_pwd(self, pwd):
         return self.password == pwd
 
@@ -53,9 +58,12 @@ class ShellAccount:
         return
     def register_self(self):
         return
+    def manual_key(self, *args):
+        return
 
     def is_real(self):
         return False
+
 
     def __eq__(self, other):
         if other is None:
@@ -68,15 +76,18 @@ class ClientObj:
         # print('Available accounts:', user_tokens.value)
         self.account = user_tokens.get(key, ShellAccount())
         if self.account.is_real():
-            user_tokens.delete(key)
-            k = self.new_key()
-            self.account.key = k
-            user_tokens.set(k, self.account)
+            self.renew_account(key)
         # self.name = self.account.name
 
     @staticmethod
     def new_key():
         return token_urlsafe()
+
+    def renew_account(self, old_key):
+        user_tokens.delete(old_key)
+        k = self.new_key()
+        self.account.key = k
+        user_tokens.set(k, self.account)
 
     def create_account(self, name, password):
         self.account = Account(name, password, self.new_key())
