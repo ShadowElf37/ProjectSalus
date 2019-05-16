@@ -3,6 +3,7 @@ from uuid       import uuid4
 from functools  import wraps
 from importlib  import import_module
 from sys        import stderr
+from copy       import deepcopy
 import json
 from json.decoder import JSONDecodeError
 #from config import get_config
@@ -169,7 +170,9 @@ class Serializer:
         # obj = cls()  # Work on signature
         fields = data["data"]
         # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
-        obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})
+        obj.__dict__.update({k: self._deserialize(fields[k])
+            if k in fields else (v() if callable(v) else deepcopy(v))
+                for k, v in cls._defaults.items()})
         obj._postinst()
         self.antiset.add(uuid)
         return obj
