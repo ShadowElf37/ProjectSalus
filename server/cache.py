@@ -1,6 +1,6 @@
 from _io import TextIOWrapper
 import os.path as op
-from httpserver.config import get_config
+from server.config import get_config
 from mimetypes import guess_type, add_type
 from fnmatch import fnmatch
 

@@ -54,12 +54,13 @@ class Serializer:
         """Mark an object for serialization"""
         self.names[name] = self._serialize(obj)
 
-    def serialized(self, postinst=None, **kwargs):
+    def serialized(self, preinst=None, postinst=None, **kwargs):
         """Register a class as serialiable, calling postinst after deserialization"""
         def s_decor(cls):
             cls._serializable = True
             kwargs["_uuid"] = None
             cls._defaults = kwargs
+            cls._preinst = preinst or noop
             cls._postinst = postinst or noop
             inner_init = cls.__init__
             @wraps(inner_init)
@@ -165,6 +166,7 @@ class Serializer:
         # obj = cls()  # Work on signature
         fields = data["data"]
         # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
+        obj._preinst()
         obj.__dict__.update({k: self._deserialize(fields[k])
             if k in fields else (v() if callable(v) else deepcopy(v))
                 for k, v in cls._defaults.items()})
@@ -203,5 +205,3 @@ class BSManager:
     def cleanup(self):
         for s in self.serials:
             s.dump()
-
-Manager = BSManager()

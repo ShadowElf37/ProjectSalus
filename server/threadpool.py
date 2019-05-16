@@ -1,5 +1,5 @@
 from threading import *
-from httpserver.config import get_config
+from server.config import get_config
 
 config = get_config('threads')
 
@@ -65,3 +65,37 @@ class Fish:
             server.finish_request(request, client_address)
             server.shutdown_request(request)
             self.busy = False
+
+class RWLockMixin:
+    """Make any getattr access rw-locked."""
+    def __init__(self):
+        self._read_ready = Condition(RLock())
+        self._readers = 0
+    def __getattribute__(self, item):
+        if not item.startswith("_"):
+            with self._read_ready:
+                self._readers += 1
+            try:
+                attr = object.__getattribute__(self, item)
+            finally:
+                with self._read_ready:
+                    self._readers -= 1
+                    if not self._readers:
+                        self._read_ready.notifyAll()
+            return attr
+        return object.__getattribute__(self, item)
+    def __setattr__(self, item, val):
+        if not item.startswith("_"):
+            with self._read_ready:
+                while self._readers > 0:
+                    self._read_ready.wait()
+                object.__setattr__(self, item, val)
+        else: object.__setattr__(self, item, val)
+    def __delattr__(self, item):
+        if not item.startswith("_"):
+            with self._read_ready:
+                while self._readers > 0:
+                    self._read_ready.wait()
+                object.__delattr__(self, item)
+        else: object.__delattr__(self, item)
+

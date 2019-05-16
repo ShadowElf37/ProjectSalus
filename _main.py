@@ -1,8 +1,8 @@
-from httpserver.server import Server
+from server.server import Server
 import os.path as op
-from httpserver.tee import *
+from server.tee import *
 from datetime import datetime
-import httpserver.config
+import server.config
 
 logfile = open(op.join(
         op.dirname(op.abspath(__file__)),
