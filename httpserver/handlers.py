@@ -106,7 +106,7 @@ class HandlerControlWords(RequestHandler):
         cmd = self.request.get_post('cmd')
 
         self.response.add_cookie('user_token', self.token, samesite='strict', path='/')
-        self.account.manual_key()
+        self.account.manual_key(self.token)
 
         # if self.rank >= 4:
         if cmd == 'reboot':

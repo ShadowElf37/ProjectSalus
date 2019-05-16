@@ -27,6 +27,7 @@ class Serializer:
     def __init__(self):
         self.names = dict()
         self.antipool = dict() # map uuid to serialized data
+        self.anticache = set()
         self.pool = dict() # map uuid to name
         self.pool_queue = None
         self.pool_lock = RLock()
@@ -39,7 +40,7 @@ class Serializer:
         stuff = json.load(file)
         self.names.update(stuff["names"])
         self.antipool.update(stuff["pool"])
-        self.pool = dict() # everyone out
+        self.antiset = set() # everyone out
     
     def get(self, name):
         """Deserialize an object by its name."""
@@ -99,8 +100,7 @@ class Serializer:
     def _from_pool(self, obj):
         """Register an object in the pool."""
         with self.pool_lock:
-            entry = self.pool.get(obj._uuid, None)
-            if not entry:
+            if obj._uuid not in self.pool:
                 self.pool[obj._uuid] = obj
                 if self.pool_queue:
                     self.pool_queue.append(obj._uuid)
@@ -163,9 +163,8 @@ class Serializer:
     def _deserialize_class(self, data):
         """Deserialize a class object"""
         uuid = data["data"]["_uuid"]
-        cached = self.pool.get(uuid, None)
-        if cached:
-            return cached
+        if uuid in self.antiset:
+            return self.pool[uuid]
         cls = self._lookup_class(data["module"], data["type"])
         assert self._is_sclass(cls)
         obj = Dummy()
@@ -175,6 +174,7 @@ class Serializer:
         # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
         obj.__dict__.update({k: self._deserialize(fields[k]) if k in fields else v for k, v in cls._defaults.items()})
         obj._postinst()
+        self.antiset.add(uuid)
         return obj
 
 class BoundSerializer(Serializer):
