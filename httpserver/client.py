@@ -7,7 +7,10 @@ from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(name='', password='', key='')
+def account_post(self):
+    self.shell = False
+
+@AccountsSerializer.serialized(account_post, ips=[], id=0, rank=1, name='', password='', key='', last_activity='', email='')
 class Account:
     def __init__(self, name, password, key, email=""):
         self.ips = []
