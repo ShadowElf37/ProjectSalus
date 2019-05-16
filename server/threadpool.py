@@ -1,5 +1,5 @@
 from threading import *
-from httpserver.config import get_config
+from server.config import get_config
 
 config = get_config('threads')
 

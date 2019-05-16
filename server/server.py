@@ -1,15 +1,15 @@
 from http.server import HTTPServer
-from httpserver.response import *
-from httpserver.threadpool import *
-from httpserver.handlers import *
-import httpserver.handlers as handlers
+from server.response import *
+from server.threadpool import *
+from server.handlers import *
+import server.handlers as handlers
 import os
 import sys
 from time import sleep
 from subprocess import check_output
-from httpserver.cache import FileCache
-from httpserver.config import CONFIG_CACHE
-from httpserver.persistent import Manager
+from server.cache import FileCache
+from server.config import CONFIG_CACHE
+from server.persistent import Manager
 from traceback import format_exc
 import random
 

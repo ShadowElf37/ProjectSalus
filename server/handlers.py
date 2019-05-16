@@ -1,6 +1,6 @@
-from httpserver.response import Request, Response
-from httpserver.client import ClientObj, Account, ShellAccount
-from httpserver.config import get_config
+from server.response import Request, Response
+from server.client import ClientObj, Account, ShellAccount
+from server.config import get_config
 
 navbar = get_config('navbar')
 

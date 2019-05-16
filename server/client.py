@@ -1,9 +1,9 @@
 from wsgiref.handlers import format_date_time
 from time import time
 from secrets import token_urlsafe
-from httpserver.config import get_config
-from httpserver.persistent import PersistentDict, AccountsSerializer
-from httpserver.threadpool import RWLockMixin
+from server.config import get_config
+from server.persistent import PersistentDict, AccountsSerializer
+from server.threadpool import RWLockMixin
 from random import randint
 
 whitelist = get_config('whitelist').get('users')

@@ -1,6 +1,6 @@
-from httpserver.config import get_config
+from server.config import get_config
 import pickle
-from httpserver.serializer import BSManager
+from server.serializer import BSManager
 
 #cfg = get_config('persistent')
 
