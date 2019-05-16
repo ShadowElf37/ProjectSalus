@@ -85,12 +85,17 @@ class RWLockMixin:
             return attr
         return object.__getattribute__(self, item)
     def __setattr__(self, item, val):
-        with self._read_ready:
-            while self._readers > 0:
-                self._read_ready.wait()
-            object.__setattr__(self, item, val)
+        if not item.startswith("_"):
+            with self._read_ready:
+                while self._readers > 0:
+                    self._read_ready.wait()
+                object.__setattr__(self, item, val)
+        else: object.__setattr__(self, item, val)
     def __delattr__(self, item):
-        with self._read_ready:
-            while self._readers > 0:
-                self._read_ready.wait()
-            object.__delattr__(self, item)
+        if not item.startswith("_"):
+            with self._read_ready:
+                while self._readers > 0:
+                    self._read_ready.wait()
+                object.__delattr__(self, item)
+        else: object.__delattr__(self, item)
+

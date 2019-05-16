@@ -3,16 +3,20 @@ from time import time
 from secrets import token_urlsafe
 from httpserver.config import get_config
 from httpserver.persistent import PersistentDict, AccountsSerializer
+from httpserver.threadpool import RWLockMixin
 from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
+def account_pre(self):
+    super(self.__class__, self).__init__()
 def account_post(self):
     self.shell = False
 
-@AccountsSerializer.serialized(account_post, ips=[], id=0, rank=1, name='', password='', key='', last_activity='', email='')
-class Account:
+@AccountsSerializer.serialized(account_pre, account_post, ips=[], id=0, rank=1, name='', password='', key='', last_activity='', email='')
+class Account(RWLockMixin):
     def __init__(self, name, password, key, email=""):
+        super().__init__()
         self.ips = []
         self.name = name
         self.email = email
