@@ -4,9 +4,8 @@ from secrets import token_urlsafe
 from httpserver.config import get_config
 from httpserver.persistent import PersistentDict, AccountsSerializer
 from random import randint
-# from httpserver.serial import Serialized, JSONSerializer as JSER
 
-# whitelist = get_config('whitelist').get('users')
+whitelist = get_config('whitelist').get('users')
 
 @AccountsSerializer.serialized(name='', password='', key='')
 class Account:
@@ -108,12 +107,8 @@ class ClientObj:
 from json.decoder import JSONDecodeError
 
 try:
-    AccountsSerializer.initialize()
-    user_tokens = AccountsSerializer.request('accounts')
+    AccountsSerializer.load()
+    user_tokens = AccountsSerializer.get('accounts')
 except (JSONDecodeError, KeyError):
     user_tokens = PersistentDict()
-    AccountsSerializer.register('accounts', user_tokens)
-# try:
-    # user_tokens = next(filter(lambda o: type(o) == PersistentDict, JSER('data/accounts.json').load()))
-# except StopIteration:
-    # user_tokens = PersistentDict()
+    AccountsSerializer.set('accounts', user_tokens)

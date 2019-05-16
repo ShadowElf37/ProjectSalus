@@ -82,7 +82,7 @@ class Server(HTTPServer):
     def cleanup(self):
         if not self.running: return
         self.running = False
-        serializer.cleanup()
+        serializer.Manager.cleanup()
         self.server_close()
 
     @staticmethod

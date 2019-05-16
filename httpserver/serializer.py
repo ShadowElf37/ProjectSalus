@@ -10,10 +10,6 @@ localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: loca
 
 config = get_config("serializer")
 
-def cleanup():
-    for ser in SERIALIZERS:
-        ser.commit()
-
 class Dummy:
     pass
 def noop(*args, **kwargs):
@@ -56,7 +52,6 @@ class Serializer:
         for (k, v) in self._pool_iterator():
             pool[k] = v._serialize()
         json.dump({"names": self.names, "pool": pool}, file, indent=4)
-        self.f.flush()
     
     def set(self, name, obj):
         """Mark an object for serialization"""
@@ -190,15 +185,18 @@ class BoundSerializer(Serializer):
             self.fh = open(path, "r+")
         except FileNotFoundError:
             self.fh = open(path, "w+")
+
     def __del__(self):
         self.fh.close()
-    def load(self):
+
+    def load(self, *args):
         self.fh.seek(0)
         super().load(self.fh)
-    def dump(self);
+    def dump(self, *args):
         self.fh.seek(0)
         self.fh.truncate()
         super().dump(self.fh)
+        self.fh.flush()
 
 class BSManager:
     def __init__(self):
@@ -209,4 +207,6 @@ class BSManager:
         return s
     def cleanup(self):
         for s in self.serials:
-            return 
+            s.dump()
+
+Manager = BSManager()
