@@ -148,10 +148,7 @@ class Serializer:
             if dtype in Serializer.ITERABLE_TYPES:
                 return self._deserialize_iterable(obj["data"], dtype)
             if obj["type"] == "dict":
-                rval = dict()
-                for x in obj["data"]:
-                    rval[x["key"]] = x["value"]
-                return rval
+                return {x["key"]: self._deserialize(x["value"]) for x in obj["data"]}
         raise TypeError("Unsupported deserialization for {}!".format(obj))
     
     def _lookup_class(self, module, name):
