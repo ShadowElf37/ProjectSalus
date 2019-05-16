@@ -69,7 +69,7 @@ class Fish:
 class RWLockMixin:
     """Make any getattr access rw-locked."""
     def __init__(self):
-        self._read_ready = Condition(Lock())
+        self._read_ready = Condition(RLock())
         self._readers = 0
     def __getattribute__(self, item):
         if not item.startswith("_"):
