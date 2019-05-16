@@ -203,5 +203,3 @@ class BSManager:
     def cleanup(self):
         for s in self.serials:
             s.dump()
-
-Manager = BSManager()

@@ -9,7 +9,7 @@ from time import sleep
 from subprocess import check_output
 from httpserver.cache import FileCache
 from httpserver.config import CONFIG_CACHE
-import httpserver.serializer as serializer
+from httpserver.persistent import Manager
 from traceback import format_exc
 import random
 
@@ -82,7 +82,7 @@ class Server(HTTPServer):
     def cleanup(self):
         if not self.running: return
         self.running = False
-        serializer.Manager.cleanup()
+        Manager.cleanup()
         self.server_close()
 
     @staticmethod

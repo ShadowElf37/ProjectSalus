@@ -1,9 +1,10 @@
 from httpserver.config import get_config
 import pickle
-from httpserver.serializer import Manager
+from httpserver.serializer import BSManager
 
 #cfg = get_config('persistent')
 
+Manager = BSManager()
 AccountsSerializer = Manager.make_serializer('accounts.json')
 
 @AccountsSerializer.serialized(value={})
