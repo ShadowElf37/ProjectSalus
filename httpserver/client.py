@@ -108,10 +108,9 @@ class ClientObj:
         return self.account is not None and self.account.is_real()
 
 from json.decoder import JSONDecodeError
-
 try:
     AccountsSerializer.load()
     user_tokens = AccountsSerializer.get('accounts')
 except (JSONDecodeError, KeyError):
     user_tokens = PersistentDict()
-    AccountsSerializer.set('accounts', user_tokens)
+AccountsSerializer.set('accounts', user_tokens)

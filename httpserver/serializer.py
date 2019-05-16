@@ -16,11 +16,6 @@ class Dummy:
 def noop(*args, **kwargs):
     pass
 
-class Nonce:
-    def __init__(self, desc=None):
-        self.desc = desc or "{} object".format(self.__class__.__name__)
-    def __repr__(self):
-        return "{%s}" % (self.desc)
 
 class Serializer:
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
