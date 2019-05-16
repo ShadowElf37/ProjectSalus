@@ -7,9 +7,8 @@ Backend (urgent):
 
 Front-end (important):
     1. Home page demo
-    2. Create client-side password encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    4. Fix the goddamn serializer
-    5. Read/write lock account to avoid race conditions and reading/writing outdated information
+    2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
+    3. Read/write lock account to avoid race conditions and reading/writing outdated information
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
