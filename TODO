@@ -9,6 +9,9 @@ Front-end (important):
     1. Home page demo
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
     3. Read/write lock account to avoid race conditions and reading/writing outdated information
+    4. Scraping
+    5. Backups
+    6. Timed-worker thread
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
