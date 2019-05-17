@@ -43,7 +43,7 @@ class Tab:
     @focused
     def open(self, url):
         self.browser.open(url)
-    get = open
+    get = go = goto = open
 
     @focused
     def get_title(self):
@@ -199,10 +199,11 @@ class Browser:
         r = self.run_js("window.open('', '_blank')")
         self.switch_last_tab()
         return r
-    def new_tab(self) -> Tab:
+    def new_tab(self, url=None) -> Tab:
         self._new_tab()
         t = Tab(self, self.current_tab())
         self.tab_objects.append(t)
+        if url: self.open(url)
         return t
     def switch_tab(self, n):
         try:
@@ -272,9 +273,8 @@ submit = blackbaud.getElementById('loginBtn')
 submit.click()
 blackbaud.await_url_is('https://emeryweiner.myschoolapp.com/app/student#activitystream')
 
-twitter = firefox.new_tab()
-twitter.open('https://twitter.com')
-blackbaud.open('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
+twitter = firefox.new_tab('https://twitter.com')
+blackbaud.get('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
 twitter.close()
 
 schedule = blackbaud.getElementById('calendar-main-view', 5)
