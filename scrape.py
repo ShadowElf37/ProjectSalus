@@ -1,10 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from time import strftime
+from time import strftime, time
 from bs4 import BeautifulSoup
 import platform
 
@@ -101,8 +102,13 @@ class Browser:
 
     def __init__(self):
         self.options = Options()
-        self.options.headless = False
-        self.driver = webdriver.Firefox(options=self.options)
+        self.profile = FirefoxProfile()
+
+        self.options.headless = False  # Show GUI or not
+        # self.profile.set_preference('permissions.default.stylesheet', 2)  # Ignore CSS
+        # self.profile.set_preference('permissions.default.image', 2)  # Ignore images
+
+        self.driver = webdriver.Firefox(firefox_profile=self.profile, options=self.options)
         self.tab_objects = []
 
     @staticmethod
@@ -225,7 +231,7 @@ class Browser:
         for tab in self.driver.window_handles:
             if tab != current:
                 self.driver.window_handles.remove(tab)
-        self.close()
+        self.driver.close()
         for tab in tabs:
             self.driver.window_handles.append(tab)
         self.switch_tab(current_index - 1)
@@ -256,10 +262,11 @@ class Browser:
         return self.driver.forward()
 
     def close(self):
-        return self.driver.close()
+        return self.driver.quit()
 
-
+print('Starting...')
 firefox = Browser()
+t = time()
 blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
 
 user = blackbaud.getElementById('Username', 5)
@@ -280,3 +287,4 @@ twitter.close()
 schedule = blackbaud.getElementById('calendar-main-view', 5)
 print(firefox.soup(schedule))
 firefox.close()
+print('Operation took %s s' % (time()-t))
