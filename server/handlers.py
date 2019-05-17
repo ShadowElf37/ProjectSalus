@@ -180,6 +180,24 @@ class HandlerAdminBoard(RequestHandler):
         else:
             self.response.refuse()
 
+class HandlerBBPage(RequestHandler):
+    def call(self):
+        self.response.attach_file('/accounts/bbtest.html')
+
+BB = ''
+from scrape import bbtest
+class HandlerBBLogin(RequestHandler):
+    def call(self):
+        global BB
+        u = self.request.get_post('user')
+        p = self.request.get_post('pass')
+        BB = bbtest(u, p)
+
+class HandlerBBSchedule(RequestHandler):
+    def call(self):
+        global BB
+        self.response.attach_file('/accounts/bb.html', schedule=BB)
+
 GET = {
     '/': HandlerBlank,
     '/accounts/signup.html': HandlerSignupPage,
@@ -188,6 +206,9 @@ GET = {
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
     '/logfile': HandlerLog,
+    '/bbpage': HandlerBBPage,
+    '/bb': HandlerBBLogin,
+    '/bbs': HandlerBBSchedule,
     # '/home/index.html': ...    remove default_handler from important pages like this
 }
 

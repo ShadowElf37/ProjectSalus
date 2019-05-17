@@ -7,7 +7,7 @@ class Pool:
     def __init__(self, threadcount):
         self.condition = Condition()
         self.queue = []
-        self.threads = [Fish(self.condition, self.queue) for i in range(threadcount)]
+        self.threads = [Fish(self.condition, self.queue) for _ in range(threadcount)]
 
     def launch(self):
         for t in self.threads:

@@ -53,15 +53,21 @@ class Tab:
     def await_title_is(self, title, timeout=5):
         return self.browser.await_title_is(title, timeout)
     @focused
+    def await_title_has(self, title, timeout=5):
+        return self.browser.await_title_has(title, timeout)
+    @focused
     def get_url(self):
         return self.browser.get_url()
     @focused
     def await_url_is(self, url, timeout=5):
         return self.browser.await_url_is(url, timeout)
+    @focused
+    def await_url_has(self, url, timeout=5):
+        return self.browser.await_url_has(url, timeout)
 
     @focused
-    def run_js(self, js):
-        return self.browser.run_js(js)
+    def js(self, js):
+        return self.browser.js(js)
 
     @focused
     def getElementById(self, id, timeout=2, multiple=False):
@@ -132,6 +138,10 @@ class Browser:
         return WebDriverWait(self.driver, timeout).until(ecmethod)
     def wait_for_not(self, ecmethod, timeout=6):
         return WebDriverWait(self.driver, timeout).until_not(ecmethod)
+    def confirm(self, ecmethod):
+        return ecmethod()
+    def confirm_not(self, ecmethod):
+        return not ecmethod()
 
     def getElementById(self, id, timeout=2, multiple=False):
         if timeout:
@@ -180,11 +190,15 @@ class Browser:
 
     def await_url_is(self, url, timeout=5):
         return self.wait_for(EC.url_matches(url), timeout)
+    def await_url_has(self, url, timeout=5):
+        return self.wait_for(EC.url_contains(url), timeout)
     def get_url(self):
         return self.driver.current_url
 
     def await_title_is(self, title, timeout=5):
         return self.wait_for(EC.title_is(title), timeout)
+    def await_title_has(self, title, timeout=5):
+        return self.wait_for(EC.title_contains(title), timeout)
     def get_title(self):
         return self.driver.title
 
@@ -202,7 +216,7 @@ class Browser:
     def await_new_tab(self, timeout=1):
         return self.wait_for(EC.new_window_is_opened(self.driver.window_handles), timeout)
     def _new_tab(self):
-        r = self.run_js("window.open('', '_blank')")
+        r = self.js("return window.open('', '_blank')")
         self.switch_last_tab()
         return r
     def new_tab(self, url=None) -> Tab:
@@ -241,8 +255,13 @@ class Browser:
     def is_invisible(self, obj):
         return EC.invisibility_of_element(obj)
 
-    def run_js(self, js):
-        return self.driver.execute_script(js)
+    def scroll_to(self, obj):
+        r = self.js('return arguments[0].scrollIntoView();', obj)
+        self.wait_for(self.is_visible(obj), 3)
+        return r
+
+    def js(self, js, *args):
+        return self.driver.execute_script(js, *args)
 
     def set_cookies(self, **kwargs):
         self.driver.add_cookie(kwargs)
@@ -264,27 +283,27 @@ class Browser:
     def close(self):
         return self.driver.quit()
 
-print('Starting...')
-firefox = Browser()
-t = time()
-blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
+if __name__ == '__main__':
+    def bbtest(username, password):
+        print('Starting...')
+        firefox = Browser()
+        t = time()
+        blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
 
-user = blackbaud.getElementById('Username', 5)
-submit = blackbaud.getElementById('nextBtn')
-user.send_keys('ykey-cohen')
-submit.click()
+        user = blackbaud.getElementById('Username', 5)
+        submit = blackbaud.getElementById('nextBtn')
+        user.send_keys(username)
+        submit.click()
 
-pwd = blackbaud.getElementById('Password')
-pwd.send_keys('Yoproductions3')
-submit = blackbaud.getElementById('loginBtn')
-submit.click()
-blackbaud.await_url_is('https://emeryweiner.myschoolapp.com/app/student#activitystream')
+        pwd = blackbaud.getElementById('Password')
+        pwd.send_keys(password)
+        submit = blackbaud.getElementById('loginBtn')
+        submit.click()
+        blackbaud.await_url_is('https://emeryweiner.myschoolapp.com/app/student#activitystream')
+        blackbaud.get('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
 
-twitter = firefox.new_tab('https://twitter.com')
-blackbaud.get('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
-twitter.close()
-
-schedule = blackbaud.getElementById('calendar-main-view', 5)
-print(firefox.soup(schedule))
-firefox.close()
-print('Operation took %s s' % (time()-t))
+        schedule = blackbaud.getElementById('calendar-main-view', 5)
+        s = firefox.soup(schedule)
+        firefox.close()
+        print('Operation took %.1f seconds' % (time() - t))
+        return s

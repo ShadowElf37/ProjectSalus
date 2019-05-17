@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        {{css('general.css')}}
+        {{js('asyncpost.js')}}
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-header"><a href="#">Project Salus</a></div>
+            <div class="reboot-controls">
+                [[reboot_controls]]
+            </div>
+            <ul class="navbar-items">
+                [[navbar]]
+            </ul>
+        </div>
+
+        <center>
+            <div class="page-container">
+                Hello, [[name]]!
+                [[schedule]]
+            </div>
+        </center>
+
+        <div class="info-bar">
+            <p>Project Salus - made by Yovel Key-Cohen</p>
+        </div>
+    </body>
+</html>
