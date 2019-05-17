@@ -8,7 +8,7 @@ Backend (urgent):
 Front-end (important):
     1. Home page demo
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    3. Tab objects that access Browser after switching to self - it's easier to thread and stuff
+    3. Selenium threads
     4. Backup of data
     5. Timed-worker thread
 

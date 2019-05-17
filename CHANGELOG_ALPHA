@@ -1,3 +1,7 @@
+v0.2.2 (5/16/19)
+- Edits to main.py to check external libraries and mkdir config/, logs/, data/, and web/assets/ if any are missing
+- Added class Tab to scrape.py for a more unified tab-management experience
+
 v0.2.1 (5/16/19)
 - Half a robust Selenium system complete (still needs Tab objects to be truly versatile)
 - Accounts are now R/W locked with a neat little inheritance that overrides get and set to avoid race conditions
