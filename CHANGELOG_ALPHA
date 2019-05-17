@@ -1,5 +1,6 @@
 v0.2.1 (5/16/19)
 - Half a robust Selenium system complete (still needs Tab objects to be truly versatile)
+- Accounts are now R/W locked with a neat little inheritance that overrides get and set to avoid race conditions
 
 v0.2.0 (5/15/19)
 - Fixed the serializer for real this time; accounts are now stored

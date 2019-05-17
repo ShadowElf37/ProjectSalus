@@ -8,10 +8,9 @@ Backend (urgent):
 Front-end (important):
     1. Home page demo
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    3. Read/write lock account to avoid race conditions and reading/writing outdated information
-    4. Tab objects that access Browser after switching to self - it's easier to thread and stuff
-    5. Backups
-    6. Timed-worker thread
+    3. Tab objects that access Browser after switching to self - it's easier to thread and stuff
+    4. Backup of data
+    5. Timed-worker thread
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
