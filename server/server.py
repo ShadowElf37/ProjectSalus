@@ -11,6 +11,7 @@ from server.cache import FileCache
 from server.config import CONFIG_CACHE
 from server.persistent import Manager
 from traceback import format_exc
+import socket
 import random
 
 RESPONSE_QUEUE = []
@@ -19,9 +20,10 @@ class Server(HTTPServer):
     def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
         super().__init__((host, port), HTTPMacroHandler, *args)
         self.host = host
+        self.ip = socket.gethostbyname(socket.gethostname())
         self.port = port
         self.domain = 'localhost'
-        self.log('Server initialized.')
+        self.log('Server initialized on {}:{}.'.format(self.ip, port))
         self.pool = Pool(8)
         self.config_cache = CONFIG_CACHE
         self.cache = FileCache()

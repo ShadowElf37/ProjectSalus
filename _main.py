@@ -2,7 +2,6 @@ from server.server import Server
 import os.path as op
 from server.tee import *
 from datetime import datetime
-import server.config
 
 logfile = open(op.join(
         op.dirname(op.abspath(__file__)),
