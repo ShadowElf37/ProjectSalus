@@ -8,15 +8,13 @@ from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-def account_pre(self):
-    super(self.__class__, self).__init__()
-def account_post(self):
-    self.shell = False
-
 @AccountsSerializer.serialized(account_pre, account_post, ips=[], id=0, rank=1, name='', password='', key='', last_activity='', email='')
 class Account(RWLockMixin):
-    def __init__(self, name, password, key, email=""):
+    def __preinit__(self):
         super().__init__()
+    def __postinit__(self):
+        self.shell = False
+    def __init__(self, name, password, key, email=""):
         self.ips = []
         self.name = name
         self.email = email
@@ -25,7 +23,6 @@ class Account(RWLockMixin):
         self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
-        self.shell = False
 
     def register_self(self):
         k = ClientObj.new_key()

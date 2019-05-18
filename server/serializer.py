@@ -5,7 +5,6 @@ from importlib  import import_module
 from sys        import stderr
 from copy       import deepcopy
 import json
-from json.decoder import JSONDecodeError
 #from config import get_config
 localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: localconf
 
@@ -47,28 +46,31 @@ class Serializer:
         pool = dict()
         
         for (k, v) in self._pool_iterator():
-            pool[k] = v._serialize()
+            pool[k] = v._serialize(self)
         json.dump({"names": self.names, "pool": pool}, file, indent=4)
     
     def set(self, name, obj):
         """Mark an object for serialization"""
         self.names[name] = self._serialize(obj)
 
-    def serialized(self, preinst=None, postinst=None, **kwargs):
+    @staticmethod
+    def serialized(**kwargs):
         """Register a class as serialiable, calling postinst after deserialization"""
         def s_decor(cls):
             cls._serializable = True
             kwargs["_uuid"] = None
             cls._defaults = kwargs
-            cls._preinst = preinst or noop
-            cls._postinst = postinst or noop
+            cls.__preinit__ = getattr(cls, "__preinit__", noop)
+            cls.__postinit__ = getattr(cls, "__postinit__", noop)
             inner_init = cls.__init__
             @wraps(inner_init)
             def outer_init(self, *args, **kwargs):
+                self.__preinit__()
                 self._uuid = str(uuid4())
                 inner_init(self, *args, **kwargs)
+                self.__postinit__()
             cls.__init__ = outer_init
-            cls._serialize = lambda sel: self._serialize_class(sel, cls.__module__)
+            cls._serialize = lambda obj, ser: ser._serialize_class(obj, cls.__module__)
             return cls
         return s_decor
 
