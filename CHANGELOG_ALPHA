@@ -1,3 +1,8 @@
+v0.2.3 (5/17/19)
+- Element class added to Selenium
+- Many QOL improvements to Selenium - it's now pretty much entirely self-supporting
+- Added TimingCache and Updater to cache.py (currently broken), might use to help thread Selenium
+
 v0.2.2 (5/16/19)
 - Edits to main.py to check external libraries and mkdir config/, logs/, data/, and web/assets/ if any are missing
 - Added class Tab to scrape.py for a more unified tab-management experience

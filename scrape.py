@@ -5,14 +5,71 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from time import strftime, time
+from time import strftime, time, sleep
 from bs4 import BeautifulSoup
 import platform
 
+
+class Element:
+    def __init__(self, elem, tab):
+        self.browser = tab.browser
+        self.tab = tab
+        self.elem = elem
+        self.inner = self.check_inner()
+        self.outer = self.check_outer()
+
+    @staticmethod
+    def focused(f):
+        def dec(self, *args, **kwargs):
+            old_tab = self.browser.current_tab()
+            if old_tab != self.tab.window: self.tab.focus()
+            # self.browser.scroll_to(self.elem)
+            r = f(self, *args, **kwargs)
+            if old_tab != self.tab.window: self.browser.switch_tab_key(old_tab)
+            return r
+        return dec
+    focused = focused.__func__
+
+    @focused
+    def scroll_to(self):
+        self.browser.scroll_to(self.elem)
+
+    def ec_is_visible(self):
+        return EC.visibility_of(self.elem)
+    def ec_is_invisible(self):
+        return EC.invisibility_of_element(self.elem)
+    @focused
+    def is_visible(self):
+        return self.ec_is_visible()()
+
+    @focused
+    def send_keys(self, keys):
+        self.elem.send_keys(keys)
+    @focused
+    def click(self):
+        self.elem.click()
+
+    @focused
+    def check_inner(self):
+        self.inner = self.elem.get_attribute('innerHTML')
+        return self.inner
+    @focused
+    def check_outer(self):
+        self.outer = self.elem.get_attribute('outerHTML')
+        return self.outer
+    def soup(self):
+        return BeautifulSoup(self.outer, 'html.parser')
+
+
 class Tab:
-    def __init__(self, driver, window):
+    def __init__(self, browser, window):
         self.window: str = window
-        self.browser: Browser = driver
+        self.browser: Browser = browser
+        self.id = {}
+        self.cls = {}
+        self.css_sel = {}
+        self.tag = {}
+        self.misc = {}
 
     @staticmethod
     def focused(f):
@@ -30,20 +87,20 @@ class Tab:
     def get_tab(self):
         return self.window
     def page_html(self):
-        return Browser.soup(self.getElementByTag('html'))
+        return self.getElementByTag('html').soup()
     def is_focused(self):
         return self.browser.current_tab() == self.window
 
     @focused
     def wait_for(self, ecmethod, timeout=6):
-        self.browser.wait_for(ecmethod, timeout)
+        return self.browser.wait_for(ecmethod, timeout)
     @focused
     def wait_for_not(self, ecmethod, timeout=6):
-        self.browser.wait_for_not(ecmethod, timeout)
+        return self.browser.wait_for_not(ecmethod, timeout)
 
     @focused
     def open(self, url):
-        self.browser.open(url)
+        self.browser.driver.get(url)
     get = go = goto = open
 
     @focused
@@ -71,22 +128,34 @@ class Tab:
 
     @focused
     def getElementById(self, id, timeout=2, multiple=False):
-        return self.browser.getElementById(id, timeout, multiple)
+        e = self.id.get(id, Element(self.browser.getElementById(id, timeout, multiple), self))
+        self.id[id] = e
+        return e
     @focused
     def getElementByClass(self, cls, timeout=2, multiple=False):
-        return self.browser.getElementById(cls, timeout, multiple)
+        e = self.cls.get(cls, Element(self.browser.getElementById(cls, timeout, multiple), self))
+        self.cls[cls] = e
+        return e
     @focused
     def getElementByTag(self, tag, timeout=2, multiple=False):
-        return self.browser.getElementById(tag, timeout, multiple)
+        e = self.tag.get(tag, Element(self.browser.getElementById(tag, timeout, multiple), self))
+        self.tag[tag] = e
+        return e
     @focused
     def getElementBySelector(self, css_sel, timeout=2, multiple=False):
-        return self.browser.getElementById(css_sel, timeout, multiple)
+        e = self.css_sel.get(css_sel, Element(self.browser.getElementById(css_sel, timeout, multiple), self))
+        self.css_sel[css_sel] = e
+        return e
     @focused
     def findElement(self, by: By, value, timeout=2, multiple=False):
-        return self.browser.findElement(by, value, timeout, multiple)
+        e = self.misc.get((by, value), Element(self.browser.findElement(by, value, timeout, multiple), self))
+        self.misc[value] = e
+        return e
 
+    @focused
     def close(self):
-        self.browser.close_tab_key(self.window)
+        self.browser.close_tab()
+        self.browser.tab_objects.remove(self)
     def duplicate(self):
         self.browser._new_tab()
         self.browser.get(self.get_url())
@@ -111,6 +180,9 @@ class Browser:
         self.profile = FirefoxProfile()
 
         self.options.headless = False  # Show GUI or not
+        # Forces to open new tabs instead of new windows; note that this requires editing selenium/webdriver/firefox/webdriver_prefs.json to move this option from "frozen" to "mutable"
+        self.profile.set_preference('browser.link.open_newwindow', 3)
+        self.profile.set_preference('browser.link.open_newwindow.restriction', 2)
         # self.profile.set_preference('permissions.default.stylesheet', 2)  # Ignore CSS
         # self.profile.set_preference('permissions.default.image', 2)  # Ignore images
 
@@ -130,7 +202,7 @@ class Browser:
             t = Tab(self, self.current_tab())
             self.tab_objects.append(t)
         else:
-            t: Tab = self.get_tab_by_key(self.current_tab())
+            t: Tab = self.current_tab_obj()
         return t
     get = open
 
@@ -213,17 +285,18 @@ class Browser:
         return self.driver.window_handles[n]
     def current_tab(self) -> str:
         return self.driver.current_window_handle
+    def current_tab_obj(self) -> Tab:
+        return self.get_tab_by_key(self.current_tab())
     def await_new_tab(self, timeout=1):
         return self.wait_for(EC.new_window_is_opened(self.driver.window_handles), timeout)
-    def _new_tab(self):
-        r = self.js("return window.open('', '_blank')")
+    def _new_tab(self, url=''):
+        r = self.js("window.open('{}', '_blank');".format(url))
         self.switch_last_tab()
         return r
     def new_tab(self, url=None) -> Tab:
-        self._new_tab()
+        self._new_tab(url)
         t = Tab(self, self.current_tab())
         self.tab_objects.append(t)
-        if url: self.open(url)
         return t
     def switch_tab(self, n):
         try:
@@ -234,9 +307,6 @@ class Browser:
         return self.driver.switch_to.window(tabkey)
     def switch_last_tab(self):
         return self.switch_tab(-1)
-    def close_tab_key(self, key):
-        self.close_tab(self.driver.window_handles.index(key))
-        self.tab_objects.remove(self.get_tab_by_key(key))
     def close_tab(self, n=None):
         current = self.current_tab() if n is None else self._get_tab(n)
         tabs = self.driver.window_handles.copy()
@@ -248,16 +318,21 @@ class Browser:
         self.driver.close()
         for tab in tabs:
             self.driver.window_handles.append(tab)
-        self.switch_tab(current_index - 1)
 
-    def is_visible(self, obj):
+        try:
+            _ = self.driver.window_handles[current_index - 1]
+            self.switch_tab(current_index - 1)
+        except IndexError:
+            self.switch_tab(current_index)
+
+    def ec_is_visible(self, obj):
         return EC.visibility_of(obj)
-    def is_invisible(self, obj):
+    def ec_is_invisible(self, obj):
         return EC.invisibility_of_element(obj)
 
     def scroll_to(self, obj):
         r = self.js('return arguments[0].scrollIntoView();', obj)
-        self.wait_for(self.is_visible(obj), 3)
+        self.wait_for(self.ec_is_visible(obj), 3)
         return r
 
     def js(self, js, *args):
@@ -281,29 +356,35 @@ class Browser:
         return self.driver.forward()
 
     def close(self):
-        return self.driver.quit()
+        self.driver.quit()
 
 if __name__ == '__main__':
-    def bbtest(username, password):
-        print('Starting...')
-        firefox = Browser()
-        t = time()
-        blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
+    print('Starting...')
+    firefox = Browser()
+    blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
 
-        user = blackbaud.getElementById('Username', 5)
-        submit = blackbaud.getElementById('nextBtn')
-        user.send_keys(username)
-        submit.click()
+    user = blackbaud.getElementById('Username', 5)
+    submit = blackbaud.getElementById('nextBtn')
 
-        pwd = blackbaud.getElementById('Password')
-        pwd.send_keys(password)
-        submit = blackbaud.getElementById('loginBtn')
-        submit.click()
-        blackbaud.await_url_is('https://emeryweiner.myschoolapp.com/app/student#activitystream')
-        blackbaud.get('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
+    user.send_keys('ykey-cohen')
+    submit.click()
 
-        schedule = blackbaud.getElementById('calendar-main-view', 5)
-        s = firefox.soup(schedule)
-        firefox.close()
-        print('Operation took %.1f seconds' % (time() - t))
-        return s
+    pwd = blackbaud.getElementById('Password')
+    pwd.send_keys('')
+
+    submit = blackbaud.getElementById('loginBtn')
+    submit.click()
+
+    sage = firefox.new_tab('http://www.sagedining.com/menus/emeryweiner')
+
+    blackbaud.await_url_is('https://emeryweiner.myschoolapp.com/app/student#activitystream')
+    blackbaud.get('https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center')
+
+    schedule = blackbaud.getElementById('calendar-main-view', 5)
+    print(schedule.soup().get_text())
+    blackbaud.close()
+
+    menu = sage.getElementById('sageMbDailyViewFrame')
+    print(menu.soup().get_text())
+
+    firefox.close()

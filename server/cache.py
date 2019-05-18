@@ -3,6 +3,8 @@ import os.path as op
 from server.config import get_config
 from mimetypes import guess_type, add_type
 from fnmatch import fnmatch
+from time import time, sleep
+from threading import Thread
 
 
 CONTENT_TYPE = {
@@ -33,6 +35,61 @@ for k,v in CONTENT_TYPE.items():
 def guess_mime(path):
     r = guess_type(path)[0]
     return r if r is not None else 'application/octet-stream'
+
+
+class Updater:
+    def __init__(self, name, updatefunc, update_condition=lambda: True):
+        # If update_condition is not set manually, the TimingCache will handle it based on expiry duration
+        self.name = name
+        self.f = updatefunc
+        self.condition = update_condition
+
+    def poll(self):
+        return self.condition()
+
+    def renew(self):
+        return self.f()
+
+class TimingCache:
+    def __init__(self):
+        self._cache = {}
+        self.durations = {}
+        self.updaters = []
+        self.update_thread = Thread(target=self.update_loop, daemon=True)
+
+    def init(self):
+        self.update_thread.start()
+
+    def update_loop(self):
+        while True:
+            for update in self.updaters.copy():
+                f = self.fetch(update.name)
+                if f is None and update.poll():
+                    self._cache[update.name] = update.renew()
+                    self.durations[update.name][1] = time()
+                elif f == False:
+                    self.updaters.remove(update)
+            sleep(5)
+
+
+    def cache(self, name, text, min_duration=3600, updater:Updater=None):
+        self._cache[name] = text
+        self.durations[name] = (min_duration, time())
+        if updater: self.updaters.append(updater)
+
+    def fetch(self, name):
+        d, t = self.durations.get(name, (-1, -1))
+        if d == t == -1:
+            return False
+
+        if d*60 + t <= time():
+            return None
+        return self._cache[name]
+
+    def clear(self, name):
+        del self.durations[name]
+        del self._cache[name]
+
 
 class FileCache:
     ALL = object()
