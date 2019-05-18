@@ -6,9 +6,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import strftime, time, sleep
+from server.threadpool import Pool
 from bs4 import BeautifulSoup
 import platform
 
+def wait(conditionf):
+    while not conditionf():
+        sleep(0.0001)
 
 class Element:
     def __init__(self, elem, tab):
@@ -290,7 +294,7 @@ class Browser:
     def await_new_tab(self, timeout=1):
         return self.wait_for(EC.new_window_is_opened(self.driver.window_handles), timeout)
     def _new_tab(self, url=''):
-        r = self.js("window.open('{}', '_blank');".format(url))
+        r = self.js("window.open('{}');".format(url))
         self.switch_last_tab()
         return r
     def new_tab(self, url=None) -> Tab:
@@ -358,10 +362,11 @@ class Browser:
     def close(self):
         self.driver.quit()
 
+
 if __name__ == '__main__':
     print('Starting...')
     firefox = Browser()
-    blackbaud = firefox.open('https://emeryweiner.myschoolapp.com/app/student#login')
+    blackbaud = firefox.new_tab('https://emeryweiner.myschoolapp.com/app/student#login')
 
     user = blackbaud.getElementById('Username', 5)
     submit = blackbaud.getElementById('nextBtn')

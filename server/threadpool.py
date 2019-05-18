@@ -24,9 +24,9 @@ class Pool:
     def push(self, args):
         self.pushf(None, args)
 
-    def pushf(self, f, args):
+    def pushf(self, f, args=tuple()):
         with self.condition:
-            self.queue.insert(0, tuple([f] + list(args)))
+            self.queue.insert(0, (f,) + args)
             self.condition.notify()
 
 class Fish:

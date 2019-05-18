@@ -185,7 +185,7 @@ class HandlerBBPage(RequestHandler):
         self.response.attach_file('/accounts/bbtest.html')
 
 BB = ''
-from scrape import bbtest
+from interactive_scrape import bbtest
 class HandlerBBLogin(RequestHandler):
     def call(self):
         global BB
