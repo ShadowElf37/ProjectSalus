@@ -8,7 +8,7 @@ Backend (urgent):
 Front-end (important):
     1. Home page demo
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    3. Selenium threads and keep the browser alive
+    3. Scraping threadpool
     4. Backup of data
     5. Timed-worker thread
     6. Timed cache for Selenium data
@@ -27,7 +27,7 @@ Actual pages and functionality (less important):
     11. Remote access console and maintenance-in-progress backup system
     12. SSL
     13. Student life board?
-    14. Push notifications?
+    14. Push notifications? / Text messages
     15. Student directory
     16. Sage menu
     17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
