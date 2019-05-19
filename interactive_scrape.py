@@ -6,9 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import strftime, time, sleep
-from server.threadpool import Pool
 from bs4 import BeautifulSoup
 import platform
+
+#
+# USE THIS FILE ONLY IF YOU MUST - CLASSIC SCRAPE IS ALWAYS PREFERRED
+#
 
 def wait(conditionf):
     while not conditionf():

@@ -10,8 +10,9 @@ Front-end (important):
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
     3. Scraping threadpool
     4. Backup of data
-    5. Timed-worker thread
-    6. Timed cache for Selenium data
+    5. Timed-worker threads
+    6. Timed cache for scraped data
+    7. Store appropriate scraped info in accounts
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system

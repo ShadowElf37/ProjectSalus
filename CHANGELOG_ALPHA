@@ -1,3 +1,7 @@
+v0.2.5 (5/18/19)
+- Cleaned up classic scrape parsing for every sector
+- Added classic scrape tech demo
+
 v0.2.4 (5/18/19)
 - Dug around until it was possible to collect all the urls needed for a classical scrape in classic_scrape.py
 - Created scraping methods for Blackbaud login, schedule, assignments, grades, assignment downloads, and Sage menu; still have to parse the data

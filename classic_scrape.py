@@ -1,12 +1,20 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-from html import escape
+from html import escape, unescape
 import datetime
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
 
+def todaystr():
+    return datetime.datetime.now().strftime('%m/%d/%Y')
+
+def last_sunday(from_date=datetime.datetime.now()):
+    return from_date - datetime.timedelta(days=from_date.weekday()+1)
+
+def next_saturday(from_date=datetime.datetime.now()):
+    return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
 
 class Scraper:
     def __init__(self):
@@ -115,7 +123,8 @@ class BlackbaudScraper(Scraper):
         'G_ENABLED_IDPS': 'google'
     }
 
-    def blackbaud_login(self, user, password, *needed_cookies, **headers):
+    def login(self, user, password, *needed_cookies, **headers):
+        # Provide 't' in needed_cookies
         data = {
             'From': None,
             'InterfaceSource': 'WebApp',
@@ -147,22 +156,48 @@ class BlackbaudScraper(Scraper):
                                params=params, headers=headers, cookies=self.default_cookies))
             directory += resp.json()
 
+        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {k2: (person[k1].strip() if type(person.get(k1)) is str else person.get(k1)) for k1,k2 in (
+            ('UserID', 'id'),
+            ('Email', 'email'),
+            ('AddressLine1', 'address'),
+            ('City', 'city'),
+            ('State', 'state'),
+            ('Zip', 'zip'),
+            ('HomePhone', 'homephone'),
+            ('CellPhone', 'cellphone'),
+            ('GradYear', 'year'),
+            ('GradeDisplay', 'grade'),
+            ('PreferredAddressLat', 'addrlatitude'),
+            ('PreferredAddressLng', 'addrlongitude')
+        )} for person in directory}
+
         return directory
 
-    def schedule(self, **headers):
+    def schedule(self, date=datetime.date.today().strftime('%m/%d/%Y'), **headers):
         params = {
-            'scheduleDate': '5/17/2019',
+            'scheduleDate': date,
             'personaId': 2,
         }
         headers.update(self.default_headers)
 
         schedule = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/schedule/MyDayCalendarStudentList/',
                                 params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        schedule = {period['Block']: {
+            'class': period['CourseTitle'],
+            'room': period['RoomNumber'],
+            'building': period['BuildingName'],
+            'start': period['MyDayStartTime'],
+            'end': period['MyDayEndTime'],
+            'teacher': period['Contact'],
+            'teacher-email': period['ContactEmail']
+        } for period in schedule}
+
         return schedule
 
-    def grades(self, **headers):
+    def grades(self, userid, **headers):
         params = {
-            'userId': '3510119',
+            'userId': userid,
             'schoolYearLabel': '2018 - 2019',
             'memberLevel': 3,
             'persona': 2,
@@ -172,16 +207,26 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
-                              params=params, headers=headers, cookies=self.default_cookies))
-        return grades.json()
+                              params=params, headers=headers, cookies=self.default_cookies)).json()
+        # more detailed info at https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/?sectionId=89628670&markingPeriodId=6260&studentUserId=3510119
 
-    def assignments(self, **headers):
+        grades = {_class['sectionidentifier']: {
+            'id': _class['sectionid'],
+            'teacher': _class['groupownername'],
+            'teacher-email': _class['groupowneremail'].lower(),
+            'semester': _class['currentterm'],
+            'grade': _class['cumgrade'],
+        } for _class in grades}
+
+        return grades
+
+    def assignments(self, start_date=last_sunday().strftime('%m/%d/%Y'), end_date=next_saturday().strftime('%m/%d/%Y'), **headers):
         # https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/?format=json&filter=1&dateStart=5%2F12%2F2019&dateEnd=5%2F19%2F2019&persona=2&statusList=&sectionList=
         params = {
             'format': 'json',
             'filter': 1,
-            'dateStart': '5/12/2019',
-            'dateEnd': '5/19/2019',
+            'dateStart': start_date,
+            'dateEnd': end_date,
             'persona': 2,
             'statusList': None,
             'sectionList': None,
@@ -190,6 +235,19 @@ class BlackbaudScraper(Scraper):
 
         assignments = requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/',
                                    params=params, headers=headers, cookies=self.default_cookies).json()
+
+        assignments = {ass['short_description']:{
+            'class-id': ass['section_id'],
+            'class-name': ass['groupname'],
+            'id': ass['assignment_id'],
+            'assigned': ass['date_assigned'],
+            'due': ass['date_due'],
+            'desc': html(ass['long_description'].replace('<br />', ' \n') if ass.get('long_description') else '').text,
+            'links': ass['has_link'],
+            'downloads': ass['has_download'],
+            'status': 0
+        } for ass in assignments}
+
         return assignments
 
     def get_assignment_downloads(self, assignment_id, **headers):
@@ -198,4 +256,26 @@ class BlackbaudScraper(Scraper):
         downloads = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/assignment2/read/{}/'.format(assignment_id),
                                  params=params, headers=headers, cookies=self.default_cookies)).json()
 
-        return downloads['DownloadItems']
+        return {d['FriendlyFileName']: d['DownloadUrl'] for d in downloads['DownloadItems']}
+
+
+if __name__ == '__main__':
+    bb = BlackbaudScraper()
+    print('LOGGING IN...')
+    bb.login('ykey-cohen', 'Yoproductions3', 't')
+
+    print('\nPROFILE')
+    print('=' * 20)
+    print(json.dumps(bb.directory()['Yovel Key-Cohen'], indent=4))
+    print('\nSCHEDULE FOR 5/20/19')
+    print('=' * 20)
+    print(json.dumps(list(bb.schedule('05/20/2019').keys()), indent=4))
+    print('\nMATH GRADE')
+    print('=' * 20)
+    print(json.dumps(bb.grades('3510119')['Pre-Calculus Honors - C (C)'], indent=4))
+    print('\nHEBREW HOMEWORK FROM FRIDAY')
+    print('=' * 20)
+    print(json.dumps({'MAAMAR- READ BEVAKASHA': bb.assignments()['MAAMAR- READ BEVAKASHA']}, indent=4))
+    print('\nHEBREW HOMEWORK ATTACHMENTS')
+    print('=' * 20)
+    print(json.dumps(bb.get_assignment_downloads(bb.assignments()['MAAMAR- READ BEVAKASHA']['id']), indent=4))
