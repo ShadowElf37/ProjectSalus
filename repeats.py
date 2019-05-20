@@ -36,7 +36,7 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
                 newargs.append(arg)
 
         try:
-            r = f(session, *args, **kwargs)
+            r = f(session, *newargs, **kwargs)
         except Exception as e:
             print(f, args, kwargs)
             raise e

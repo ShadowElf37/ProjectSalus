@@ -203,13 +203,13 @@ class HandlerBBInfo(RequestHandler):
         if not schedule:
             schedule = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((repeats.FUNC, scrape.todaystr),), 120).wait()
 
-        assignments = self.account.bb_cache.get('schedule')
+        assignments = self.account.bb_cache.get('assignments')
         if not schedule:
-            assignments = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.assignments, (), 30).wait()
+            assignments = repeats.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30).wait()
 
-        grades = self.account.bb_cache.get('schedule')
+        grades = self.account.bb_cache.get('grades')
         if not schedule:
-            grades = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.grades, (self.account.bb_id), 30).wait()
+            grades = repeats.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
 
         self.response.attach_file('/accounts/bb_test.html',
                                   schedule='<br>'.join(schedule.keys()),
