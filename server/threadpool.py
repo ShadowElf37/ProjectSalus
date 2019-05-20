@@ -5,29 +5,41 @@ from time import sleep
 config = get_config('threads')
 
 class Poolsafe:
+    NONCE = object()
     def __init__(self, f, *args, **kwargs):
         self.f = f
         self.args = args
         self.kwargs = kwargs
-        self.r = '!@#$%none'  # None is bad because functions might actually return None and we want to see that
+        self.r = Poolsafe.NONCE  # None is bad because functions might actually return None and we want to see that
+        self.cond = Condition(Lock())
 
     @staticmethod
-    def await_all(*ps):
-        while any(p.r == '!@#$%none' for p in ps):
-            sleep(0.0001)
+    def await_all(*pses):
+        it = iter(pses)
+        try: ps = next(it)
+        except StopIteration: return
+        with ps.cond:
+            while ps.r is Poolsafe.NONCE:
+                ps.cond.wait()
+            await_all(it)
 
     def wait(self):
-        while self.r == '!@#$%none':
-            sleep(0.0001)
+        with self.cond:
+            while self.r is Poolsafe.NONCE:
+                self.cond.wait()
+        return r
 
     def call(self):
-        self.r = self.f(*self.args, **self.kwargs)
+        with self.cond:
+            self.r = self.f(*self.args, **self.kwargs)
+            self.cond.notifyAll()
 
     def read(self):
         return self.r
 
     def reset(self):
-        self.r = '!@#$%none'
+        with self.cond:
+            self.r = Poolsafe.NONCE
 
 
 class Pool:
