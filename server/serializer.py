@@ -57,7 +57,6 @@ class Serializer:
     def serialized(**kwargs):
         """Register a class as serialiable, calling postinst after deserialization"""
         def s_decor(cls):
-            cls._serializable = True
             kwargs["_uuid"] = None
             cls._defaults = kwargs
             cls.__preinit__ = getattr(cls, "__preinit__", noop)
@@ -80,7 +79,7 @@ class Serializer:
     
     def _is_sclass(self, thing):
         """Make sure a class is serializable."""
-        return getattr(thing, "_serializable", False)
+        return getattr(thing, "_defaults", None) != None
 
     def _serialize(self, obj):
         """Serialize one thing."""
