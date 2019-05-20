@@ -168,11 +168,11 @@ class Serializer:
         # obj = cls()  # Work on signature
         fields = data["data"]
         # obj.__dict__.update({k: self._deserialize(v) for k, v in fields.items()})
-        obj._preinst()
+        obj.__preinit__()
         obj.__dict__.update({k: self._deserialize(fields[k])
             if k in fields else (v() if callable(v) else deepcopy(v))
                 for k, v in cls._defaults.items()})
-        obj._postinst()
+        obj.__postinit__()
         self.antiset.add(uuid)
         return obj
 

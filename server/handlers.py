@@ -1,5 +1,6 @@
 from server.response import Request, Response
 from server.client import ClientObj, Account, ShellAccount
+import server.client
 from server.config import get_config
 
 navbar = get_config('navbar')
@@ -134,6 +135,7 @@ class HandlerControlWords(RequestHandler):
 
 class HandlerHome(RequestHandler):
     def call(self):
+        print('#', self.account.key)
         self.response.attach_file('/home/index.html')
 
 class HandlerSignupPage(RequestHandler):
@@ -159,6 +161,7 @@ class HandlerLogin(RequestHandler):
         self.client.login(name, password)
         self.response.add_cookie('user_token', self.client.account.key)
         if self.client.is_real():
+            print('@', self.client.account.key)
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/accounts/login.html')
@@ -180,42 +183,53 @@ class HandlerAdminBoard(RequestHandler):
         else:
             self.response.refuse()
 
+
+import scrapes
+import scrape
 class HandlerBBPage(RequestHandler):
     def call(self):
-        self.response.attach_file('/accounts/bbtest.html')
+        print(self.account)
+        print(self.token)
+        print(server.client.user_tokens.value)
+        if self.rank < 1:
+            self.response.redirect('/login')
+            return
+        self.response.attach_file('/accounts/bb_login.html')
 
-BB = ''
-from interactive_scrape import bbtest
 class HandlerBBLogin(RequestHandler):
     def call(self):
-        global BB
-        u = self.request.get_post('user')
-        p = self.request.get_post('pass')
-        BB = bbtest(u, p)
+        print(self.account)
+        self.account.bb_user = self.request.post_vals['user']
+        self.account.bb_pass = self.request.post_vals['pass']
+        self.account.profile = scrapes.DIRECTORY[self.account.name]
+        self.response.redirect('/everything')
 
-class HandlerBBSchedule(RequestHandler):
+class HandlerBBInfo(RequestHandler):
     def call(self):
-        global BB
-        self.response.attach_file('/accounts/bb.html', schedule=BB)
+        session = scrape.BlackbaudScraper()
+        session.login(self.account.bb_user, self.account.bb_pass, 't')
+        uid = self.account.profile['id']
+        self.response.attach_file('bb_test.html', schedule=scrape.prettify(session.schedule('05/20/2019')))
+
 
 GET = {
     '/': HandlerBlank,
     '/accounts/signup.html': HandlerSignupPage,
     '/accounts/login.html': HandlerLoginPage,
+    '/login': HandlerLoginPage,
     '/home/index.html': HandlerHome,
     '/test': HandlerTestPage,
     '/logout': HandlerLogout,
     '/logfile': HandlerLog,
-    '/bbpage': HandlerBBPage,
-    '/bb': HandlerBBLogin,
-    '/bbs': HandlerBBSchedule,
-    # '/home/index.html': ...    remove default_handler from important pages like this
+    '/bb_login': HandlerBBPage,
+    '/everything': HandlerBBInfo,
 }
 
 POST = {
     '/signup': HandlerSignup,
     '/login': HandlerLogin,
     '/ctrl-words': HandlerControlWords,
+    '/bb_post': HandlerBBLogin,
 }
 
 INDEX = {}

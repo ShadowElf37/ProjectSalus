@@ -1,7 +1,34 @@
 from threading import *
 from server.config import get_config
+from time import sleep
 
 config = get_config('threads')
+
+class Poolsafe:
+    def __init__(self, f, *args, **kwargs):
+        self.f = f
+        self.args = args
+        self.kwargs = kwargs
+        self.r = '!@#$%none'  # None is bad because functions might actually return None and we want to see that
+
+    @staticmethod
+    def await_all(*ps):
+        while any(p.r == '!@#$%none' for p in ps):
+            sleep(0.0001)
+
+    def wait(self):
+        while self.r == '!@#$%none':
+            sleep(0.0001)
+
+    def call(self):
+        self.r = self.f(*self.args, **self.kwargs)
+
+    def read(self):
+        return self.r
+
+    def reset(self):
+        self.r = '!@#$%none'
+
 
 class Pool:
     def __init__(self, threadcount):
@@ -21,13 +48,20 @@ class Pool:
         for t in self.threads:
             t.thread.join(config.get('cleanup-timeout'))
 
-    def push(self, args):
-        self.pushf(None, args)
+    def push(self, reqtuple):
+        self.pushf(None, *reqtuple)
 
-    def pushf(self, f, args=tuple()):
+    def pushf(self, f, *args, **kwargs):
         with self.condition:
-            self.queue.insert(0, (f,) + args)
+            self.queue.insert(0, (f,) + args + ((kwargs,) if kwargs else ()))
             self.condition.notify()
+
+    def pushps(self, ps):
+        self.pushf(ps)
+
+    def pushps_multi(self, *ps):
+        for p in ps:
+            self.pushps(p)
 
 class Fish:
     def __init__(self, condition, queue):
@@ -57,8 +91,12 @@ class Fish:
                     self.condition.wait()
             self.busy = True
 
+            if type(r[0]) is Poolsafe:
+                r[0].call()
+                continue
+
             if r[0] is not None:
-                r[0](*r[1:])
+                r[0](*r[1:-1], **r[-1])
                 continue
 
             server, request, client_address = r[1:]

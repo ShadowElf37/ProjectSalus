@@ -11,7 +11,7 @@ Front-end (important):
     3. Scraping threadpool
     4. Backup of data
     5. Timed-worker threads
-    6. Timed cache for scraped data
+    6. Scrape cache so I can look up info without pulling
     7. Store appropriate scraped info in accounts
 
 Actual pages and functionality (less important):

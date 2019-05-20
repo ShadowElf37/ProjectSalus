@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 from html import escape, unescape
 import datetime
+from time import time
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
@@ -15,6 +16,9 @@ def last_sunday(from_date=datetime.datetime.now()):
 
 def next_saturday(from_date=datetime.datetime.now()):
     return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
+
+def prettify(jsonobj, indent=4):
+    return json.dumps(jsonobj, indent=indent)
 
 class Scraper:
     def __init__(self):
@@ -163,8 +167,8 @@ class BlackbaudScraper(Scraper):
             ('City', 'city'),
             ('State', 'state'),
             ('Zip', 'zip'),
-            ('HomePhone', 'homephone'),
-            ('CellPhone', 'cellphone'),
+            ('HomePhone', 'home'),
+            ('CellPhone', 'cell'),
             ('GradYear', 'year'),
             ('GradeDisplay', 'grade'),
             ('PreferredAddressLat', 'addrlatitude'),
@@ -208,7 +212,7 @@ class BlackbaudScraper(Scraper):
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
                               params=params, headers=headers, cookies=self.default_cookies)).json()
-        # more detailed info at https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/?sectionId=89628670&markingPeriodId=6260&studentUserId=3510119
+
 
         grades = {_class['sectionidentifier']: {
             'id': _class['sectionid'],
@@ -217,6 +221,27 @@ class BlackbaudScraper(Scraper):
             'semester': _class['currentterm'],
             'grade': _class['cumgrade'],
         } for _class in grades}
+
+        return grades
+
+    def get_graded_assignments(self, classid, userid, **headers):
+        # more detailed info at https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/?sectionId=89628670&markingPeriodId=6260&studentUserId=3510119
+        params = {
+            'sectionId': classid,
+            'markingPeriodId': 6260,
+            'studentUserId': userid,
+        }
+        headers.update(self.default_headers)
+
+        grades = requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/',
+                              params=params, headers=headers, cookies=self.default_cookies).json()
+
+        grades = {ass['AssignmentShortDescription']:{
+            'id': ass['AssignmentId'],
+            'type': ass['AssignmentType'],
+            'points': ass['Points'],
+            'max': ass['MaxPoints']
+        } for ass in grades}
 
         return grades
 
@@ -260,22 +285,41 @@ class BlackbaudScraper(Scraper):
 
 
 if __name__ == '__main__':
+    from server.threadpool import Pool, Poolsafe
+
+    t = time()
     bb = BlackbaudScraper()
     print('LOGGING IN...')
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
+    directory = Poolsafe(bb.directory)
+    schedule = Poolsafe(bb.schedule, '05/20/2019')
+    grades = Poolsafe(bb.grades, '3510119')
+    assignments = Poolsafe(bb.assignments)
+    tp = Pool(8)
+    tp.launch()
+    tp.pushps_multi(directory, schedule, grades, assignments)
+    Poolsafe.await_all(directory, schedule, grades, assignments)
+
+    mydir = directory.read()['Yovel Key-Cohen']
+    myschedule = list(schedule.read().keys())
+    mathgrade = grades.read()['Pre-Calculus Honors - C (C)']
+    hebrew = {'MAAMAR- READ BEVAKASHA': assignments.read()['MAAMAR- READ BEVAKASHA']}
+    hebrewdownload = bb.get_assignment_downloads(assignments.read()['MAAMAR- READ BEVAKASHA']['id'])
+
     print('\nPROFILE')
     print('=' * 20)
-    print(json.dumps(bb.directory()['Yovel Key-Cohen'], indent=4))
+    print(mydir)
     print('\nSCHEDULE FOR 5/20/19')
     print('=' * 20)
-    print(json.dumps(list(bb.schedule('05/20/2019').keys()), indent=4))
+    print(myschedule)
     print('\nMATH GRADE')
     print('=' * 20)
-    print(json.dumps(bb.grades('3510119')['Pre-Calculus Honors - C (C)'], indent=4))
+    print(mathgrade)
     print('\nHEBREW HOMEWORK FROM FRIDAY')
     print('=' * 20)
-    print(json.dumps({'MAAMAR- READ BEVAKASHA': bb.assignments()['MAAMAR- READ BEVAKASHA']}, indent=4))
+    print(hebrew)
     print('\nHEBREW HOMEWORK ATTACHMENTS')
     print('=' * 20)
-    print(json.dumps(bb.get_assignment_downloads(bb.assignments()['MAAMAR- READ BEVAKASHA']['id']), indent=4))
+    print(hebrewdownload)
+    print('Operation took %.1f seconds' % (time()-t))
