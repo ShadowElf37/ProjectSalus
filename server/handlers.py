@@ -204,17 +204,19 @@ class HandlerBBInfo(RequestHandler):
             schedule = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((repeats.FUNC, scrape.todaystr),), 120).wait()
 
         assignments = self.account.bb_cache.get('assignments')
-        if not schedule:
+        if not assignments:
             assignments = repeats.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30).wait()
 
         grades = self.account.bb_cache.get('grades')
-        if not schedule:
+        if not grades:
             grades = repeats.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
 
+        print(grades)
         self.response.attach_file('/accounts/bb_test.html',
+                                  profile=scrape.prettify(self.account.profile).replace('\n', '<br>'),
                                   schedule='<br>'.join(schedule.keys()),
                                   assignments='<br>'.join(assignments.keys()),
-                                  grades='<br>'.join([k + ' - ' + grades[k]['average'] for k in grades.keys()]),
+                                  grades='<br>'.join([k + ' - ' + str(grades[k]['average']) for k in grades.keys()]),
                                   menu='<br>'.join(repeats.GLOBALS.SAGEMENU[scrape.todaystr()]))
 
 

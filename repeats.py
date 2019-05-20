@@ -41,7 +41,7 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
             print(f, args, kwargs)
             raise e
         account.bb_cache[cachekey] = r
-        return
+        return r
 
     ps = Poolsafe(update, f, *args, **kwargs)
     Repeater.register(ps, deltaMinutes, runinstantly=True)

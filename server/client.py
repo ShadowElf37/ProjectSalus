@@ -14,6 +14,8 @@ class Account(RWLockMixin):
         super().__init__()
     def __postinit__(self):
         self.shell = False
+        self.bb_cache = {}
+        self.bb_t = ''
     def __init__(self, name, password, key, email=""):
         self.ips = []
         self.name = name
@@ -24,9 +26,7 @@ class Account(RWLockMixin):
         self.key = key
         self.id = randint(0, 2**64-1)
         self.profile = {}
-        self.bb_cache = {}
         self.bb_auth = ('', '')
-        self.bb_t = ''
         self.bb_id = ''
 
     def register(self, key):
@@ -61,7 +61,7 @@ class ShellAccount:
 
     def new_key(self):
         return
-    def check_pwd(self, pwd):
+    def check_pwd(self, *args):
         return
     def register(self, *args):
         return

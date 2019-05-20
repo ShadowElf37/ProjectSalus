@@ -20,7 +20,10 @@ class Server(HTTPServer):
     def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
         super().__init__((host, port), HTTPMacroHandler, *args)
         self.host = host
-        self.ip = socket.gethostbyname(socket.gethostname())
+        try:
+            self.ip = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            self.ip = self.host
         self.port = port
         self.domain = 'localhost'
         self.log('Server initialized on {}:{}.'.format(self.ip, port))

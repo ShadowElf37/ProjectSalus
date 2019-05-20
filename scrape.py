@@ -217,7 +217,7 @@ class BlackbaudScraper(Scraper):
         grades = {_class['sectionidentifier']: {
             'id': _class['sectionid'],
             'teacher': _class['groupownername'],
-            'teacher-email': _class['groupowneremail'].lower(),
+            'teacher-email': _class['groupowneremail'],
             'semester': _class['currentterm'],
             'average': _class['cumgrade'],
         } for _class in grades}
@@ -263,7 +263,7 @@ class BlackbaudScraper(Scraper):
 
         assignments = {ass['short_description']:{
             'class-id': ass['section_id'],
-            'class-name': ass['groupname'],
+            'class': ass['groupname'],
             'id': ass['assignment_id'],
             'assigned': ass['date_assigned'],
             'due': ass['date_due'],
