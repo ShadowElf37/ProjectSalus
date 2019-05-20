@@ -1,3 +1,14 @@
+v0.3.0 (5/20/19)
+- Fixed many many scraping bugs
+- Added updates.py to handle global scraping and updates for the project
+- Added timedworker.py with Updater and UpdateManager to handle recurring events
+- Added Poolsafe so main thread can interact with Pools
+- Scraped data is now stored in Account *unencrypted*
+- Set up HTML tech demo for the scraping - it works!
+
+=== MAJOR ===
+
+
 v0.2.5 (5/18/19)
 - Cleaned up classic scrape parsing for every sector
 - Added classic scrape tech demo

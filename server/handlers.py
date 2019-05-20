@@ -137,7 +137,7 @@ class HandlerLoginPage(RequestHandler):
 class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
-        if name not in repeats.GLOBALS.DIRECTORY:
+        if name not in updates.GLOBALS.DIRECTORY:
             self.response.refuse()
             return
         password = self.request.get_post('pwd')
@@ -176,7 +176,7 @@ class HandlerAdminBoard(RequestHandler):
             self.response.refuse()
 
 
-import repeats
+import updates
 import scrape
 from server.threadpool import Poolsafe
 class HandlerBBPage(RequestHandler):
@@ -189,7 +189,7 @@ class HandlerBBPage(RequestHandler):
 class HandlerBBLogin(RequestHandler):
     def call(self):
         self.account.bb_auth = self.request.post_vals['user'], self.request.post_vals['pass']
-        self.account.profile = repeats.GLOBALS.DIRECTORY[self.account.name]
+        self.account.profile = updates.DIRECTORY[self.account.name]
         self.response.redirect('/bb')
 
 class HandlerBBInfo(RequestHandler):
@@ -201,15 +201,15 @@ class HandlerBBInfo(RequestHandler):
 
         schedule = self.account.bb_cache.get('schedule')
         if not schedule:
-            schedule = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((repeats.FUNC, scrape.todaystr),), 120).wait()
+            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.FUNC, scrape.todaystr),), 120).wait()
 
         assignments = self.account.bb_cache.get('assignments')
         if not assignments:
-            assignments = repeats.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30).wait()
+            assignments = updates.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30).wait()
 
         grades = self.account.bb_cache.get('grades')
         if not grades:
-            grades = repeats.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
+            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
 
         print(grades)
         self.response.attach_file('/accounts/bb_test.html',
@@ -217,7 +217,7 @@ class HandlerBBInfo(RequestHandler):
                                   schedule='<br>'.join(schedule.keys()),
                                   assignments='<br>'.join(assignments.keys()),
                                   grades='<br>'.join([k + ' - ' + str(grades[k]['average']) for k in grades.keys()]),
-                                  menu='<br>'.join(repeats.GLOBALS.SAGEMENU[scrape.todaystr()]))
+                                  menu='<br>'.join(updates.SAGEMENU[scrape.todaystr()]))
 
 
 GET = {

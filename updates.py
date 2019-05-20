@@ -5,18 +5,19 @@ from time import time, sleep
 
 RepeaterPool = Pool(20)
 RepeaterPool.launch()
+Repeater = UpdateManager(RepeaterPool)
 
 Blackbaud = BlackbaudScraper()
 Blackbaud.login('ykey-cohen', 'Yoproductions3', 't')
 
-class GLOBALS:
-    DIRECTORY = Blackbaud.directory()
-    SAGEMENU, SAGEMENUINFO = SageScraper().inst_menu()
+d = Poolsafe(Blackbaud.directory)
+s = Poolsafe(SageScraper().inst_menu)
+RepeaterPool.pushps(d)
+RepeaterPool.pushps(s)
+DIRECTORY = d.wait()
+SAGEMENU, SAGEMENUINFO = s.wait()
 
 FUNC = ...
-
-Repeater = UpdateManager(RepeaterPool)
-# ScrapingManager.register(Poolsafe())
 
 
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):

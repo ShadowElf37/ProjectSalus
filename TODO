@@ -6,13 +6,11 @@ Backend (urgent):
     All done!
 
 Front-end (important):
-    1. Home page demo
+    1. Basic web design CSS
     2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    3. Scraping threadpool
-    4. Backup of data
-    5. Timed-worker threads
-    6. Scrape cache so I can look up info without pulling
-    7. Store appropriate scraped info in accounts
+    3. Backup of data
+    4. IMAP
+    5. Scrape BB topics section for each class
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
@@ -32,10 +30,11 @@ Actual pages and functionality (less important):
     15. Student directory
     16. Sage menu
     17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
+    18. IMAP/SMTP replacement for Outlook
 
 Post-deployment wishlist (far future):
     1. Integration with other clubs and sports (calendar, push notifications, etc.)
     2. Mercury-style tutor/help board
     3. Mercury-style messaging (but more advanced please)
-    4. Possibly replace Outlook with IMAP/SMTP because it's annoying
-    5. Mercury currency for tutoring/trades?
+    4. Mercury currency for tutoring/trades?
+    5. Minimalist text editor
