@@ -38,9 +38,7 @@ class RequestHandler:
     def load_client(self):
         self.response.client = self.client = self.request.client = ClientObj(self.request.addr[0], self.token)
         self.account: Account  = self.client.account
-        self.response.add_cookie('user_token',
-                                 self.account.new_key() if self.account.is_real() else '_none',
-                                 samesite='strict', path='/')
+        self.response.add_cookie('user_token', self.account.key, samesite='strict', path='/')
 
     def pre_call(self):
         # For debug - remove and put only in rank 4 later
@@ -71,16 +69,7 @@ class RequestHandler:
             )
 
     def post_call(self):
-        r = self.request
-        if r.get_query:
-            a = r.get_query.get('action')
-            if a is not None and self.rank >= 4:
-                ...
-                #self.server.finish_request(r.req, r.addr)
-                #self.server.shutdown_request(r.req)
-                #if a == 'reboot':
-
-
+        ...
 
 
 class DefaultHandler(RequestHandler):
@@ -135,7 +124,6 @@ class HandlerControlWords(RequestHandler):
 
 class HandlerHome(RequestHandler):
     def call(self):
-        print('#', self.account.key)
         self.response.attach_file('/home/index.html')
 
 class HandlerSignupPage(RequestHandler):
@@ -150,8 +138,9 @@ class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
-        self.client.create_account(name, password)
-        self.response.add_cookie('user_token', self.client.account.key)
+        a = self.client.create_account(name, password)
+        self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
+        # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
 
 class HandlerLogin(RequestHandler):
@@ -159,9 +148,9 @@ class HandlerLogin(RequestHandler):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
         self.client.login(name, password)
-        self.response.add_cookie('user_token', self.client.account.key)
+        self.response.add_cookie('user_token', self.client.account.key, samesite='strict', path='/')
         if self.client.is_real():
-            print('@', self.client.account.key)
+            # print('@', self.client.account.key)
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/accounts/login.html')
@@ -188,9 +177,6 @@ import scrapes
 import scrape
 class HandlerBBPage(RequestHandler):
     def call(self):
-        print(self.account)
-        print(self.token)
-        print(server.client.user_tokens.value)
         if self.rank < 1:
             self.response.redirect('/login')
             return
@@ -198,18 +184,21 @@ class HandlerBBPage(RequestHandler):
 
 class HandlerBBLogin(RequestHandler):
     def call(self):
-        print(self.account)
         self.account.bb_user = self.request.post_vals['user']
         self.account.bb_pass = self.request.post_vals['pass']
         self.account.profile = scrapes.DIRECTORY[self.account.name]
-        self.response.redirect('/everything')
+        self.response.redirect('/bb', get=True)
 
 class HandlerBBInfo(RequestHandler):
     def call(self):
+        if self.rank < 1:
+            self.response.refuse()
+            return
         session = scrape.BlackbaudScraper()
+        print(self.account.bb_user, self.account.bb_pass, self.account.name)
         session.login(self.account.bb_user, self.account.bb_pass, 't')
         uid = self.account.profile['id']
-        self.response.attach_file('bb_test.html', schedule=scrape.prettify(session.schedule('05/20/2019')))
+        self.response.attach_file('/accounts/bb_test.html', schedule=scrape.prettify(session.schedule('05/20/2019')).replace('\n', '<br>'))
 
 
 GET = {
@@ -222,14 +211,14 @@ GET = {
     '/logout': HandlerLogout,
     '/logfile': HandlerLog,
     '/bb_login': HandlerBBPage,
-    '/everything': HandlerBBInfo,
+    '/bb': HandlerBBInfo,
 }
 
 POST = {
     '/signup': HandlerSignup,
     '/login': HandlerLogin,
     '/ctrl-words': HandlerControlWords,
-    '/bb_post': HandlerBBLogin,
+    '/bb_post': HandlerBBLogin
 }
 
 INDEX = {}

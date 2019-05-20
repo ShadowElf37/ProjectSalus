@@ -1,6 +1,6 @@
 from wsgiref.handlers import format_date_time
 from time import time
-from secrets import token_urlsafe
+from secrets import token_urlsafe as new_key
 from server.config import get_config
 from server.persistent import PersistentDict, AccountsSerializer
 from server.threadpool import RWLockMixin
@@ -27,15 +27,9 @@ class Account(RWLockMixin):
         self.bb_user = ''
         self.bb_pass = ''
 
-    def register_self(self):
-        k = ClientObj.new_key()
-        user_tokens.set(k, self)
-        self.key = k
-
-    def new_key(self):
-        user_tokens.delete(self.key)
-        self.register_self()
-        return self.key
+    def register(self, key):
+        self.key = key
+        user_tokens.set(key, self)
 
     def manual_key(self, key):
         user_tokens.delete(self.key)
@@ -65,7 +59,7 @@ class ShellAccount:
         return
     def check_pwd(self, pwd):
         return
-    def register_self(self):
+    def register(self, *args):
         return
     def manual_key(self, *args):
         return
@@ -85,28 +79,21 @@ class ClientObj:
         # print('Available accounts:', user_tokens.value)
         self.account = user_tokens.get(key, ShellAccount())
         if self.account.is_real():
-            self.renew_account(key)
-        # self.name = self.account.name
+            ...#self.renew_account()
 
-    @staticmethod
-    def new_key():
-        return token_urlsafe()
-
-    def renew_account(self, old_key):
-        user_tokens.delete(old_key)
-        k = self.new_key()
-        self.account.key = k
-        user_tokens.set(k, self.account)
+    def renew_account(self):
+        self.account.manual_key(new_key())
 
     def create_account(self, name, password):
-        self.account = Account(name, password, self.new_key())
-        self.account.register_self()
+        key = new_key()
+        self.account = Account(name, password, key)
+        self.account.register(key)
         return self.account
 
     def login(self, name, password):
         self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password == password)
         if self.account is not None:
-            self.account.register_self()
+            self.account.manual_key(new_key())
         else:
             self.account = ShellAccount()
         return self.account
