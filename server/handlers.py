@@ -137,6 +137,9 @@ class HandlerLoginPage(RequestHandler):
 class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
+        if name not in repeats.GLOBALS.DIRECTORY:
+            self.response.refuse()
+            return
         password = self.request.get_post('pwd')
         a = self.client.create_account(name, password)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
@@ -173,8 +176,9 @@ class HandlerAdminBoard(RequestHandler):
             self.response.refuse()
 
 
-import scrapes
+import repeats
 import scrape
+from server.threadpool import Poolsafe
 class HandlerBBPage(RequestHandler):
     def call(self):
         if self.rank < 1:
@@ -184,21 +188,34 @@ class HandlerBBPage(RequestHandler):
 
 class HandlerBBLogin(RequestHandler):
     def call(self):
-        self.account.bb_user = self.request.post_vals['user']
-        self.account.bb_pass = self.request.post_vals['pass']
-        self.account.profile = scrapes.DIRECTORY[self.account.name]
-        self.response.redirect('/bb', get=True)
+        self.account.bb_auth = self.request.post_vals['user'], self.request.post_vals['pass']
+        self.account.profile = repeats.GLOBALS.DIRECTORY[self.account.name]
+        self.response.redirect('/bb')
 
 class HandlerBBInfo(RequestHandler):
     def call(self):
         if self.rank < 1:
             self.response.refuse()
             return
-        session = scrape.BlackbaudScraper()
-        print(self.account.bb_user, self.account.bb_pass, self.account.name)
-        session.login(self.account.bb_user, self.account.bb_pass, 't')
-        uid = self.account.profile['id']
-        self.response.attach_file('/accounts/bb_test.html', schedule=scrape.prettify(session.schedule('05/20/2019')).replace('\n', '<br>'))
+        self.account.bb_id = self.account.profile['id']
+
+        schedule = self.account.bb_cache.get('schedule')
+        if not schedule:
+            schedule = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((repeats.FUNC, scrape.todaystr),), 120).wait()
+
+        assignments = self.account.bb_cache.get('schedule')
+        if not schedule:
+            assignments = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.assignments, (), 30).wait()
+
+        grades = self.account.bb_cache.get('schedule')
+        if not schedule:
+            grades = repeats.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.grades, (self.account.bb_id), 30).wait()
+
+        self.response.attach_file('/accounts/bb_test.html',
+                                  schedule='<br>'.join(schedule.keys()),
+                                  assignments='<br>'.join(assignments.keys()),
+                                  grades='<br>'.join([k + ' - ' + grades[k]['average'] for k in grades.keys()]),
+                                  menu='<br>'.join(repeats.GLOBALS.SAGEMENU[scrape.todaystr()]))
 
 
 GET = {

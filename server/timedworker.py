@@ -25,6 +25,7 @@ class UpdateManager:
         self.updates.append(u)
         if runinstantly:
             self.pool.pushps(u.f)
+        return u
 
 
 class Updater:

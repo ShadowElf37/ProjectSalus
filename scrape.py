@@ -219,7 +219,7 @@ class BlackbaudScraper(Scraper):
             'teacher': _class['groupownername'],
             'teacher-email': _class['groupowneremail'].lower(),
             'semester': _class['currentterm'],
-            'grade': _class['cumgrade'],
+            'average': _class['cumgrade'],
         } for _class in grades}
 
         return grades

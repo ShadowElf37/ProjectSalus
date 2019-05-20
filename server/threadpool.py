@@ -28,7 +28,7 @@ class Poolsafe:
         with self.cond:
             while self.r is Poolsafe.NONCE:
                 self.cond.wait()
-        return r
+        return self.r
 
     def call(self):
         with self.cond:
