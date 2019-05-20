@@ -1,5 +1,5 @@
 config/passwords.json
-__pycache__
+**/__pycache__
 **.pyc
 .idea
 logs/**
