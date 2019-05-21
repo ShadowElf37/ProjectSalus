@@ -4,7 +4,7 @@ import sys
 import os
 
 import importlib.util as imputil
-assert imputil.find_spec('selenium'), imputil.find_spec('bs4')
+assert imputil.find_spec('requests'), imputil.find_spec('bs4')
 print('Library check passed.')
 
 HERE = os.path.dirname(os.path.realpath(__file__))

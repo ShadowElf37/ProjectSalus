@@ -1,3 +1,7 @@
+v0.3.1 (5/20/19)
+- Rough server-side encryption of BB login info
+- Added crypt.py (replace with pycrypto later)
+
 v0.3.0 (5/20/19)
 - Fixed many many scraping bugs
 - Added updates.py to handle global scraping and updates for the project

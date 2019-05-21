@@ -2,6 +2,7 @@ from server.response import Request, Response
 from server.client import ClientObj, Account, ShellAccount
 import server.client
 from server.config import get_config
+from server.crypt import *
 
 navbar = get_config('navbar')
 
@@ -137,11 +138,13 @@ class HandlerLoginPage(RequestHandler):
 class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
-        if name not in updates.GLOBALS.DIRECTORY:
+        if name not in updates.DIRECTORY:
             self.response.refuse()
             return
         password = self.request.get_post('pwd')
         a = self.client.create_account(name, password)
+        a.password_enc = permahash(password)
+        print(a.password, a.password_enc)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
         # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
@@ -150,10 +153,14 @@ class HandlerLogin(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
-        self.client.login(name, password)
-        self.response.add_cookie('user_token', self.client.account.key, samesite='strict', path='/')
+        pe = permahash(password)
+        self.client.login(name, pe)
+        account = self.client.account
+        account.password = password
+        if account.bb_auth == ('', '') and account.bb_enc != ('', ''):
+            account.bb_auth = map(lambda l: unhashints(l, account.password), account.bb_enc)
+        self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
         if self.client.is_real():
-            # print('@', self.client.account.key)
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/accounts/login.html')
@@ -188,7 +195,8 @@ class HandlerBBPage(RequestHandler):
 
 class HandlerBBLogin(RequestHandler):
     def call(self):
-        self.account.bb_auth = self.request.post_vals['user'], self.request.post_vals['pass']
+        self.account.bb_auth = self.request.get_post('user'), self.request.get_post('pass')
+        self.account.bb_enc = hashstr(self.request.get_post('user'), self.account.password), hashstr(self.request.get_post('pass'), self.account.password)
         self.account.profile = updates.DIRECTORY[self.account.name]
         self.response.redirect('/bb')
 
@@ -211,7 +219,6 @@ class HandlerBBInfo(RequestHandler):
         if not grades:
             grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
 
-        print(grades)
         self.response.attach_file('/accounts/bb_test.html',
                                   profile=scrape.prettify(self.account.profile).replace('\n', '<br>'),
                                   schedule='<br>'.join(schedule.keys()),

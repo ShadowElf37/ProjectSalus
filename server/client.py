@@ -5,10 +5,11 @@ from server.config import get_config
 from server.persistent import PersistentDict, AccountsSerializer
 from server.threadpool import RWLockMixin
 from random import randint
+from server.crypt import permahash
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password='', key='', last_activity='', email='', profile={}, bb_auth='', bb_id='')
+@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', profile={}, bb_enc='', bb_id='')
 class Account(RWLockMixin):
     def __preinit__(self):
         super().__init__()
@@ -16,17 +17,22 @@ class Account(RWLockMixin):
         self.shell = False
         self.bb_cache = {}
         self.bb_t = ''
+        self.bb_auth = ('', '')
+        if not getattr(self, 'password', False):
+            self.password = ''
+
     def __init__(self, name, password, key, email=""):
         self.ips = []
         self.name = name
         self.email = email
         self.password = password
+        self.password_enc = ''
         self.last_activity = format_date_time(time())
         self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
         self.profile = {}
-        self.bb_auth = ('', '')
+        self.bb_enc = ('', '')
         self.bb_id = ''
 
     def register(self, key):
@@ -50,6 +56,7 @@ class ShellAccount:
         self.key = None
         self.id = None
         self.password = ''
+        self.password_enc = ''
         self.name = ''
         self.email = ''
         self.shell = True
@@ -58,6 +65,7 @@ class ShellAccount:
         self.bb_auth = ('', '')
         self.bb_t = ''
         self.bb_id = ''
+        self.bb_enc = ('', '')
 
     def new_key(self):
         return
@@ -94,8 +102,8 @@ class ClientObj:
         self.account.register(key)
         return self.account
 
-    def login(self, name, password):
-        self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password == password)
+    def login(self, name, password_enc):
+        self.account = user_tokens.find(lambda a: a.name.lower() == name.lower() and a.password_enc == password_enc)
         if self.account is not None:
             self.account.manual_key(new_key())
         else:
