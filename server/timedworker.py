@@ -32,6 +32,7 @@ class Updater:
     def __init__(self, manager, deltaMinutes, psf: Poolsafe):
         # Scrape every once in a while
         self.start = time()
+        self.soft_start = time()
         self.delta = deltaMinutes * 60
         self.updatetime = self.start + self.delta
         self.f = psf
@@ -39,6 +40,7 @@ class Updater:
 
     def poll(self):
         if self.updatetime <= time():
-            self.updatetime = time() + self.delta
+            self.soft_start = time()
+            self.updatetime = self.soft_start + self.delta
             return self.f
         return None
