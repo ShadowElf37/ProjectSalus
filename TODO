@@ -7,12 +7,13 @@ Backend (urgent):
 
 Front-end (important):
     1. Basic web design CSS
-    3. Backup of data
-    4. IMAP
-    5. Scrape BB topics section for each class
-    6. Scrape individual directory entries for gender, hidden phone numbers, etc.
-    7. Config for BB scrape dict building
-    8. Weekly menu updater
+    2. Backup of data
+    3. IMAP
+    4. Scrape BB topics section for each class
+    5. Scrape individual directory entries for gender, hidden phone numbers, etc.
+    6. Config for BB scrape dict building
+    7. Weekly menu updater
+    8. Preserve updaters between reboots
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
