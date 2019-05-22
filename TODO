@@ -7,10 +7,12 @@ Backend (urgent):
 
 Front-end (important):
     1. Basic web design CSS
-    2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
     3. Backup of data
     4. IMAP
     5. Scrape BB topics section for each class
+    6. Scrape individual directory entries for gender, hidden phone numbers, etc.
+    7. Config for BB scrape dict building
+    8. Weekly menu updater
 
 Actual pages and functionality (less important):
     1. SGA feedback form & email forwarding system
@@ -24,9 +26,9 @@ Actual pages and functionality (less important):
     9. User-friendly ways to edit all these
     10. Simple mass-email interface
     11. Remote access console and maintenance-in-progress backup system
-    12. SSL
+    12. SSL, Client-side encryption
     13. Student life board?
-    14. Push notifications? / Text messages
+    14. SMS with periods etc.
     15. Student directory
     16. Sage menu
     17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
