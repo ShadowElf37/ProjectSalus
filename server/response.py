@@ -2,14 +2,13 @@ import time
 import re
 from wsgiref.handlers import format_date_time
 from http.cookies import SimpleCookie, Morsel
-from server.config import get_config
-from server.cache import guess_mime, CONTENT_TYPE
+from .config import get_config
+from .cache import guess_mime, CONTENT_TYPE
 from fnmatch import fnmatch  # for mime-type matching
 from os.path import basename
 from http.server import BaseHTTPRequestHandler, HTTPStatus
 from urllib.parse import parse_qs
-import server.htmlutil as htmlutil
-from server.htmlutil import *
+from .htmlutil import *
 
 ENCODING = 'UTF-8'
 HTTPCODES = {v: v.phrase for v in HTTPStatus.__members__.values()}

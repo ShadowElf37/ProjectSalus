@@ -1,8 +1,7 @@
-from server.response import Request, Response
-from server.client import ClientObj, Account, ShellAccount
-import server.client
-from server.config import get_config
-from server.crypt import *
+from .response import Request, Response
+from .client import ClientObj, Account, ShellAccount
+from .config import get_config
+from .crypt import *
 
 navbar = get_config('navbar')
 

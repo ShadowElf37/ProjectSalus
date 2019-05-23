@@ -1,5 +1,5 @@
 from time import sleep, time
-from server.threadpool import Poolsafe
+from .threadpool import Poolsafe
 
 class UpdateManager:
     def __init__(self, pool):
