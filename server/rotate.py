@@ -1,4 +1,4 @@
-from os         import replace
+from os         import replace, fsync
 from os.path    import isfile
 
 class RotationHandler:
@@ -17,6 +17,8 @@ class RotationHandler:
         return self.basename + ("" if version == 0 else ".{}".format(version))
 
     def rotate(self) -> None:
+        # self.handle.flush()
+        # fsync(self.handle.fileno())
         self.handle.close()
         self._rotate(0)
         self.handle = open(basename, "w+")
