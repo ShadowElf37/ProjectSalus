@@ -4,6 +4,7 @@ from functools  import wraps
 from importlib  import import_module
 from sys        import stderr
 from copy       import deepcopy
+from rotate     import RotationHandler
 import json
 #from config import get_config
 localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: localconf
@@ -179,22 +180,39 @@ class BoundSerializer(Serializer):
     def __init__(self, name):
         super().__init__()
         path = "{}/{}".format(config.get("dir"), name)
+        self.setfile(path)
+
+    def __del__(self):
+        self.fh.close()
+
+    def getfile(self):
+        return self.fh
+    
+    def setfile(self, path):
         try:
             self.fh = open(path, "r+")
         except FileNotFoundError:
             self.fh = open(path, "w+")
 
-    def __del__(self):
-        self.fh.close()
-
     def load(self, *args):
-        self.fh.seek(0)
-        super().load(self.fh)
+        self.getfile().seek(0)
+        super().load(self.getfile())
+    
     def dump(self, *args):
-        self.fh.seek(0)
-        self.fh.truncate()
-        super().dump(self.fh)
-        self.fh.flush()
+        self.getfile().seek(0)
+        self.getfile().truncate()
+        super().dump(self.getfile())
+        self.getfile().flush()
+
+class BoundRotatingSerializer(BoundSerializer):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def setfile(self, path):
+        self.handler = RotationHandler(path)
+
+    def getfile(self, path):
+        return self.handler.handle
 
 class BSManager:
     def __init__(self):
