@@ -13,7 +13,7 @@ Blackbaud.login('ykey-cohen', 'Yoproductions3', 't')
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
 RepeaterPool.pushps(d)
-RepeaterPool.pushps(s)
+Repeater.register(s, 60*24*7, runinstantly=True)
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 

@@ -160,20 +160,20 @@ class BlackbaudScraper(Scraper):
                                params=params, headers=headers, cookies=self.default_cookies))
             directory += resp.json()
 
-        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {k2: (person[k1].strip() if type(person.get(k1)) is str else person.get(k1)) for k1,k2 in (
-            ('UserID', 'id'),
-            ('Email', 'email'),
-            ('AddressLine1', 'address'),
-            ('City', 'city'),
-            ('State', 'state'),
-            ('Zip', 'zip'),
-            ('HomePhone', 'home'),
-            ('CellPhone', 'cell'),
-            ('GradYear', 'year'),
-            ('GradeDisplay', 'grade'),
-            ('PreferredAddressLat', 'addrlatitude'),
-            ('PreferredAddressLng', 'addrlongitude')
-        )} for person in directory}
+        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+            'id': person.get('UserID'),
+            'email' : person.get('Email'),
+            'address': person.get('AddressLine1'),
+            'city': person.get('City'),
+            'state': person.get('State'),
+            'zip': person.get('Zip'),
+            'home': person.get('HomePhone', '').strip(),
+            'cell': person.get('CellPhone', '').strip(),
+            'year': person.get('GradYear'),
+            'grade': person.get('GradeDisplay'),
+            'addrlatitude': person.get('PreferredAddressLat', 0.0),
+            'addrlongitude': person.get('PreferredAddressLng', 0.0),
+        } for person in directory}
 
         return directory
 
@@ -293,33 +293,12 @@ if __name__ == '__main__':
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
     directory = Poolsafe(bb.directory)
-    schedule = Poolsafe(bb.schedule, '05/20/2019')
-    grades = Poolsafe(bb.grades, '3510119')
-    assignments = Poolsafe(bb.assignments)
+    # schedule = Poolsafe(bb.schedule, '05/20/2019')
+    # grades = Poolsafe(bb.grades, '3510119')
+    # assignments = Poolsafe(bb.assignments)
     tp = Pool(8)
     tp.launch()
-    tp.pushps_multi(directory, schedule, grades, assignments)
-    Poolsafe.await_all(directory, schedule, grades, assignments)
+    tp.pushps(directory)
 
-    mydir = directory.read()['Yovel Key-Cohen']
-    myschedule = list(schedule.read().keys())
-    mathgrade = grades.read()['Pre-Calculus Honors - C (C)']
-    hebrew = {'MAAMAR- READ BEVAKASHA': assignments.read()['MAAMAR- READ BEVAKASHA']}
-    hebrewdownload = bb.get_assignment_downloads(assignments.read()['MAAMAR- READ BEVAKASHA']['id'])
-
-    print('\nPROFILE')
-    print('=' * 20)
-    print(mydir)
-    print('\nSCHEDULE FOR 5/20/19')
-    print('=' * 20)
-    print(myschedule)
-    print('\nMATH GRADE')
-    print('=' * 20)
-    print(mathgrade)
-    print('\nHEBREW HOMEWORK FROM FRIDAY')
-    print('=' * 20)
-    print(hebrew)
-    print('\nHEBREW HOMEWORK ATTACHMENTS')
-    print('=' * 20)
-    print(hebrewdownload)
-    print('Operation took %.1f seconds' % (time()-t))
+    mydir = directory.wait()
+    print(prettify(mydir))

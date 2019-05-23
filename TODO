@@ -1,18 +1,18 @@
 Known bugs:
-    1. persistent.py isn't saving data
+    1. None!
 
-=========
-Backend (urgent):
-    All done!
-
-Front-end (important):
+=======================
+Back-end and essentials:
     1. Basic web design CSS
-    2. Create client-side password-request encryption when it's being sent to server (don't decrypt - it should be stored encrypted)
-    3. Backup of data
-    4. IMAP
-    5. Scrape BB topics section for each class
+    2. Backup of data
+    3. IMAP
+    4. Scrape BB topics section for each class
+    5. Scrape individual directory entries for gender, hidden phone numbers, etc.
+    6. Config for BB scrape dict building
+    7. Weekly menu updater
+    8. Preserve updaters between reboots
 
-Actual pages and functionality (less important):
+Actual pages and functionality:
     1. SGA feedback form & email forwarding system
     2. Snack polls
     3. Referendums / Surveys
@@ -24,15 +24,15 @@ Actual pages and functionality (less important):
     9. User-friendly ways to edit all these
     10. Simple mass-email interface
     11. Remote access console and maintenance-in-progress backup system
-    12. SSL
+    12. SSL, Client-side encryption
     13. Student life board?
-    14. Push notifications? / Text messages
+    14. SMS with periods etc.
     15. Student directory
     16. Sage menu
     17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
     18. IMAP/SMTP replacement for Outlook
 
-Post-deployment wishlist (far future):
+Post-deployment wishlist:
     1. Integration with other clubs and sports (calendar, push notifications, etc.)
     2. Mercury-style tutor/help board
     3. Mercury-style messaging (but more advanced please)
