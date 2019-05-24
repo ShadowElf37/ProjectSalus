@@ -4,7 +4,7 @@ from functools  import wraps
 from importlib  import import_module
 from sys        import stderr
 from copy       import deepcopy
-from rotate     import RotationHandler
+from .rotate    import RotationHandler
 import json
 #from config import get_config
 localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: localconf

@@ -4,10 +4,10 @@ Known bugs:
 =======================
 Back-end and essentials:
     1. Basic web design CSS
-    2. Backup of data
-    3. IMAP
-    4. Scrape BB topics section for each class
-    5. Scrape individual directory entries for gender, hidden phone numbers, etc.
+    2. IMAP
+    3. Scrape BB topics section for each class
+    4. Scrape individual directory entries for hidden phone numbers
+    5. Format class titles to not have period at end of them
     6. Config for BB scrape dict building
     7. Weekly menu updater
     8. Preserve updaters between reboots

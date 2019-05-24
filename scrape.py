@@ -20,6 +20,9 @@ def next_saturday(from_date=datetime.datetime.now()):
 def prettify(jsonobj, indent=4):
     return json.dumps(jsonobj, indent=indent)
 
+def bbdt(date_time_string):
+    return datetime.datetime.strptime(date_time_string, '%m/%d/%Y %I:%M %p')
+
 class Scraper:
     def __init__(self):
         self.useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
@@ -177,7 +180,30 @@ class BlackbaudScraper(Scraper):
 
         return directory
 
-    def schedule(self, date=datetime.date.today().strftime('%m/%d/%Y'), **headers):
+    def dir_details(self, userid, *extra_data_fields, **headers):
+        #https://emeryweiner.myschoolapp.com/api/user/4201127/?propertylist=FieldsToNull%2CLastName%2CFirstName%2CMiddleName%2COtherLastName%2CPrefix%2CSuffix%2CMaidenName%2CNickName%2CDisplayName%2CGender%2CBirthDate%2CEmail%2CBirthPlace%2CStudentId%2CLockerNbr%2CLockerCombo%2CMailboxNbr
+        params = {
+            'propertyList': ','.join(('LastName', 'FirstName', 'MiddleName', 'Prefix', 'MaidenName', 'Gender', 'BirthDate', 'Email', 'StudentId') + extra_data_fields)
+        }
+        headers.update(self.default_headers)
+
+        resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
+                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+        entry = {
+            'id': resp['StudentId'],
+            'name': resp['FirstName'] + resp['LastName'],
+            'middle': resp['MiddleName'],
+            'prefix': resp['Prefix'],
+            'maiden-name': resp['MaidenName'],
+            'gender': resp['Gender'],
+            'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
+            'email': resp['Email'],
+        }
+
+        return entry
+
+
+    def schedule(self, date=todaystr(), **headers):
         params = {
             'scheduleDate': date,
             'personaId': 2,
@@ -265,8 +291,8 @@ class BlackbaudScraper(Scraper):
             'class-id': ass['section_id'],
             'class': ass['groupname'],
             'id': ass['assignment_id'],
-            'assigned': ass['date_assigned'],
-            'due': ass['date_due'],
+            'assigned': bbdt(ass['date_assigned']).strftime('%m/%d/%Y'),
+            'due': bbdt(ass['date_due']).strftime('%m/%d/%Y'),
             'desc': html(ass['long_description'].replace('<br />', ' \n') if ass.get('long_description') else '').text,
             'links': ass['has_link'],
             'downloads': ass['has_download'],
@@ -292,13 +318,13 @@ if __name__ == '__main__':
     print('LOGGING IN...')
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
-    directory = Poolsafe(bb.directory)
+    # directory = Poolsafe(bb.directory)
     # schedule = Poolsafe(bb.schedule, '05/20/2019')
     # grades = Poolsafe(bb.grades, '3510119')
-    # assignments = Poolsafe(bb.assignments)
+    assignments = Poolsafe(bb.assignments)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(directory)
+    tp.pushps(assignments)
 
-    mydir = directory.wait()
+    mydir = assignments.wait()
     print(prettify(mydir))

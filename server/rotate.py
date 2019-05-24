@@ -21,7 +21,7 @@ class RotationHandler:
         # fsync(self.handle.fileno())
         self.handle.close()
         self._rotate(0)
-        self.handle = open(basename, "w+")
+        self.handle = open(self.basename, "w+")
 
     def _rotate(self, offset: int) -> None:
         src = self.resolve_name(offset)
@@ -32,4 +32,4 @@ class RotationHandler:
         replace(src, dest)
 
     def restore(self, version: int=1) -> None:
-        replace(resolve_name(version), basename)
+        replace(self.resolve_name(version), self.basename)
