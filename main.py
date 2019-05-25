@@ -4,7 +4,8 @@ import sys
 import os
 
 import importlib.util as imputil
-assert imputil.find_spec('requests'), imputil.find_spec('bs4')
+assert all((imputil.find_spec('requests'), imputil.find_spec('bs4'), imputil.find_spec('cryptography'))),\
+    'Missing libraries are required to continue. Check to make sure you have installed Requests, BeautifulSoup4, and Cryptography'
 print('Library check passed.')
 
 HERE = os.path.dirname(os.path.realpath(__file__))

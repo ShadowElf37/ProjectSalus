@@ -5,7 +5,6 @@ from .config import get_config
 from .persistent import PersistentDict, AccountsSerializer
 from .threadpool import RWLockMixin
 from random import randint
-from .crypt import permahash
 
 whitelist = get_config('whitelist').get('users')
 

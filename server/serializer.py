@@ -18,7 +18,7 @@ def noop(*args, **kwargs):
 
 
 class Serializer:
-    PRIMITIVE_TYPES = (str, int, float, bool, type(None))
+    PRIMITIVE_TYPES = (str, int, float, bool, type(None), bytes)
     ITERABLE_TYPES  = (list, set, tuple)
     def __init__(self):
         self.names = dict()
@@ -86,6 +86,7 @@ class Serializer:
         """Serialize one thing."""
         if self._is_sclass(obj.__class__):
             return self._from_pool(obj)
+        if type(obj) is bytes: return {"type": 'bytes', "data": obj.decode('UTF-8')}
         if self._is_primitive(obj): return obj
         if type(obj) in (list, tuple, set):
             return {"type": type(obj).__name__, "data":

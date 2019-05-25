@@ -142,8 +142,7 @@ class HandlerSignup(RequestHandler):
             return
         password = self.request.get_post('pwd')
         a = self.client.create_account(name, password)
-        a.password_enc = permahash(password)
-        print(a.password, a.password_enc)
+        a.password_enc = hash(password, self.client.account.name)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
         # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
@@ -152,12 +151,13 @@ class HandlerLogin(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
-        pe = permahash(password)
+        pe = hash(password, name)
         self.client.login(name, pe)
         account = self.client.account
         account.password = password
         if account.bb_auth == ('', '') and account.bb_enc != ('', ''):
-            account.bb_auth = map(lambda l: unhashints(l, account.password), account.bb_enc)
+            decoder = cryptrix(account.password, account.name)
+            account.bb_auth = decoder.decrypt(account.bb_enc[0]), decoder.decrypt(account.bb_enc[1])
         self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
         if self.client.is_real():
             self.response.redirect('/home/index.html')
@@ -184,7 +184,6 @@ class HandlerAdminBoard(RequestHandler):
 
 import updates
 import scrape
-from server.threadpool import Poolsafe
 class HandlerBBPage(RequestHandler):
     def call(self):
         if self.rank < 1:
@@ -195,7 +194,8 @@ class HandlerBBPage(RequestHandler):
 class HandlerBBLogin(RequestHandler):
     def call(self):
         self.account.bb_auth = self.request.get_post('user'), self.request.get_post('pass')
-        self.account.bb_enc = hashstr(self.request.get_post('user'), self.account.password), hashstr(self.request.get_post('pass'), self.account.password)
+        encoder = cryptrix(self.account.password, self.account.name)
+        self.account.bb_enc = encoder.encrypt(self.request.get_post('user')), encoder.encrypt(self.request.get_post('pass'))
         self.account.profile = updates.DIRECTORY[self.account.name]
         self.response.redirect('/bb')
 
