@@ -5,3 +5,4 @@ config/passwords.json
 logs/**
 data/**
 !.gitkeep
+.env
