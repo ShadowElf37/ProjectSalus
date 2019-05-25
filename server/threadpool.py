@@ -22,7 +22,7 @@ class Poolsafe:
         with ps.cond:
             while ps.r is Poolsafe.NONCE:
                 ps.cond.wait()
-            await_all(it)
+            Poolsafe.await_all(it)
 
     def wait(self):
         with self.cond:
@@ -66,7 +66,7 @@ class Pool:
 
     def pushf(self, f, *args, **kwargs):
         with self.condition:
-            self.queue.insert(0, (f,) + args + ((kwargs,) if kwargs else ()))
+            self.queue.insert(0, (f, args, kwargs))
             self.condition.notify()
 
     def pushps(self, ps):
@@ -109,10 +109,10 @@ class Fish:
                 continue
 
             if r[0] is not None:
-                r[0](*r[1:-1], **r[-1])
+                r[0](*r[1], **r[2])
                 continue
 
-            server, request, client_address = r[1:]
+            server, request, client_address = r[1]
             server.finish_request(request, client_address)
             server.shutdown_request(request)
             self.busy = False

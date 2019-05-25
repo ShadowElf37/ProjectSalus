@@ -1,14 +1,13 @@
-from server.threadpool import Poolsafe, Pool
+from server.threadpool import Pool, Poolsafe
 from server.timedworker import UpdateManager
 from scrape import *
-from time import time, sleep
 from server.env import EnvReader
 
 env = EnvReader('main.py')
 
 repeater_pool = Pool(20)
 repeater_pool.launch()
-repeater = UpdateManager(repeater_pool.pushf)
+repeater = UpdateManager(repeater_pool.pushps)
 repeater_pool.pushf(repeater.start)
 
 Blackbaud = BlackbaudScraper()
@@ -22,7 +21,6 @@ DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 
 FUNC = ...
-
 
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
     def update(f, *args, **kwargs):

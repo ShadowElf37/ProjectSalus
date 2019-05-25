@@ -7,6 +7,7 @@ class Update:
         # Scrape every once in a while
         self.delta = minutes * 60
         self.data = data
+        self.next = time() + self.delta
         self.update()
 
     def update(self):
@@ -33,13 +34,12 @@ class UpdateManager:
                     if not self.running: return
                     if self.updates:
                         nextjob = self.updates[0]
-                        now = time()
-                        if nextjob.next <= now:
+                        if nextjob.next <= time():
                             nextjob.update()
                             heapq.heapreplace(self.updates, nextjob)
                             break
                         else:
-                            self.cond.wait(now - nextjob.next)
+                            self.cond.wait(time() - nextjob.next)
                     else: self.cond.wait()
             self.output(nextjob)
 
