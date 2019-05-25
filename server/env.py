@@ -4,7 +4,7 @@ from re         import compile as recomp
 
 class EnvReader:
     PATHS = (".env", "~/.{}.cfg", "/etc/{}.cfg")
-    PATTERN = recomp(r"([^\s=])\s*=\s*([^=])")
+    PATTERN = recomp(r"([^\s=]+)\s*=\s*([^=]+)")
     def __new__(self, name):
         assert name
         value = dict()
@@ -14,7 +14,8 @@ class EnvReader:
                 with open(fname, "r") as fh:
                     lineno = 1
                     for line in fh:
-                        if line.startswith("#") or isspace(line) or not line:
+                        line = line.strip()
+                        if line.startswith("#") or line.isspace() or not line:
                             continue
                         match = EnvReader.PATTERN.match(line)
                         if match is None:
