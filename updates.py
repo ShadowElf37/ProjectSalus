@@ -3,6 +3,15 @@ from server.timedworker import UpdateManager
 from scrape import *
 from server.env import EnvReader
 
+
+HOURLY = 60
+DAILY = 60*24
+WEEKLY = DAILY*7
+MONTHLY = DAILY*30
+ANNUALLY = DAILY*365
+BIANNUALLY = MONTHLY*6
+QUARTERLY = MONTHLY*3
+
 env = EnvReader('main.py')
 
 repeater_pool = Pool(20)
@@ -15,8 +24,8 @@ Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
 
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
-repeater_pool.pushps(d)
-repeater.register(s, 60*24*7, now=True)
+repeater.register(d, BIANNUALLY, now=True)
+repeater.register(s, WEEKLY, now=True)
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 
