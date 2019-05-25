@@ -33,7 +33,7 @@ class Poolsafe:
     def call(self):
         with self.cond:
             self.r = self.f(*self.args, **self.kwargs)
-            self.cond.notifyAll()
+            self.cond.notify_all()
 
     def read(self):
         return self.r
@@ -45,7 +45,7 @@ class Poolsafe:
 
 class Pool:
     def __init__(self, threadcount):
-        self.condition = Condition()
+        self.condition = Condition(Lock())
         self.queue = []
         self.threads = [Fish(self.condition, self.queue) for _ in range(threadcount)]
 
@@ -57,7 +57,7 @@ class Pool:
         for t in self.threads:
             t.terminate()
         with self.condition:
-            self.condition.notifyAll()
+            self.condition.notify_all()
         for t in self.threads:
             t.thread.join(config.get('cleanup-timeout'))
 
@@ -132,7 +132,7 @@ class RWLockMixin:
                 with self._read_ready:
                     self._readers -= 1
                     if not self._readers:
-                        self._read_ready.notifyAll()
+                        self._read_ready.notify_all()
             return attr
         return object.__getattribute__(self, item)
     def __setattr__(self, item, val):
