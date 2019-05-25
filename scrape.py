@@ -225,7 +225,7 @@ class BlackbaudScraper(Scraper):
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
                                        params=params, headers=headers, cookies=self.default_cookies)).json()
-        print(resp)
+
         g = resp.get('Gender', 'o').lower()
         entry = {
             'name': resp['FirstName'] + ' ' + resp['LastName'],
@@ -257,7 +257,8 @@ class BlackbaudScraper(Scraper):
             'start': period['MyDayStartTime'],
             'end': period['MyDayEndTime'],
             'teacher': period['Contact'],
-            'teacher-email': period.get('ContactEmail', '').lower()
+            'teacher-email': period.get('ContactEmail', '').lower(),
+            'section': period['SectionId'],
         } for period in schedule}
 
         return schedule
