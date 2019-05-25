@@ -6,7 +6,7 @@ Back-end and essentials:
     - Basic web design CSS
     - IMAP
     - Scrape BB topics section for each class
-    - Preserve updaters between reboots
+    - Preserve updaters between reboots (specifically, store in a .dat the Updater.updatetime and make a bunch of new ones with that same updatetime on startup; they should run immediately if they're behind)
     - Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
 
 Actual pages and functionality:
