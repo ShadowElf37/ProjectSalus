@@ -1,46 +1,42 @@
+import base64
+import os
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+class FernetS(Fernet):
+    def encrypt(self, string):
+        return super().encrypt(bytes(string, 'UTF-8'))
+    def decrypt(self, token, ttl=None):
+        return super().decrypt(token, ttl).decode('UTF-8')
+
+def fernet(key, salt, byte=False):
+    if not byte:
+        salt = bytes(salt, 'UTF-8')
+        key = bytes(key, 'UTF-8')
+
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend())
+    key = base64.urlsafe_b64encode(kdf.derive(key))
+
+    if byte:
+        return Fernet(key)
+    return FernetS(key)
+
+f = fernet('password', 'ykey-cohen')
+f2 = fernet('password', 'ykey-cohen')
+token = f.encrypt('helloworld')
+token2 = f.encrypt('helloworld')
+print(token)
+print(token2)
+print(f.decrypt(token))
+print(f2.decrypt(token2))
+
 import hashlib
-
-def egcd(a, b):
-    if a == 0:
-        return (b, 0, 1)
-    else:
-        g, y, x = egcd(b % a, a)
-        return (g, x - (b // a) * y, y)
-
-def modinv(a, m):
-    g, x, y = egcd(a, m)
-    if g != 1:
-        raise Exception('modular inverse does not exist')
-    else:
-        return x % m
-
-M = 2**2203
-P1 = M - 1
-P2 = modinv(P1, M)
-
-def hashint(n):
-    return n * P1 % M
-
-def unhashint(h):
-    return h * P2 % M
-
-def keyhash(key):
-    i = sum(map(lambda c: ord(c[1])*c[0]^777, enumerate(key)))
-    while len(bin(i)) < 2201:
-        i += i//64
-    while len(bin(i)) > 2201:
-        i -= i//64
-    return i
-
-def hashstr(s, key):
-    key = keyhash(key)
-    return [hashint(ord(c) + key * i) for i,c in enumerate(s)]
-
-def unhashints(ints, key):
-    key = keyhash(key)
-    return ''.join([chr(unhashint(c + key * i)) for i,c in enumerate(ints)])
-
-def permahash(s):
-    return hashlib.sha512(s.encode('utf-8')).hexdigest()
-
-# print(hashstr('ykey-cohen', 'password'))
+def hash(string, salt=''):
+    return hashlib.sha512(salt + string).hexdigest()
