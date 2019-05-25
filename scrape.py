@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-from html import escape, unescape
+import re
 import datetime
 from time import time
+
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
@@ -27,6 +28,12 @@ def format_phone_num(string: str):
     if string.count('-') < 2:
         string = string.replace('-', '')
         return '-'.join((string[:3], string[3:6], string[6:]))
+    return string
+
+def format_class_name(string: str):
+    # ([0-9][a-z]* (Sem)*)|   Catches '2nd Sem' etc.
+    for bad in re.findall('( - [A-Z] \([0-9A-Za-z]*\)( \([A-Z]\))*)', string):
+        string = string.replace(bad, '')
     return string
 
 class Scraper:
@@ -244,7 +251,7 @@ class BlackbaudScraper(Scraper):
                                 params=params, headers=headers, cookies=self.default_cookies)).json()
 
         schedule = {period['Block']: {
-            'class': period['CourseTitle'],
+            'class': format_class_name(period['CourseTitle']),
             'room': period['RoomNumber'],
             'building': period['BuildingName'],
             'start': period['MyDayStartTime'],
@@ -268,7 +275,6 @@ class BlackbaudScraper(Scraper):
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
                               params=params, headers=headers, cookies=self.default_cookies)).json()
-
 
         grades = {_class['sectionidentifier']: {
             'id': _class['sectionid'],
@@ -319,7 +325,7 @@ class BlackbaudScraper(Scraper):
 
         assignments = {ass['short_description']:{
             'class-id': ass['section_id'],
-            'class': ass['groupname'],
+            'class': format_class_name(ass['groupname']),
             'id': ass['assignment_id'],
             'assigned': bbdt(ass['date_assigned']).strftime('%m/%d/%Y'),
             'due': bbdt(ass['date_due']).strftime('%m/%d/%Y'),
