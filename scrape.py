@@ -32,8 +32,11 @@ def format_phone_num(string: str):
 
 def format_class_name(string: str):
     # ([0-9][a-z]* (Sem)*)|   Catches '2nd Sem' etc.
-    for bad in re.findall('( - [A-Z] \([0-9A-Za-z]*\)( \([A-Z]\))*)', string):
-        string = string.replace(bad, '')
+    periodnames = re.findall('( - [A-Z] \([0-9A-Za-z]*\)( \([A-Z]\))*)', string)
+    print(periodnames)
+    for bad in periodnames:
+        print(bad)
+        string = string.replace(bad[0], '')
     return string
 
 class Scraper:
@@ -276,12 +279,11 @@ class BlackbaudScraper(Scraper):
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
                               params=params, headers=headers, cookies=self.default_cookies)).json()
-
-        grades = {_class['sectionidentifier']: {
+        grades = {format_class_name(_class['sectionidentifier']): {
             'id': _class['sectionid'],
             'teacher': _class['groupownername'],
             'teacher-email': _class['groupowneremail'],
-            'semester': _class['currentterm'],
+            'semester': int(re.match('[0-9]', _class['currentterm']).group()),
             'average': _class['cumgrade'],
         } for _class in grades}
 
@@ -355,14 +357,14 @@ if __name__ == '__main__':
     print('LOGGING IN...')
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
-    directory = Poolsafe(bb.teacher_directory)
+    # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/20/2019')
-    # grades = Poolsafe(bb.grades, '3510119')
+    grades = Poolsafe(bb.grades, '3510119')
     # assignments = Poolsafe(bb.assignments)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(directory)
+    tp.pushps(grades)
 
-    mydir = directory.wait()
+    mydir = grades.wait()
     print(prettify(mydir))

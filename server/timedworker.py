@@ -15,6 +15,8 @@ class Update:
 
     def __le__(self, other):
         return self.next <= other.next
+    def __lt__(self, other):
+        return self.next < other.next
 
 class UpdateManager:
     def __init__(self, cb):
