@@ -18,7 +18,7 @@ def noop(*args, **kwargs):
 
 
 class Serializer:
-    PRIMITIVE_TYPES = (str, int, float, bool, type(None), bytes)
+    PRIMITIVE_TYPES = (str, int, float, bool, type(None))
     ITERABLE_TYPES  = (list, set, tuple)
     def __init__(self):
         self.names = dict()
@@ -86,9 +86,10 @@ class Serializer:
         """Serialize one thing."""
         if self._is_sclass(obj.__class__):
             return self._from_pool(obj)
-        if type(obj) is bytes: return {"type": 'bytes', "data": obj.decode('UTF-8')}
         if self._is_primitive(obj): return obj
-        if type(obj) in (list, tuple, set):
+        if type(obj) is bytes:
+            return {"type": 'bytes', "data": obj.hex()}
+        if type(obj) in Serializer.ITERABLE_TYPES:
             return {"type": type(obj).__name__, "data":
                 self._serialize_iterable(obj)}
         if type(obj) is dict:
@@ -147,6 +148,8 @@ class Serializer:
             dtype = __builtins__.get(obj["type"], None)
             if dtype in Serializer.ITERABLE_TYPES:
                 return self._deserialize_iterable(obj["data"], dtype)
+            if obj["type"] == "bytes":
+                return bytes.fromhex(obj["data"])
             if obj["type"] == "dict":
                 return {x["key"]: self._deserialize(x["value"]) for x in obj["data"]}
         raise TypeError("Unsupported deserialization for {}!".format(obj))
