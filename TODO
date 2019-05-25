@@ -7,7 +7,7 @@ Back-end and essentials:
     2. IMAP
     3. Scrape BB topics section for each class
     4. Format class titles to not have period at end of them
-    5. Config for BB scrape dict building
+    5. Calculated endtimes for updater deltas
     6. Weekly menu updater
     7. Preserve updaters between reboots
     8. Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
