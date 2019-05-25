@@ -11,6 +11,7 @@ Back-end and essentials:
     - Config for BB scrape dict building
     - Weekly menu updater
     - Preserve updaters between reboots
+    - Prevent updaters from being generated willy-nilly on BB login if they already exist; updaters ought to be purged? on logout
 
 Actual pages and functionality:
     - SGA feedback form & email forwarding system

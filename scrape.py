@@ -23,6 +23,12 @@ def prettify(jsonobj, indent=4):
 def bbdt(date_time_string):
     return datetime.datetime.strptime(date_time_string, '%m/%d/%Y %I:%M %p')
 
+def format_phone_num(string: str):
+    if string.count('-') < 2:
+        string = string.replace('-', '')
+        return '-'.join((string[:3], string[3:6], string[6:]))
+    return string
+
 class Scraper:
     def __init__(self):
         self.useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
@@ -165,13 +171,13 @@ class BlackbaudScraper(Scraper):
 
         directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
             'id': person.get('UserID'),
-            'email' : person.get('Email'),
+            'email' : person.get('Email', '').lower(),
             'address': person.get('AddressLine1'),
             'city': person.get('City'),
             'state': person.get('State'),
             'zip': person.get('Zip'),
-            'home': person.get('HomePhone', '').strip(),
-            'cell': person.get('CellPhone', '').strip(),
+            'home': format_phone_num(person.get('HomePhone', '').strip()),
+            'cell': format_phone_num(person.get('CellPhone', '').strip()),
             'year': person.get('GradYear'),
             'grade': person.get('GradeDisplay'),
             'addrlatitude': person.get('PreferredAddressLat', 0.0),
@@ -183,22 +189,23 @@ class BlackbaudScraper(Scraper):
     def dir_details(self, userid, *extra_data_fields, **headers):
         #https://emeryweiner.myschoolapp.com/api/user/4201127/?propertylist=FieldsToNull%2CLastName%2CFirstName%2CMiddleName%2COtherLastName%2CPrefix%2CSuffix%2CMaidenName%2CNickName%2CDisplayName%2CGender%2CBirthDate%2CEmail%2CBirthPlace%2CStudentId%2CLockerNbr%2CLockerCombo%2CMailboxNbr
         params = {
-            'propertyList': ','.join(('LastName', 'FirstName', 'MiddleName', 'Prefix', 'MaidenName', 'Gender', 'BirthDate', 'Email', 'StudentId') + extra_data_fields)
+            'propertyList': ','.join(('LastName', 'FirstName', 'MiddleName', 'Prefix', 'Gender', 'BirthDate', 'Email') + extra_data_fields)
         }
         headers.update(self.default_headers)
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
                                        params=params, headers=headers, cookies=self.default_cookies)).json()
+        print(resp)
+        g = resp.get('Gender', 'o').lower()
         entry = {
-            'id': resp['StudentId'],
-            'name': resp['FirstName'] + resp['LastName'],
-            'middle': resp['MiddleName'],
-            'prefix': resp['Prefix'],
-            'maiden-name': resp['MaidenName'],
-            'gender': resp['Gender'],
+            'name': resp['FirstName'] + ' ' + resp['LastName'],
+            'middle': resp.get('MiddleName', ''),
+            'title': resp.get('Prefix', 'Mr.' if g == 'm' else 'Ms.' if g == 'f' else resp['FirstName']),
+            'gender': g,
             'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
-            'email': resp['Email'],
+            'email': resp.get('Email', '').lower(),
         }
+        entry.update({k:resp.get(k) for k in extra_data_fields})
 
         return entry
 
@@ -220,7 +227,7 @@ class BlackbaudScraper(Scraper):
             'start': period['MyDayStartTime'],
             'end': period['MyDayEndTime'],
             'teacher': period['Contact'],
-            'teacher-email': period['ContactEmail']
+            'teacher-email': period.get('ContactEmail', '').lower()
         } for period in schedule}
 
         return schedule
@@ -318,13 +325,14 @@ if __name__ == '__main__':
     print('LOGGING IN...')
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
-    # directory = Poolsafe(bb.directory)
+    directory = Poolsafe(bb.directory)
+    details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/20/2019')
     # grades = Poolsafe(bb.grades, '3510119')
-    assignments = Poolsafe(bb.assignments)
+    # assignments = Poolsafe(bb.assignments)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(assignments)
+    tp.pushps(details)
 
-    mydir = assignments.wait()
+    mydir = details.wait()
     print(prettify(mydir))
