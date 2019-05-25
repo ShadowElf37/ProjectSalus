@@ -186,6 +186,29 @@ class BlackbaudScraper(Scraper):
 
         return directory
 
+    def teacher_directory(self, **headers):
+        #https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget?directoryId=1285&searchVal=&facets=&searchAll=false
+        params = {
+            'directoryId': 1285,
+            'searchVal': None,
+            'facets': None,
+            'searchAll': False,
+        }
+        headers.update(self.default_headers)
+
+        resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
+                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+            'id': person['UserID'],
+            'title': person.get('Prefix', ''),
+            'email': person.get('Email', '').lower().replace('mailto:', ''),
+            'phone': person.get('OfficePhone', '').strip(),
+            'dept': person.get('DepartmentDisplay', '').split(', ')
+        } for person in resp}
+
+        return directory
+
     def dir_details(self, userid, *extra_data_fields, **headers):
         #https://emeryweiner.myschoolapp.com/api/user/4201127/?propertylist=FieldsToNull%2CLastName%2CFirstName%2CMiddleName%2COtherLastName%2CPrefix%2CSuffix%2CMaidenName%2CNickName%2CDisplayName%2CGender%2CBirthDate%2CEmail%2CBirthPlace%2CStudentId%2CLockerNbr%2CLockerCombo%2CMailboxNbr
         params = {
@@ -325,14 +348,14 @@ if __name__ == '__main__':
     print('LOGGING IN...')
     bb.login('ykey-cohen', 'Yoproductions3', 't')
 
-    directory = Poolsafe(bb.directory)
-    details = Poolsafe(bb.dir_details, '3509975')
+    directory = Poolsafe(bb.teacher_directory)
+    # details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/20/2019')
     # grades = Poolsafe(bb.grades, '3510119')
     # assignments = Poolsafe(bb.assignments)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(details)
+    tp.pushps(directory)
 
-    mydir = details.wait()
+    mydir = directory.wait()
     print(prettify(mydir))

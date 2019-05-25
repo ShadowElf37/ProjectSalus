@@ -1,41 +1,41 @@
 Known bugs:
-    - None!
+    1. None!
 
 =======================
 Back-end and essentials:
-    - Basic web design CSS
-    - IMAP
-    - Scrape BB topics section for each class
-    - Scrape individual directory entries for hidden phone numbers
-    - Format class titles to not have period at end of them
-    - Config for BB scrape dict building
-    - Weekly menu updater
-    - Preserve updaters between reboots
-    - Prevent updaters from being generated willy-nilly on BB login if they already exist; updaters ought to be purged? on logout
+    1. Basic web design CSS
+    2. IMAP
+    3. Scrape BB topics section for each class
+    4. Format class titles to not have period at end of them
+    5. Calculated endtimes for updater deltas
+    6. Weekly menu updater
+    7. Preserve updaters between reboots
+    8. Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
 
 Actual pages and functionality:
-    - SGA feedback form & email forwarding system
-    - Snack polls
-    - Referendums / Surveys
-    - Announcements, Ma'amad info
-    - Public calendar with meetings & events
-    - Transcripts / summaries of meetings
-    - SGA's personal _todo list & easy way to add feedback to it
-    - Fancy home page
-    - User-friendly ways to edit all these
-    - Simple mass-email interface
-    - Remote access console and maintenance-in-progress backup system
-    - SSL, Client-side encryption
-    - Student life board?
-    - SMS with periods etc.
-    - Student directory
-    - Sage menu
-    - Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
-    - IMAP/SMTP replacement for Outlook
+    1. SGA feedback form & email forwarding system
+    2. Snack polls
+    3. Referendums / Surveys
+    4. Announcements, Ma'amad info
+    5. Public calendar with meetings & events
+    6. Transcripts / summaries of meetings
+    7. SGA's personal _todo list & easy way to add feedback to it
+    8. Fancy home page
+    9. User-friendly ways to edit all these
+    10. Simple mass-email interface
+    11. Remote access console and maintenance-in-progress backup system
+    12. SSL, Client-side encryption
+    13. Student life board?
+    14. SMS with periods etc.
+    15. Student directory
+    16. Sage menu
+    17. Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
+    18. IMAP/SMTP replacement for Outlook
+    19. Whitelist and ranking
 
 Post-deployment wishlist:
-    - Integration with other clubs and sports (calendar, push notifications, etc.)
-    - Mercury-style tutor/help board
-    - Mercury-style messaging (but more advanced please)
-    - Mercury currency for tutoring/trades?
-    - Minimalist text editor
+    1. Integration with other clubs and sports (calendar, push notifications, etc.)
+    2. Mercury-style tutor/help board
+    3. Mercury-style messaging (but more advanced please)
+    4. Mercury currency for tutoring/trades?
+    5. Minimalist text editor
