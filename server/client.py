@@ -1,5 +1,4 @@
-from wsgiref.handlers import format_date_time
-from time import time
+from datetime import datetime
 from secrets import token_urlsafe as new_key
 from .config import get_config
 from .persistent import PersistentDict, AccountsSerializer
@@ -26,7 +25,7 @@ class Account(RWLockMixin):
         self.email = email
         self.password = password
         self.password_enc = ''
-        self.last_activity = format_date_time(time())
+        self.last_activity = datetime.now().ctime()
         self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
