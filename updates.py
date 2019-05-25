@@ -8,7 +8,7 @@ RepeaterPool.launch()
 Repeater = UpdateManager(RepeaterPool)
 
 Blackbaud = BlackbaudScraper()
-Blackbaud.login('ykey-cohen', 'Yoproductions3', 't')
+Blackbaud.login('ykey-cohen', '', 't')
 
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
