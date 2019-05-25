@@ -2,13 +2,16 @@ from server.threadpool import Poolsafe, Pool
 from server.timedworker import Updater, UpdateManager
 from scrape import *
 from time import time, sleep
+from server.env import EnvReader
+
+env = EnvReader('main.py')
 
 RepeaterPool = Pool(20)
 RepeaterPool.launch()
 Repeater = UpdateManager(RepeaterPool)
 
 Blackbaud = BlackbaudScraper()
-Blackbaud.login('ykey-cohen', '', 't')
+Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
 
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
