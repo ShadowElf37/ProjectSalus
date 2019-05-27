@@ -2,6 +2,9 @@ from server.server import Server
 import os.path as op
 from server.tee import *
 from datetime import datetime
+from server.config import get_config
+
+config = get_config("main")
 
 logfile = open(op.join(
         op.dirname(op.abspath(__file__)),
@@ -12,7 +15,7 @@ BUFFER = io.StringIO()
 tees = (OutTee(logfile, BUFFER), ErrTee(logfile, BUFFER))
 
 print('Starting %s...' % __file__)
-s = Server(stdout_buffer=BUFFER, port=80)
+s = Server(stdout_buffer=BUFFER, port=config.get("port"))
 s.run()
 logfile.close()
 print('Server shut down gently.')
