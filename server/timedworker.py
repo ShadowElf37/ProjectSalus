@@ -51,12 +51,7 @@ class UpdateManager:
             self.cond.notify_all()
 
     def register(self, data, minutes=60, now=False):
-        update = Update(minutes, data)
-        with self.cond:
-            heapq.heappush(self.updates, update)
-            self.cond.notify_all()
-        if now:
-            self.output(update)
+        self.register_update(Update(minutes, data), now)
 
     def register_update(self, update: Update, now=False):
         with self.cond:
