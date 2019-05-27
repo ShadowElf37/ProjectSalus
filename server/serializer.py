@@ -3,7 +3,6 @@ from threading  import RLock
 from uuid       import uuid4
 from functools  import wraps
 from importlib  import import_module
-from sys        import stderr
 from copy       import deepcopy
 from .rotate    import RotationHandler
 import json
@@ -13,7 +12,7 @@ localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: loca
 config = get_config("serializer")
 
 class Dummy:
-    pass
+    __preinit__ = __postinit__ = lambda: None
 def noop(*args, **kwargs):
     pass
 def noop2(self, arg):
@@ -25,7 +24,7 @@ class Priority(Enum):
 class BaseSerializer:
     _serializes = []
     _deserializes = []
-    def __init__(self, obj):
+    def __init__(self):
         self.values = {}
 
     def load(self, fh):
@@ -63,6 +62,7 @@ class BaseSerializer:
     @staticmethod
     def is_wrapped(wrapped):
         return type(wrapped) is dict and "type" in wrapped and "data" in wrapped
+
 def can_serialize(spredicate, serialize, dpredicate, deserialize, priority: Priority=Priority.AFTER):
     def serializer_decor(cls):
         def validate(thing):
@@ -90,7 +90,22 @@ class PrimitiveSerializer(BaseSerializer):
     def _is_bytes(self, obj):
         return self.is_wrapped(obj) and obj["type"] == "bytes"
     def _serialize_bytes(self, obj):
-        return self.wrapped("bytes", obj.hex())
+        return self.wrap("bytes", obj.hex())
+
+@can_serialize(lambda f: type(f) == type(lambda: None), '_serialize_func', '_is_func', '_deserialize_func')
+class FunctionSerializer(BaseSerializer):
+    FUNCTION = type(lambda: None)
+    def _is_func(self, obj):
+        return self.is_wrapped(obj) and obj['type'] == 'function'
+    def _serialize_func(self, f):
+        return self.wrapped('function', dict(module=f.__module__, qualifier=f.__qualname__))
+    def _deserialize_func(self, val):
+        module = val['data']['module']
+        qualifier = val['data']['qualifier']
+        obj = import_module(module)
+        for piece in qualifier.split('.'):
+            obj = getattr(obj, piece)
+        return obj
 
 @can_serialize("_is_siterable", "_serialize_iterable", "_is_diterable", "_deserialize_iterable")
 @can_serialize(lambda val: type(val) is dict, "_serialize_dict", "_is_dict", "_deserialize_dict")
@@ -103,7 +118,7 @@ class RecursiveSerializer(PrimitiveSerializer):
         return type(obj) in self.__class__.ITERABLE_TYPES
     def _serialize_iterable(self, obj):
         return {"type": type(obj).__name__, "data":
-            [self._serialize(i) for i in iterable]}
+            [self._serialize(i) for i in obj]}
     def _is_diterable(self, obj):
         return self.is_wrapped(obj) and obj["type"] in map(lambda x: x.__name__, self.__class__.ITERABLE_TYPES)
     def _deserialize_iterable(self, obj):
@@ -265,7 +280,7 @@ class BoundRotatingSerializer(BoundSerializer):
     def setfile(self, path):
         self.handler = RotationHandler(path)
 
-    def getfile(self, path):
+    def getfile(self):
         return self.handler.handle
 
 class BSManager:
