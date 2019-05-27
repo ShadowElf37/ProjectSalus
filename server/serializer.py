@@ -25,6 +25,28 @@ class Priority(Enum):
 class BaseSerializer:
     _serializes = []
     _deserializes = []
+    def __init__(self, obj):
+        self.values = {}
+
+    def load(self, fh):
+        self._unpack(json.load(fh))
+    
+    def dump(self, fh):
+        json.dump(self._prepare(), fh)
+    
+    def set(self, name, value):
+        self.values[name] = self._serialize(value)
+    
+    def get(self, name):
+        return self._deserialize(self.values[name])
+
+    def _unpack(self, obj):
+        """Unpack data loaded from json.load."""
+        self.values.update(obj)
+    def _prepare(self):
+        """Get a object to pass to json.dump."""
+        return self.values
+
     def _serialize(self, obj):
         for (pred, func) in self.__class__._serializes:
             if pred(self, obj):
@@ -59,6 +81,9 @@ def can_serialize(spredicate, serialize, dpredicate, deserialize, priority: Prio
 @can_serialize("_is_primitive", noop2, "_is_primitive", noop2)
 class PrimitiveSerializer(BaseSerializer):
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
+    def __init__(self):
+        super().__init__()
+
     def _is_primitive(self, obj):
         """Checks primitivity-- direct serialization for these"""
         return type(obj) in self.__class__.PRIMITIVE_TYPES
@@ -71,6 +96,9 @@ class PrimitiveSerializer(BaseSerializer):
 @can_serialize(lambda val: type(val) is dict, "_serialize_dict", "_is_dict", "_deserialize_dict")
 class RecursiveSerializer(PrimitiveSerializer):
     ITERABLE_TYPES  = (list, set, tuple)
+    def __init__(self):
+        super().__init__()
+
     def _is_siterable(self, obj):
         return type(obj) in self.__class__.ITERABLE_TYPES
     def _serialize_iterable(self, obj):
@@ -94,39 +122,29 @@ class RecursiveSerializer(PrimitiveSerializer):
 class ClassSerializer(RecursiveSerializer):
     RPF             = config.get("ref_prefix")
     def __init__(self):
-        self.names = dict()
+        super().__init__()
         self.antipool = dict() # map uuid to serialized data
-        self.anticache = set()
+        self.antiset = set()
         self.pool = dict() # map uuid to name
         self.pool_queue = None
         self.pool_lock = RLock()
 
-    def load(self, file):
-        """Read serialized data from a file."""
-        stuff = json.load(file)
-        self.names.update(stuff["names"])
+    def _unpack(self, stuff):
+        super()._unpack(stuff["values"])
         self.antipool.update(stuff["pool"])
         self.antiset = set() # everyone out
     
-    def get(self, name):
-        """Deserialize an object by its name."""
-        return self._deserialize(self.names[name])
-
-    def dump(self, file):
+    def _prepare(self):
         """Dump the objects to be serialized to a file."""
         pool = dict()
         
         for (k, v) in self._pool_iterator():
             pool[k] = v._serialize(self)
-        json.dump({"names": self.names, "pool": pool}, file, indent=4)
-    
-    def set(self, name, obj):
-        """Mark an object for serialization"""
-        self.names[name] = self._serialize(obj)
+        return {"values": super()._prepare(), "pool": pool}
 
     @staticmethod
     def serialized(**kwargs):
-        """Register a class as serialiable, calling postinst after deserialization"""
+        """Register a class as serialiable"""
         def s_decor(cls):
             kwargs["_uuid"] = None
             cls._defaults = kwargs
