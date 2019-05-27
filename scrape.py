@@ -39,6 +39,10 @@ def format_class_name(string: str):
         string = string.replace(bad[0], '')
     return string
 
+def get(dict, k, default=None):
+    return dict.get(k, default) if dict.get(k) else default
+
+
 class Scraper:
     def __init__(self):
         self.useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
@@ -233,7 +237,7 @@ class BlackbaudScraper(Scraper):
         entry = {
             'name': resp['FirstName'] + ' ' + resp['LastName'],
             'middle': resp.get('MiddleName', ''),
-            'title': resp.get('Prefix', 'Mr.' if g == 'm' else 'Ms.' if g == 'f' else resp['FirstName']),
+            'title': resp.get('Prefix', 'Mr.' if g == 'm' else 'Ms.' if g == 'f' else None),
             'gender': g,
             'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
             'email': resp.get('Email', '').lower(),
@@ -242,6 +246,29 @@ class BlackbaudScraper(Scraper):
 
         return entry
 
+    def topics(self, sectionid, **headers):
+        #https://emeryweiner.myschoolapp.com/api/datadirect/sectiontopicsget/89628484/?format=json&active=true&future=false&expired=false&sharedTopics=false
+        params = {
+            'format': 'json',
+            'active': True,
+            'future': False,
+            'expired': False,
+            'sharedTopics': False
+        }
+        headers.update(self.default_headers)
+
+        resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/sectiontopicsget/{}/'.format(sectionid),
+                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        topics = {topic['Name']:{
+            'id': topic['TopicID'],
+            'index-id': topic['TopicIndexID'],
+            'desc': html(get(topic, 'Description', '').replace('<br />', '\n')).text,
+            'teacher': topic['TopicAuthorShare'],
+            'published': bbdt(topic['PublishDate']).strftime('%m/%d/%Y')
+        } for topic in resp}
+
+        return topics
 
     def schedule(self, date=todaystr(), **headers):
         params = {
@@ -332,7 +359,7 @@ class BlackbaudScraper(Scraper):
             'id': ass['assignment_id'],
             'assigned': bbdt(ass['date_assigned']).strftime('%m/%d/%Y'),
             'due': bbdt(ass['date_due']).strftime('%m/%d/%Y'),
-            'desc': html(ass['long_description'].replace('<br />', ' \n') if ass.get('long_description') else '').text,
+            'desc': html(get(ass, 'long_description', '').replace('<br />', ' \n')).text,
             'links': ass['has_link'],
             'downloads': ass['has_download'],
             'status': 0
@@ -360,11 +387,12 @@ if __name__ == '__main__':
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/20/2019')
-    grades = Poolsafe(bb.grades, '3510119')
+    # grades = Poolsafe(bb.grades, '3510119')
     # assignments = Poolsafe(bb.assignments)
+    topics = Poolsafe(bb.topics, '89628484')
     tp = Pool(8)
     tp.launch()
-    tp.pushps(grades)
+    tp.pushps(topics)
 
-    mydir = grades.wait()
+    mydir = topics.wait()
     print(prettify(mydir))

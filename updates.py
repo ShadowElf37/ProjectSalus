@@ -3,7 +3,6 @@ from server.timedworker import UpdateManager
 from scrape import *
 from server.env import EnvReader
 
-
 HOURLY = 60
 DAILY = 60*24
 WEEKLY = DAILY*7
