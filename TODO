@@ -1,13 +1,12 @@
 Known bugs:
-    - Some of the code is a crapshoot
-    - 0)
+    - There are no bugs.
 
 =======================
 Back-end and essentials:
     - Basic web design CSS
     - IMAP
-    - Scrape BB topics section for each class
-    - Preserve updaters between reboots (specifically, store in a .dat the Updater.updatetime and make a bunch of new ones with that same updatetime on startup; they should run immediately if they're behind)
+    - Scrape BB topics for downloads
+    - Datetime== updaters (for directory, menu, etc)
     - Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
 
 Actual pages and functionality:
@@ -30,6 +29,7 @@ Actual pages and functionality:
     - Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
     - IMAP/SMTP replacement for Outlook
     - Whitelist and ranking
+    - Store updater information for SMS scheduler, etc.
 
 Post-deployment wishlist:
     - Integration with other clubs and sports (calendar, push notifications, etc.)

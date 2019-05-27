@@ -30,7 +30,4 @@ class PersistentDict:
         return list(self.items())
 
     def find(self, condition):
-        try:
-            return next(filter(condition, self.values()))
-        except StopIteration:
-            return None
+        return next(filter(condition, self.values()), None)

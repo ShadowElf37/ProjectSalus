@@ -3,10 +3,11 @@ from time           import time
 from threading      import Lock, Condition
 
 class Update:
-    def __init__(self, minutes, data):
+    def __init__(self, minutes, data, name=None):
         # Scrape every once in a while
         self.delta = minutes * 60
         self.data = data
+        self.name = name
         self.next = time() + self.delta
         self.update()
 
@@ -50,8 +51,8 @@ class UpdateManager:
         with self.cond:
             self.cond.notify_all()
 
-    def register(self, data, minutes=60, now=False):
-        self.register_update(Update(minutes, data), now)
+    def register(self, data, minutes=60, now=False, name=None):
+        self.register_update(Update(minutes, data, name), now)
 
     def register_update(self, update: Update, now=False):
         with self.cond:
@@ -59,3 +60,6 @@ class UpdateManager:
             self.cond.notify_all()
         if now:
             self.output(update)
+
+    def find_update(self, name):
+        return next(filter(lambda u: u.name == name, self.updates), None)
