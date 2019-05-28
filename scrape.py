@@ -1,13 +1,18 @@
 import requests
-from bs4 import BeautifulSoup
 import json
 import re
 import datetime
 from time import time
-
+from bs4 import BeautifulSoup
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
+def soup_without(soup: BeautifulSoup, **fields):
+    """Fields can be (tag) name=, text=, etc. - whatever's used by BeautifulSoup.find_all()"""
+    items = soup.find_all(**fields)
+    for elem in items:
+        elem.extract()
+    return soup
 
 def todaystr():
     return datetime.datetime.now().strftime('%m/%d/%Y')
