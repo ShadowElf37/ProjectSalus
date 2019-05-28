@@ -1,3 +1,9 @@
+v0.3.7 (5/27/19)
+- Overhauled serializer to be more modular
+- Added function serialization
+- Overhauled mail.py to be modular
+- Added IMAP to mail.py
+
 v0.3.6 (5/26/19)
 - Added rudimentary IMAP functionality
 - Cleaned up mail.py
