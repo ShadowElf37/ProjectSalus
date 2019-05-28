@@ -84,16 +84,21 @@ class MMS(Message):
                 'tmobile': '@tmomail.net',
                 'verizon': '@vzwpix.com'}
 
-    def __init__(self, *recipients, sender=USER):
+    def __init__(self, *recipients, sender=USER, group=False):
         """Give recipients as tuples with (number, service provider)"""
         if type(recipients[0]) not in (tuple, list):
             raise TypeError('Recipients for MMS must be (number, provider) tuples')
         self.recipients = [r[0].replace('-', '')+MMS.PROVIDERS[r[1]] for r in recipients]
         super().__init__(sender, *self.recipients)
+        self.group = group
 
     def compile(self):
         self.mime['From'] = self.sender
-        self.mime['To'] = ', '.join(self.recipients)
+        if group:
+            self.mime['To'] = ', '.join((self.recipients))
+        else:
+            self.mime['To'] = ''
+            self.mime['Bcc'] = ', '.join(self.recipients)
         return self.mime.as_string()
 
 
@@ -231,14 +236,23 @@ if __name__ == '__main__':
     #inbox.fetch()
     #print(inbox.get(0).get_body())
 
-    smtp = Remote()
+    #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
     #e.write('Hello')
     #smtp.send(e)
 
     #832-258-9790att
-    m = MMS(('917-549-2662', 'sprint'))
+    smtp = Remote()
+    m = MMS(
+        ('832-258-9790', 'att'),
+        ('713-325-3232', 'verizon'),
+        ('832-767-9123', 'att')
+        )
     # m.write('This is a test of Salus\' new text automation system.\nDo not attempt to respond.')
     m.attach('web/assets/image/speaker.jpg')
+    # m.attach('README.md')
+    # m.attach('_main.py')
+    from datetime import datetime
+    m.write(datetime.now().strftime('Good morning.\nIt is currently %-I:%M %p\n\t- Salus'))
     smtp.send(m)
     smtp.close()
