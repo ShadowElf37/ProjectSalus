@@ -5,17 +5,20 @@ import datetime
 
 ENV = EnvReader('main.py')
 
-SMTP = 'smtp.office365.com:587'
-IMAP = 'outlook.office365.com'
+SMTPHOST = 'smtp.office365.com:587'
+IMAPHOST = 'outlook.office365.com'
 
 USER = 'ykey-cohen@emeryweiner.org'
 PASS = ENV.get('BBPASS')
 
 # Sending mail
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 
 class Remote:
-    def __init__(self, user=USER, pwd=PASS, remote=SMTP):
+    def __init__(self, user=USER, pwd=PASS, remote=SMTPHOST):
         self.remote = remote
         self.open()
         self.user = user
@@ -40,15 +43,21 @@ class Message:
     def __init__(self, sender, *recp):
         self.sender = sender
         self.recipients = recp
-        self.body = []
+        self.mime = MIMEMultipart('mixed')
+        self.body = MIMEMultipart('alternative')
+        self.mime.attach(self.body)
 
     def write(self, data):
-        if type(data) is not bytes:
-            raise TypeError('Data must be bytes-encoded string')
-        self.body.append(data)
+        m = MIMEText(data)
+        self.body.attach(m)
+        return m
 
-    def read(self):
-        return b''.join(self.body)
+    def attach(self, filepath):
+        f = MIMEApplication(open(filepath, 'rb').read())
+        f.add_header('Content-Disposition', 'attachment', filename=os.path.split(filepath)[-1])
+        self.mime.attach(f)
+        return f
+
 
 class Email(Message):
     def __init__(self, *recipients, subject='', sender=USER, cc=(), bcc=()):
@@ -62,15 +71,12 @@ class Email(Message):
         self.subject = string
 
     def compile(self):
-        return 'From: {}\nTo: {}\nSubject: {}\nCc: {}\nBcc: {}\nDate: {}\nContent-Type: {};\ncharset="UTF-8";\n\n{}'.format(
-            self.sender,
-            ', '.join(self.recipients),
-            self.subject,
-            ', '.join(self.cc),
-            ', '.join(self.bcc),
-            datetime.datetime.now().ctime(),
-            self.content_type,
-            self.read().decode())
+        self.mime['From'] = self.sender
+        self.mime['To'] = ', '.join(self.recipients)
+        self.mime['Subject'] = self.subject
+        self.mime['Cc'] = ', '.join(self.cc)
+        self.mime['Bcc'] = ', '.join(self.bcc)
+        return self.mime.as_string()
 
 class MMS(Message):
     PROVIDERS = {'sprint': '@pm.sprint.com',
@@ -80,11 +86,15 @@ class MMS(Message):
 
     def __init__(self, *recipients, sender=USER):
         """Give recipients as tuples with (number, service provider)"""
+        if type(recipients[0]) not in (tuple, list):
+            raise TypeError('Recipients for MMS must be (number, provider) tuples')
         self.recipients = [r[0].replace('-', '')+MMS.PROVIDERS[r[1]] for r in recipients]
         super().__init__(sender, *self.recipients)
 
     def compile(self):
-        return "From: {}\r\nTo: {}\r\n\r\n{}".format(self.sender, ', '.join(self.recipients), self.read().decode())
+        self.mime['From'] = self.sender
+        self.mime['To'] = ', '.join(self.recipients)
+        return self.mime.as_string()
 
 
 # Fetching mail
@@ -93,7 +103,7 @@ import email
 import codecs
 import os
 
-class Attachment:
+class IMAPAttachment:
     def __init__(self, name):
         self.name = name
         self.path = os.getcwd()
@@ -141,7 +151,7 @@ class IMAPEmail:
 
     def get_body(self):
         if self.type == 'html':
-            return soup_without(inbox.get(0).body, name='style').text.strip()
+            return soup_without(self.body, name='style').text.strip()
         return self.body.strip()
 
     @staticmethod
@@ -159,9 +169,9 @@ class IMAPEmail:
                 continue
             fileName = IMAPEmail.soft_decode(part.get_filename())
             if fileName:
-                a = Attachment(IMAPEmail.soft_decode(fileName))
+                a = IMAPAttachment(IMAPEmail.soft_decode(fileName))
                 a.write(part.get_payload(decode=True))
-                attachments.append(Attachment)
+                attachments.append(IMAPAttachment)
 
         return attachments
 
@@ -201,11 +211,10 @@ class Inbox:
 
     @staticmethod
     def _fetch_inbox(addr=USER, pwd=PASS, debug=False):
-        connection = imaplib.IMAP4_SSL(IMAP)
-
+        c = imaplib.IMAP4_SSL(IMAPHOST)
         if debug: print('Logging in...')
-        connection.login(addr, pwd)
-        with connection as c:
+        c.login(addr, pwd)
+        with c:
             msgs = []
             c.select('INBOX', readonly=True)
             _, [ids] = c.search(None, 'ALL')
@@ -217,23 +226,19 @@ class Inbox:
             return msgs
 
 
-SUBJECT = 'test email'
-TEXT = """Good evening Mr. Rothfeder.
-Your first period tomorrow is C at 8:30.
-Tomorrow is a Day 3."""
-
 if __name__ == '__main__':
     #inbox = Inbox(USER, PASS)
     #inbox.fetch()
     #print(inbox.get(0).get_body())
 
     smtp = Remote()
-    e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
-    e.write(b'Hello')
-    smtp.send(e)
+    #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
+    #e.write('Hello')
+    #smtp.send(e)
+
+    #832-258-9790att
+    m = MMS(('917-549-2662', 'sprint'))
+    # m.write('This is a test of Salus\' new text automation system.\nDo not attempt to respond.')
+    m.attach('web/assets/image/speaker.jpg')
+    smtp.send(m)
     smtp.close()
-    #for email in inbox:
-    #    print(email.body)
-    #pm.sprint.com
-    #832-258-9790@mms.att.net
-    #send_mms(TEXT, '832-767-9123', 'att')
