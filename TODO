@@ -4,7 +4,6 @@ Known bugs:
 =======================
 Back-end and essentials:
     - Basic web design CSS
-    - IMAP
     - Scrape BB topics for downloads
     - Datetime== updaters (for directory, menu, etc)
     - Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
