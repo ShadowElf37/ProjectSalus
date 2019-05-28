@@ -94,7 +94,7 @@ class MMS(Message):
 
     def compile(self):
         self.mime['From'] = self.sender
-        if group:
+        if self.group:
             self.mime['To'] = ', '.join((self.recipients))
         else:
             self.mime['To'] = ''
@@ -113,10 +113,6 @@ class IMAPAttachment:
         self.name = name
         self.path = os.getcwd()
         self.contents = []
-
-    def __repr__(self):
-        return 'Attachment "{}" with contents of len {}'.format(self.name, sum(map(len, self.contents)))
-    __str__ = __repr__
 
     def dump(self, path=None):
         if path: self.set_path(path)
@@ -150,10 +146,6 @@ class IMAPEmail:
         self.body = self.decode_body(message)
         self.type = 'html' if isinstance(self.body, BeautifulSoup) else 'text'
 
-    def __repr__(self):
-        return 'Email "{}" with body of len {}'.format(self.subject, len(self.body))
-    __str__ = __repr__
-
     def get_body(self):
         if self.type == 'html':
             return soup_without(self.body, name='style').text.strip()
@@ -176,7 +168,7 @@ class IMAPEmail:
             if fileName:
                 a = IMAPAttachment(IMAPEmail.soft_decode(fileName))
                 a.write(part.get_payload(decode=True))
-                attachments.append(IMAPAttachment)
+                attachments.append(a)
 
         return attachments
 
@@ -234,7 +226,7 @@ class Inbox:
 if __name__ == '__main__':
     #inbox = Inbox(USER, PASS)
     #inbox.fetch()
-    #print(inbox.get(0).get_body())
+    #print(inbox.get(-1).attachments[0].read())
 
     #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
@@ -242,11 +234,13 @@ if __name__ == '__main__':
     #smtp.send(e)
 
     #832-258-9790att
+
     smtp = Remote()
     m = MMS(
-        ('832-258-9790', 'att'),
-        ('713-325-3232', 'verizon'),
-        ('832-767-9123', 'att')
+        #('832-258-9790', 'att'),
+        #('713-325-3232', 'verizon'),
+        #('832-767-9123', 'att')
+        #('832-499-8020', 'att')
         )
     # m.write('This is a test of Salus\' new text automation system.\nDo not attempt to respond.')
     m.attach('web/assets/image/speaker.jpg')
