@@ -14,7 +14,7 @@ PASS = ENV.get('BBPASS')
 # Sending mail
 import smtplib
 
-class SMTPConnection:
+class Remote:
     def __init__(self, user=USER, pwd=PASS, remote=SMTP):
         self.remote = remote
         self.open()
@@ -51,9 +51,9 @@ class Message:
         return b''.join(self.body)
 
 class Email(Message):
-    def __init__(self, *recipients, sender=USER, cc=(), bcc=()):
-        super().__init__(sender, recipients)
-        self.subject = ''
+    def __init__(self, *recipients, subject='', sender=USER, cc=(), bcc=()):
+        super().__init__(sender, *recipients)
+        self.subject = subject
         self.cc = cc
         self.bcc = bcc
         self.content_type = 'text/html'
@@ -62,8 +62,15 @@ class Email(Message):
         self.subject = string
 
     def compile(self):
-        return 'From: {}\r\nTo: {}\r\nSubject: {}\r\nCc: {}\r\nBcc: {}\r\nContent-Type: {};\r\nDate: {}\r\ncharset="UTF-8";\r\n\r\n{}'.format(
-            self.sender, ', '.join(self.recipients), self.subject, ', '.join(self.cc), ', '.join(self.bcc), datetime.datetime.now().ctime(), self.content_type, self.read().decode())
+        return 'From: {}\nTo: {}\nSubject: {}\nCc: {}\nBcc: {}\nDate: {}\nContent-Type: {};\ncharset="UTF-8";\n\n{}'.format(
+            self.sender,
+            ', '.join(self.recipients),
+            self.subject,
+            ', '.join(self.cc),
+            ', '.join(self.bcc),
+            datetime.datetime.now().ctime(),
+            self.content_type,
+            self.read().decode())
 
 class MMS(Message):
     PROVIDERS = {'sprint': '@pm.sprint.com',
@@ -216,9 +223,15 @@ Your first period tomorrow is C at 8:30.
 Tomorrow is a Day 3."""
 
 if __name__ == '__main__':
-    inbox = Inbox(USER, PASS)
-    inbox.fetch()
-    print(inbox.get(0).get_body())
+    #inbox = Inbox(USER, PASS)
+    #inbox.fetch()
+    #print(inbox.get(0).get_body())
+
+    smtp = Remote()
+    e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
+    e.write(b'Hello')
+    smtp.send(e)
+    smtp.close()
     #for email in inbox:
     #    print(email.body)
     #pm.sprint.com
