@@ -11,12 +11,12 @@ localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: loca
 
 config = get_config("serializer")
 
-class Dummy:
-    __preinit__ = __postinit__ = lambda: None
 def noop(*args, **kwargs):
     pass
 def noop2(self, arg):
     return arg
+class Dummy:
+    __preinit__ = __postinit__ = noop
 
 class Priority(Enum):
     BEFORE  = lambda queue, item: queue.insert(0, item)
@@ -93,7 +93,7 @@ class PrimitiveSerializer(BaseSerializer):
         return self.wrap("bytes", obj.hex())
 
 @can_serialize(lambda f: type(f) == type(lambda: None), '_serialize_func', '_is_func', '_deserialize_func')
-class FunctionSerializer(BaseSerializer):
+class FunctionSerializer(PrimitiveSerializer):
     FUNCTION = type(lambda: None)
     def _is_func(self, obj):
         return self.is_wrapped(obj) and obj['type'] == 'function'
@@ -109,7 +109,7 @@ class FunctionSerializer(BaseSerializer):
 
 @can_serialize("_is_siterable", "_serialize_iterable", "_is_diterable", "_deserialize_iterable")
 @can_serialize(lambda val: type(val) is dict, "_serialize_dict", "_is_dict", "_deserialize_dict")
-class RecursiveSerializer(PrimitiveSerializer):
+class RecursiveSerializer(FunctionSerializer):
     ITERABLE_TYPES  = (list, set, tuple)
     def __init__(self):
         super().__init__()
