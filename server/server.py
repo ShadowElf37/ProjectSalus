@@ -1,18 +1,16 @@
-from http.server import HTTPServer
-from .response import *
-from .threadpool import *
-from .handlers import *
-from . import handlers
-import os
-import sys
-from time import sleep
-from subprocess import check_output
-from .cache import FileCache
-from .config import CONFIG_CACHE
-from .persistent import Manager
-from traceback import format_exc
-import socket
-import random
+import os, sys, socket, random
+from traceback      import format_exc
+from time           import sleep
+from subprocess     import check_output
+from http.server    import HTTPServer
+from git            import Repo
+from .threadpool    import *
+from .response      import *
+from .persistent    import Manager
+from .handlers      import *
+from .config        import CONFIG_CACHE
+from .cache         import FileCache
+from .              import handlers
 
 RESPONSE_QUEUE = []
 
@@ -74,7 +72,10 @@ class Server(HTTPServer):
         self.cache.reload()
 
     def update(self):
-        return check_output(['git', 'pull'])
+        here = os.path.dirname(os.path.abspath(__file__))
+        os.environ["GIT_ASKPASS"] = here + "/askpass.py"
+        repo = Repo(here + "/..")
+        return repo.pull()
 
     def close(self):
         self.cleanup()
