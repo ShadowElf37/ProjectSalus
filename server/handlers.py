@@ -2,6 +2,8 @@ from .response import Request, Response
 from .client import ClientObj, Account, ShellAccount
 from .config import get_config
 from .crypt import *
+import updates
+import scrape
 
 navbar = get_config('navbar')
 
@@ -41,7 +43,7 @@ class RequestHandler:
         self.response.add_cookie('user_token', self.account.key, samesite='strict', path='/')
 
     def pre_call(self):
-        # For debug - remove and put only in rank 4 later
+        # For debug - remove and use admin board
         self.render_register(
             reboot_controls='\n'.join([
                 '<button type="button" class="ctrl-button" onclick="sendControlKey(\'{1}\')">{0}</button>'.format(i,j) for i,j in
@@ -64,9 +66,7 @@ class RequestHandler:
         elif self.rank == 3:
             ...
         elif self.rank == 4:
-            self.render_register(
-                reboot_controls='\n'.join('<button type="button" class="ctrl-button" onclick="void(0);">{}</button>'.format(i) for i in ('Reboot', 'Clear Config', 'Clear Cache'))
-            )
+            ...
 
     def post_call(self):
         ...
@@ -168,6 +168,7 @@ class HandlerLogout(RequestHandler):
     def call(self):
         self.response.add_cookie('user_token', None)
         self.response.redirect('/accounts/login.html')
+        updates.chronomancer.clean(self.account.name)
 
 class HandlerTestPage(RequestHandler):
     def call(self):
@@ -181,9 +182,6 @@ class HandlerAdminBoard(RequestHandler):
         else:
             self.response.refuse()
 
-
-import updates
-import scrape
 class HandlerBBPage(RequestHandler):
     def call(self):
         if self.rank < 1:
@@ -216,7 +214,7 @@ class HandlerBBInfo(RequestHandler):
 
         grades = self.account.bb_cache.get('grades')
         if not grades:
-            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 30).wait()
+            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 60).wait()
 
         self.response.attach_file('/accounts/bb_test.html',
                                   profile=scrape.prettify(self.account.profile).replace('\n', '<br>'),

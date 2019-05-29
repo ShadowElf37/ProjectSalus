@@ -1,7 +1,5 @@
 import os, sys, socket, random
 from traceback      import format_exc
-from time           import sleep
-from subprocess     import check_output
 from http.server    import HTTPServer
 from git            import Repo
 from .threadpool    import *

@@ -1,6 +1,4 @@
-from server.threadpool import Pool, Poolsafe
-from server.timedworker import UpdateManager
-from server.chronos import Chronos
+import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
 
@@ -14,10 +12,10 @@ QUARTERLY = MONTHLY*3
 
 env = EnvReader('main.py')
 
-repeater_pool = Pool(20)
-repeater_pool.launch()
-repeater = Chronos(repeater_pool.pushps)
-repeater_pool.pushf(repeater.launch)
+updater_pool = Pool(20)
+updater_pool.launch()
+chronomancer = chronos.Chronos(updater_pool.pushps)
+updater_pool.pushf(chronomancer.arkhomai)
 
 Blackbaud = BlackbaudScraper()
 Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
@@ -25,8 +23,9 @@ Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
 
-repeater.metachrone(BIANNUALLY, d, now=True)
-repeater.metachrone(WEEKLY, s, now=True)
+chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
+chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), d)
+chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 
@@ -57,7 +56,8 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
         return r
 
     ps = Poolsafe(update, f, *args, **kwargs)
-    repeater.metachrone(deltaMinutes, ps, now=True)
+    d = chronomancer.metakhronos(deltaMinutes, ps, now=True)
+    chronomancer.track(d, account.name)
 
     return ps
 

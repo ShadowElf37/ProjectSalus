@@ -1,14 +1,13 @@
 from server.env import EnvReader
 from scrape import html, soup_without
 from bs4 import BeautifulSoup
-import datetime
 
 ENV = EnvReader('main.py')
 
 SMTPHOST = 'smtp.office365.com:587'
 IMAPHOST = 'outlook.office365.com'
 
-USER = 'ykey-cohen@emeryweiner.org'
+USER = ENV.get('EMAIL')
 PASS = ENV.get('BBPASS')
 
 # Sending mail

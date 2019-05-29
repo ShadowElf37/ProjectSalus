@@ -5,6 +5,7 @@ from functools  import wraps
 from importlib  import import_module
 from copy       import deepcopy
 from .rotate    import RotationHandler
+from inspect    import isfunction, isclass
 import json
 #from config import get_config
 localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: localconf
@@ -77,7 +78,7 @@ def can_serialize(spredicate, serialize, dpredicate, deserialize, priority: Prio
         return cls
     return serializer_decor
 
-@can_serialize(lambda val: type(val) is bytes, "_serialize_bytes", "_is_bytes", lambda val: bytes.fromhex(val["data"]))
+@can_serialize(lambda s, val: type(val) is bytes, "_serialize_bytes", "_is_bytes", lambda s, val: bytes.fromhex(val["data"]))
 @can_serialize("_is_primitive", noop2, "_is_primitive", noop2)
 class PrimitiveSerializer(BaseSerializer):
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
@@ -92,13 +93,12 @@ class PrimitiveSerializer(BaseSerializer):
     def _serialize_bytes(self, obj):
         return self.wrap("bytes", obj.hex())
 
-@can_serialize(lambda f: type(f) == type(lambda: None), '_serialize_func', '_is_func', '_deserialize_func')
+@can_serialize(lambda s, f: isfunction(f) or isclass(f), '_serialize_func', '_is_func', '_deserialize_func')
 class FunctionSerializer(PrimitiveSerializer):
-    FUNCTION = type(lambda: None)
     def _is_func(self, obj):
-        return self.is_wrapped(obj) and obj['type'] == 'function'
+        return self.is_wrapped(obj) and obj['type'] == 'callable'
     def _serialize_func(self, f):
-        return self.wrapped('function', dict(module=f.__module__, qualifier=f.__qualname__))
+        return self.wrapped('callable', dict(module=f.__module__, qualifier=f.__qualname__))
     def _deserialize_func(self, val):
         module = val['data']['module']
         qualifier = val['data']['qualifier']
@@ -108,7 +108,7 @@ class FunctionSerializer(PrimitiveSerializer):
         return obj
 
 @can_serialize("_is_siterable", "_serialize_iterable", "_is_diterable", "_deserialize_iterable")
-@can_serialize(lambda val: type(val) is dict, "_serialize_dict", "_is_dict", "_deserialize_dict")
+@can_serialize(lambda s, val: type(val) is dict, "_serialize_dict", "_is_dict", "_deserialize_dict")
 class RecursiveSerializer(FunctionSerializer):
     ITERABLE_TYPES  = (list, set, tuple)
     def __init__(self):

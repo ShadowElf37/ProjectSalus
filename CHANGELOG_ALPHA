@@ -1,7 +1,11 @@
+v0.3.9 (5/29/19)
+- Finished and implemented the Chronos
+- Fixed some serializer bugs
+
 v0.3.8 (5/28/19)
 - Enabled blind SMS-ing utilizing Bcc instead of defaulting to forming a messaging group
 - Created chronos.py to replace timedworker.py using sched, a nice built-in scheduler we overlooked somehow
-- Bugfixes
+- Bug fixes
 
 v0.3.7 (5/27/19)
 - Overhauled serializer to be more modular

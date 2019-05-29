@@ -5,8 +5,6 @@ Known bugs:
 Back-end and essentials:
     - Basic web design CSS
     - Scrape BB topics for downloads
-    - Datetime== updaters (for directory, menu, etc)
-    - Prevent updaters from being generated willy-nilly on BB login if they already exist; stale updaters ought to be purged on logout
 
 Actual pages and functionality:
     - SGA feedback form & email forwarding system
@@ -29,6 +27,7 @@ Actual pages and functionality:
     - IMAP/SMTP replacement for Outlook
     - Whitelist and ranking
     - Store updater information for SMS scheduler, etc.
+    - Purge stale updaters; generally overhaul session tokens with something more flexible
 
 Post-deployment wishlist:
     - Integration with other clubs and sports (calendar, push notifications, etc.)
