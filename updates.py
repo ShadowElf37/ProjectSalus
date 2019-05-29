@@ -1,4 +1,4 @@
-from server.threadpool import Pool
+from server.threadpool import Pool, Poolsafe
 import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
@@ -13,6 +13,7 @@ QUARTERLY = MONTHLY*3
 
 env = EnvReader('main.py')
 
+print('Initializing Chronomancer...')
 updater_pool = Pool(20)
 updater_pool.launch()
 chronomancer = chronos.Chronos(updater_pool.pushps)
@@ -61,6 +62,3 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
     chronomancer.track(d, account.name)
 
     return ps
-
-
-print('Scrape managers initialized.')
