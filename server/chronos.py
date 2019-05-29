@@ -1,16 +1,35 @@
-from crontab import CronTab
-import os.path as op
-import os
-import sys
+import sched
+import time
+from .threadpool import Pool, Poolsafe
+import datetime
 
-t = op.abspath('test.py')
-s = sys.executable
-c ='"{}" "{}"'.format(s, t)
-print(c)
+class Chronicle:
+    def __init__(self, name=None):
+        ...
 
-cron = CronTab(tabfile='cron.tab')
-job = cron.new(command=c)
-job.minute.every(0.1)
+class Chronicler:
+    def __init__(self, pool: Pool):
+        self.pool = pool
+        self.push = self.pool.pushps
+        self.scheduler = sched.scheduler(time.time, time.sleep)
 
-out = job.run()
-cron.write()
+    @staticmethod
+    def repeatwrap(f, chroner, *cargs, **ckwargs):
+        def wrapped(*args, **kwargs):
+            # Should be a method of Chronicler to reschedule the function
+            chroner(*cargs, **ckwargs)
+            return f(*args, **kwargs)
+        return wrapped
+
+
+    def every_minutes(self, delta, ps: Poolsafe, priority=0):
+        return self.scheduler.enter(delta*60, priority=priority, action=self.repeatwrap(self.push, self.every_minutes, delta, ps), argument=(ps,))
+
+    def daily_at(self, time: datetime.time, ps: Poolsafe, priority=0):
+        return self.scheduler.enterabs(time.timestamp(), priority=priority, action=self.push, argument=(ps,))
+
+    def on_date(self, datetime: datetime.datetime, ps: Poolsafe, priority=0):
+        return self.scheduler.enterabs(datetime.timestamp(), priority=priority, action=self.push, argument=(ps,))
+
+if __name__ == '__main__':
+    ...
