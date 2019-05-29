@@ -23,13 +23,18 @@ class Chronicler:
 
 
     def every_minutes(self, delta, ps: Poolsafe, priority=0):
-        return self.scheduler.enter(delta*60, priority=priority, action=self.repeatwrap(self.push, self.every_minutes, delta, ps), argument=(ps,))
+        pushrepeater = self.repeatwrap(self.push, self.every_minutes, delta, ps, priority=priority)
+        return self.scheduler.enter(delta*60,
+                                    priority=priority, action=pushrepeater, argument=(ps,))
 
     def daily_at(self, time: datetime.time, ps: Poolsafe, priority=0):
-        return self.scheduler.enterabs(time.timestamp(), priority=priority, action=self.push, argument=(ps,))
+        pushrepeater = self.repeatwrap(self.push, self.daily_at, time, ps, priority=priority)
+        return self.scheduler.enterabs(datetime.datetime.combine(datetime.datetime.now().date(), time).timestamp(),
+                                       priority=priority, action=pushrepeater, argument=(ps,))
 
     def on_date(self, datetime: datetime.datetime, ps: Poolsafe, priority=0):
-        return self.scheduler.enterabs(datetime.timestamp(), priority=priority, action=self.push, argument=(ps,))
+        return self.scheduler.enterabs(datetime.timestamp(),
+                                       priority=priority, action=self.push, argument=(ps,))
 
 if __name__ == '__main__':
     ...

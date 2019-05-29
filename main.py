@@ -5,10 +5,10 @@ import os
 
 import importlib.util as imputil
 
-DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git', 'crontab')
+DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git')
 
 assert all(imputil.find_spec(i) for i in DEPENDENCIES),\
-    'Missing libraries are required to continue. Check to make sure you have installed {}.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
+    'Missing libraries are required to continue. Check to make sure you have {} installed.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
 print('Library check passed.')
 
 HERE = os.path.dirname(os.path.realpath(__file__))

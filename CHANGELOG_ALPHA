@@ -1,8 +1,13 @@
+v0.3.8 (5/28/19)
+- Enabled blind SMS-ing utilizing Bcc instead of defaulting to forming a messaging group
+- Created chronos.py to replace timedworker.py using sched, a nice built-in scheduler we overlooked somehow
+- Bugfixes
+
 v0.3.7 (5/27/19)
 - Overhauled serializer to be more modular
 - Added function serialization
 - Overhauled mail.py to be modular
-- Added IMAP to mail.py
+- Finished a more robust IMAP in mail.py
 
 v0.3.6 (5/26/19)
 - Added rudimentary IMAP functionality
