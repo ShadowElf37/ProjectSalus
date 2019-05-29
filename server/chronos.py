@@ -34,16 +34,16 @@ class Chronos:
             return f(*args, **kwargs)
         return wrapped
 
-    def every_minutes(self, delta, ps: Poolsafe, start_at=datetime.datetime.now(), priority=0, run=False):
-        if run: self.push(ps)
+    def every_minutes(self, delta, ps: Poolsafe, start_at=datetime.datetime.now(), priority=0, now=False):
+        if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.every_minutes, delta, ps, priority=priority)
 
         t = start_at + datetime.timedelta(seconds=delta*60)
         return self.scheduler.enter(t.timestamp(),
                                     priority=priority, action=pushrepeater, argument=(ps,))
 
-    def daily_at(self, _time: datetime.time, ps: Poolsafe, priority=0, run=True):
-        if run: self.push(ps)
+    def daily_at(self, _time: datetime.time, ps: Poolsafe, priority=0, now=True):
+        if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.daily_at, time, ps, priority=priority)
 
         t = datetime.datetime.combine(datetime.datetime.now().date(), _time)

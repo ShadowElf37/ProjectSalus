@@ -1,5 +1,6 @@
 from server.threadpool import Pool, Poolsafe
 from server.timedworker import UpdateManager
+from server.chronos import Chronos
 from scrape import *
 from server.env import EnvReader
 
@@ -15,16 +16,17 @@ env = EnvReader('main.py')
 
 repeater_pool = Pool(20)
 repeater_pool.launch()
-repeater = UpdateManager(repeater_pool.pushps)
-repeater_pool.pushf(repeater.start)
+repeater = Chronos(repeater_pool.pushps)
+repeater_pool.pushf(repeater.launch)
 
 Blackbaud = BlackbaudScraper()
 Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
 
 d = Poolsafe(Blackbaud.directory)
 s = Poolsafe(SageScraper().inst_menu)
-repeater.register(d, BIANNUALLY, now=True)
-repeater.register(s, WEEKLY, now=True)
+
+repeater.metachrone(BIANNUALLY, d, now=True)
+repeater.metachrone(WEEKLY, s, now=True)
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 
@@ -55,7 +57,7 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
         return r
 
     ps = Poolsafe(update, f, *args, **kwargs)
-    repeater.register(ps, deltaMinutes, now=True)
+    repeater.metachrone(deltaMinutes, ps, now=True)
 
     return ps
 
