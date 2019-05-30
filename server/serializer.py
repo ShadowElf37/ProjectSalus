@@ -32,7 +32,7 @@ class BaseSerializer:
         self._unpack(json.load(fh))
     
     def dump(self, fh):
-        json.dump(self._prepare(), fh)
+        json.dump(self._prepare(), fh, indent=4)
     
     def set(self, name, value):
         self.values[name] = self._serialize(value)

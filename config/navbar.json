@@ -9,12 +9,8 @@
   "1":
       [
           ["Home", "/home/index.html", false],
-          ["SLB", "/home/slb.html", true],
-          ["Town Hall", "/townhall/index.html", true],
-          ["Surveys", "/townhall/surveys.html", true],
-          ["Calendar", "/home/calendar.html", true],
-          ["SGA", "/sga/index.html", true],
-          ["Clubs", "/sga/clubs.html", true],
+
+
           ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],

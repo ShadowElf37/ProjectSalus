@@ -44,18 +44,19 @@ class RequestHandler:
 
     def pre_call(self):
         # For debug - remove and use admin board
-        self.render_register(
-            reboot_controls='\n'.join([
-                '<button type="button" class="ctrl-button" onclick="sendControlKey(\'{1}\')">{0}</button>'.format(i,j) for i,j in
-                {
-                    'Update': 'update',
-                    'Reboot': 'reboot',
-                    'Clear Config': 'refresh-config',
-                    'Clear Cache': 'refresh-cache',
-                    'Update and Restart': 'update-reboot',
-                    'Shutdown': 'shutdown',
-                }.items()])
-        )
+        if self.account.name == 'Yovel Key-Cohen':
+            self.render_register(
+                reboot_controls='\n'.join([
+                    '<button type="button" class="ctrl-button" onclick="sendControlKey(\'{1}\')">{0}</button>'.format(i,j) for i,j in
+                    {
+                        'Update': 'update',
+                        'Reboot': 'reboot',
+                        'Clear Config': 'refresh-config',
+                        'Clear Cache': 'refresh-cache',
+                        'Update and Restart': 'update-reboot',
+                        'Shutdown': 'shutdown',
+                    }.items()])
+            )
 
         if self.rank == 0:
             ...
@@ -155,9 +156,9 @@ class HandlerLogin(RequestHandler):
         self.client.login(name, pe)
         account = self.client.account
         account.password = password
-        if account.bb_auth == ('', '') and account.bb_enc != ('', ''):
+        if account.bb_auth == ('', '') and account.bb_enc != '':
             decoder = cryptrix(account.password, account.name)
-            account.bb_auth = decoder.decrypt(account.bb_enc[0]), decoder.decrypt(account.bb_enc[1])
+            account.bb_auth = decoder.decrypt(account.bb_enc)
         self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
         if self.client.is_real():
             self.response.redirect('/home/index.html')
@@ -191,10 +192,10 @@ class HandlerBBPage(RequestHandler):
 
 class HandlerBBLogin(RequestHandler):
     def call(self):
-        self.account.bb_auth = self.request.get_post('user'), self.request.get_post('pass')
         encoder = cryptrix(self.account.password, self.account.name)
-        self.account.bb_enc = encoder.encrypt(self.request.get_post('user')), encoder.encrypt(self.request.get_post('pass'))
+        self.account.bb_enc = encoder.encrypt(self.request.get_post('pass'))
         self.account.profile = updates.DIRECTORY[self.account.name]
+        self.account.bb_auth = self.account.profile.get('email'), self.request.get_post('pass')
         self.response.redirect('/bb')
 
 class HandlerBBInfo(RequestHandler):
@@ -203,24 +204,59 @@ class HandlerBBInfo(RequestHandler):
             self.response.refuse()
             return
         self.account.bb_id = self.account.profile['id']
+        self.account.profile.update(updates.register_bb_updater(self.account, 'profile-details', scrape.BlackbaudScraper.dir_details, (self.account.bb_id,), updates.WEEKLY).wait())
 
         schedule = self.account.bb_cache.get('schedule')
         if not schedule:
-            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.FUNC, scrape.todaystr),), 120).wait()
+            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.FUNC, scrape.todaystr),), 120)
 
         assignments = self.account.bb_cache.get('assignments')
         if not assignments:
-            assignments = updates.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30).wait()
+            assignments = updates.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30)
 
         grades = self.account.bb_cache.get('grades')
         if not grades:
-            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 60).wait()
+            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 60)
 
-        self.response.attach_file('/accounts/bb_test.html',
+        if type(schedule) is not dict:
+            schedule = schedule.wait()
+        if type(assignments) is not dict:
+            assignments = assignments.wait()
+        if type(grades) is not dict:
+            grades = grades.wait()
+        #print(scrape.prettify(schedule))
+        #print(scrape.prettify(assignments))
+        #print(scrape.prettify(grades))
+
+        classes = '\n'.join(["""<div class="class-tab">
+                        <span class="period">{period}</span><span class="classname">{classname}</span>
+                        <div class="dropdown">
+                            <div class="grade">
+                                <h3>Grade: {grade}</h3>
+                                <p>{teacher}</p>
+                                <p>{teacher_email}</p>
+                            </div>
+                            <ul class="assignments">
+                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
+                                {assignments}
+                            </ul>
+                        </div>
+                    </div>""".format(
+            period=c,
+            classname=schedule[c]['class'],
+            grade=(grades[schedule[c]['class']]['average'] + '%') if grades[schedule[c]['class']]['average'] else None,
+            teacher=grades[schedule[c]['class']]['teacher'],
+            teacher_email=grades[schedule[c]['class']]['teacher-email'],
+            assignments='\n'.join(['<li>{} <span class="assignment-details">{}</span></li>'.format(
+                title,
+                'Assigned {} - Due {}<br>{}'.format(assignments[title]['assigned'], assignments[title]['due'], assignments[title]['desc'])
+            ) for title in assignments.keys() if assignments[title]['class'] == schedule[c]['class']])
+        ) for c in schedule.keys() if c not in ('Lunch', 'Ha\'ashara', 'Ma\'amad', 'Chavaya')])
+
+
+        self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   profile=scrape.prettify(self.account.profile).replace('\n', '<br>'),
-                                  schedule='<br>'.join(schedule.keys()),
-                                  assignments='<br>'.join(assignments.keys()),
-                                  grades='<br>'.join([k + ' - ' + str(grades[k]['average']) for k in grades.keys()]),
+                                  classes=classes,
                                   menu='<br>'.join(updates.SAGEMENU[scrape.todaystr()]))
 
 

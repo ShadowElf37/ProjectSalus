@@ -37,10 +37,8 @@ def format_phone_num(string: str):
 
 def format_class_name(string: str):
     # ([0-9][a-z]* (Sem)*)|   Catches '2nd Sem' etc.
-    periodnames = re.findall('( - [A-Z] \([0-9A-Za-z]*\)( \([A-Z]\))*)', string)
-    print(periodnames)
+    periodnames = re.findall('( - [A-Z]( \([0-9A-Za-z]*\))*( \([A-Z]\))*)', string)
     for bad in periodnames:
-        print(bad)
         string = string.replace(bad[0], '')
     return string
 
@@ -241,8 +239,10 @@ class BlackbaudScraper(Scraper):
         g = resp.get('Gender', 'o').lower()
         entry = {
             'name': resp['FirstName'] + ' ' + resp['LastName'],
+            'first': resp['FirstName'],
+            'last': resp['LastName'],
             'middle': resp.get('MiddleName', ''),
-            'title': resp.get('Prefix', 'Mr.' if g == 'm' else 'Ms.' if g == 'f' else None),
+            'prefix': get(resp, 'Prefix', ('Mr.' if g == 'm' else 'Ms.' if g == 'f' else '')),
             'gender': g,
             'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
             'email': resp.get('Email', '').lower(),
@@ -274,6 +274,25 @@ class BlackbaudScraper(Scraper):
         } for topic in resp}
 
         return topics
+
+    def topic_details(self, topicid, topicidx, **headers):
+        # https://emeryweiner.myschoolapp.com/api/datadirect/topiccontentget/482767/?format=json&index_id=987530&id=987530
+        params = {
+            'format': 'json',
+            'index_id': topicidx
+        }
+        headers.update(self.default_headers)
+
+        resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/topiccontentget/{}/'.format(topicid),
+                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        details = {dl['ShortDescription']:{
+            'desc': dl.get('LongDescription'),
+            'uri': dl.get('FilePath', '')+dl.get('FileName', ''),
+            'name': dl.get('FriendlyFileName')
+        } for dl in resp}
+
+        return details
 
     def schedule(self, date=todaystr(), **headers):
         params = {
@@ -387,17 +406,17 @@ if __name__ == '__main__':
     t = time()
     bb = BlackbaudScraper()
     print('LOGGING IN...')
-    bb.login('ykey-cohen', 'Yoproductions3', 't')
+    bb.login('ykey-cohen@emeryweiner.org', 'Yoproductions3', 't')
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
-    # schedule = Poolsafe(bb.schedule, '05/20/2019')
+    schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
     # assignments = Poolsafe(bb.assignments)
-    topics = Poolsafe(bb.topics, '89628484')
+    # topics = Poolsafe(bb.topics, '89628484')
     tp = Pool(8)
     tp.launch()
-    tp.pushps(topics)
+    tp.pushps(schedule)
 
-    mydir = topics.wait()
+    mydir = schedule.wait()
     print(prettify(mydir))

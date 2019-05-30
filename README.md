@@ -1,4 +1,4 @@
 # ProjectSalus
 **Future SGA Website**
 
-    Now in v0.1.0!
+    Now in v0.4.0!

@@ -30,7 +30,7 @@ class Account(RWLockMixin):
         self.key = key
         self.id = randint(0, 2**64-1)
         self.profile = {}
-        self.bb_enc = ('', '')
+        self.bb_enc = ''
         self.bb_id = ''
 
     def register(self, key):

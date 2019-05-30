@@ -1,3 +1,15 @@
+v0.4.0 (5/29/19)
+- Caught rendering exceptions
+- Solved issue with directory detail scraping
+- Revamped bb_test.html and its handler to have a spicy new interface
+- Added a couple things htmlutil.py
+- Added topic downloads scraper
+- Fixed serializer-to-server synchronization issues
+
+
+=== MAJOR ===
+
+
 v0.3.9 (5/29/19)
 - Finished and implemented the Chronos
 - Fixed some serializer bugs
@@ -49,6 +61,7 @@ v0.3.0 (5/20/19)
 - Added Poolsafe so main thread can interact with Pools
 - Scraped data is now stored in Account *unencrypted*
 - Set up HTML tech demo for the scraping - it works!
+
 
 === MAJOR ===
 

@@ -80,7 +80,7 @@ class Response:
 
     def __init__(self, request: Request):
         self.req = request.req
-        self.macroreq = request
+        self.request = request
         self.server = self.req.server
         self.code = 200, 'OK'
         self.header = {}
@@ -174,7 +174,13 @@ class Response:
 
             kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
             for kw in kwrender:
-                r = eval(kw)
+                try:
+                    r = eval(kw)
+                except SyntaxError:
+                    exec(kw)
+                    continue
+                except Exception:
+                    f = f.replace(b'{{' + kw + b'}}', b'ERROR')
                 if type(r) != bytes:
                     r = bytes(str(r), ENCODING)
                 f = f.replace(b'{{' + kw + b'}}', r)

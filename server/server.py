@@ -106,10 +106,11 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
 
     def make_error(self, e):
         responses = [
-                'Well this is embarrassing.',
-                'Oopsie!',
-                'Oh, uh, you weren\'t supposed to see this...',
-                'That\'s not quite what I thought would happen...'
+            'Well this is embarrassing.',
+            'Oopsie!',
+            'Oh, uh, you weren\'t supposed to see this...',
+            'That\'s not what I thought would happen...',
+            'Oh frick.'
             ]
         print('='*100+'\nA fatal error was caught in handler:\n' + format_exc()+'\n'+'='*100)
         self.send_error(500, (random.choice(responses) + ' ' + str(e)[0].upper() + str(e)[1:]))
@@ -132,8 +133,8 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.make_error(e)
 
-        while not RESPONSE_QUEUE[0] == rsp:
-            sleep(0.0001)
+        while RESPONSE_QUEUE[0] != rsp:
+            sleep(0.00001)
         del RESPONSE_QUEUE[0]
 
     def do_POST(self):
@@ -149,8 +150,8 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.make_error(e)
 
-        while not RESPONSE_QUEUE[0] == rsp:
-            sleep(0.0001)
+        while RESPONSE_QUEUE[0] != rsp:
+            sleep(0.00001)
         del RESPONSE_QUEUE[0]
 
 

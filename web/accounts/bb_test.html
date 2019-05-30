@@ -4,6 +4,121 @@
         <title>Home</title>
         {{css('general.css')}}
         {{js('asyncpost.js')}}
+        <style>
+            #schedule-container{
+                min-width: 20%;
+                background-color: #EEE;
+                height: 70px;
+                position: relative;
+                margin: 20px;
+                border-radius: 20px 20px 4px 4px;
+                border: 1px solid #BBB;
+            }
+
+            .class-tab{
+                width: 200px;
+                height: 50px;
+                position: relative;
+                margin-top: 10px;
+                margin-right: 10px;
+                padding: 0px;
+                border-radius: 5px 5px 15px 15px;
+                border: 1px solid #9BF;
+                border-right: 0;
+                border-left: 0;
+                /*box-shadow: 0 0 2px #9BF;*/
+                background-color: #FAFAFF;
+                display: inline-block;
+            }
+
+            .period{
+                display: block;
+                margin: 0;
+                padding: 0;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .classname{
+                display: block;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            .dropdown{
+                display: none;
+                position: absolute;
+                left: -250px;
+                background-color: inherit;
+                top: 52px;
+                width: 700px;
+                min-height: 200px;
+                box-shadow: 0 5px 5px #0003;
+                padding: 12px;
+                z-index: 1;
+                border-radius: 10px;
+                border: 1px solid #9BF;
+                border-top: 0;
+
+                overflow: hidden;
+            }
+            .class-tab:hover .dropdown{
+                display: table;
+            }
+            .class-tab:hover{
+                border-bottom: 0px;
+                border-radius: 4px 4px 0px 0px;
+                height: 52px;
+                text-align: center;
+            }
+
+            .grade{
+                float: left;
+                margin: 0px;
+                display: block;
+                width: 250px;
+                text-align: left;
+            }
+            .grade h3{
+                font-size: 40px;
+            }
+            .grade p{
+                font-size: 20px;
+            }
+
+            .assignments{
+                list-style: none;
+                display: block;
+                width: 400px;
+                float: right;
+                font-size: 120%;
+                margin: 0;
+                text-align: left;
+                height: 400px;
+                border-left: 1px solid #BBB;
+                flex: 1;
+            }
+            .assignments li{
+                padding-left: 20px;
+                border-bottom: 1px solid #ddd;
+                width: 200px;
+                white-space: nowrap;
+                margin-bottom: 10px;
+                font-size: 20px;
+                display: block;
+            }
+
+            .assignment-details{
+                display: none;
+                font-size: 14px;
+            }
+
+            .assignments li:hover .assignment-details{
+                display: block;
+                margin-top: 1px;
+                margin-left: 10px;
+            }
+        </style>
     </head>
     <body>
         <div class="navbar">
@@ -18,14 +133,21 @@
 
         <center>
             <div class="page-container">
+                <div style="text-align: left; margin-left: 50px; font-size: 150%">
+                    <h1 style="float: right; display: block; margin-top: 10px; margin-right: 70px">{{getDate()}}</h1>
+                    <h1 style="margin-top: 20px; margin-bottom: 0px;">Good {{'morning' if getAmPm().lower() == 'am' else 'evening'}} {{self.request.client.account.profile['prefix'] + ' ' + '[[name]]'.split()[-1]}}.</h1>
+
+                    <h2 style="margin-top: 0px; margin-bottom: 50px">Here's your schedule for today.</h2>
+                    
+                </div>
+                <div id="schedule-container">
+                    [[classes]]
+                </div>
                 <br>
-                [[profile]]
-                <br>
-                <br>
-                <div style="text-align: left; display: inline-block;"><h4>Schedule</h4><br>[[schedule]]</div>
-                <div style="text-align: left; display: inline-block;"><h4>Assignments</h4><br>[[assignments]]</div>
-                <div style="text-align: left; display: inline-block;"><h4>Grades</h4><br>[[grades]]</div>
-                <div style="text-align: left; display: inline-block;"><h4>Menu</h4><br>[[menu]]</div>
+                <div style="text-align: left; display: inline-block; float: left; font-size: 140%; margin-left: 70px">
+                    <h4 style='margin-bottom: 10px; font-size: 160%; margin-left: -20px'>Today's Menu</h4>
+                    [[menu]]
+                </div>
             </div>
         </center>
     </body>
