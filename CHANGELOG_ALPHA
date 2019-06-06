@@ -1,3 +1,10 @@
+v0.4.1 (6/6/19)
+- Lots of important bug fixes
+- Lots of quality of life improvements
+- Made better login-error catching for BB scrapers
+- Handled most login-related loopholes and issues
+- Added Response.back()
+
 v0.4.0 (5/29/19)
 - Caught rendering exceptions
 - Solved issue with directory detail scraping

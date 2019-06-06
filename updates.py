@@ -1,7 +1,7 @@
-from server.threadpool import Pool, Poolsafe
 import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
+from server.threadpool import Pool, Poolsafe
 
 HOURLY = 60
 DAILY = 60*24
@@ -12,6 +12,8 @@ BIANNUALLY = MONTHLY*6
 QUARTERLY = MONTHLY*3
 
 env = EnvReader('main.py')
+USER = env['BBUSER']
+PASS = env['BBPASS']
 
 print('Initializing Chronomancer...')
 updater_pool = Pool(20)
@@ -20,14 +22,25 @@ chronomancer = chronos.Chronos(updater_pool.pushps)
 updater_pool.pushf(chronomancer.arkhomai)
 
 Blackbaud = BlackbaudScraper()
-Blackbaud.login(env['BBUSER'], env['BBPASS'], 't')
+Blackbaud.login(USER, PASS, 't')
+Sage = SageScraper()
+def bb_login_safe(scraper, f, user, pwd):
+    def safe(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except StatusError as e:
+            print('Fatal login error:', e)
+            scraper.login(user, pwd, 't')
+            return f(*args, **kwargs)
+    return safe
 
-d = Poolsafe(Blackbaud.directory)
-s = Poolsafe(SageScraper().inst_menu)
+d = Poolsafe(bb_login_safe(Blackbaud, Blackbaud.directory, USER, PASS))
+s = Poolsafe(Sage.inst_menu)
 
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), d)
 chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
+
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
 
@@ -38,8 +51,11 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
         session = BlackbaudScraper()
         session.default_cookies['t'] = account.bb_t
         if not account.bb_t:
-            c = session.login(*account.bb_auth, 't')
-            print(c, account.bb_auth)
+            try:
+                c = session.login(*account.bb_auth, 't')
+            except StatusError:
+                return
+            # print(c, account.bb_auth)
             account.bb_t = c['t']
 
         newargs = []
@@ -51,6 +67,16 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
 
         try:
             r = f(session, *newargs, **kwargs)
+        except StatusError:
+            try:
+                c = session.login(*account.bb_auth, 't')
+            except StatusError:
+                return
+            account.bb_t = c['t']
+            try:
+                r = f(session, *newargs, **kwargs)
+            except StatusError:
+                return
         except Exception as e:
             print(f, args, kwargs)
             raise e

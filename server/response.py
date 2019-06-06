@@ -120,8 +120,13 @@ class Response:
         self.set_code(204)
         self.head = True
 
-    def refuse(self):
-        self.send_error(403, 'You do not have permission to view this page.')
+    def refuse(self, msg='You do not have permission to view this page.'):
+        self.send_error(403, msg)
+
+    def back(self):
+        ref = self.request.get_header('referer')
+        org = self.request.get_header('origin')
+        self.redirect(ref.replace(org, ''))
 
     def redirect(self, location, permanent=False, get=True):
         self.set_code(303 if get else 307 if not permanent else 308, 'Redirect')
@@ -178,9 +183,9 @@ class Response:
                     r = eval(kw)
                 except SyntaxError:
                     exec(kw)
-                    continue
-                except Exception:
-                    f = f.replace(b'{{' + kw + b'}}', b'ERROR')
+                    r = ''
+                except Exception as e:
+                    f = f.replace(b'{{' + kw + b'}}', e.__name__.upper())
                 if type(r) != bytes:
                     r = bytes(str(r), ENCODING)
                 f = f.replace(b'{{' + kw + b'}}', r)

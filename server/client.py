@@ -7,7 +7,7 @@ from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', profile={}, bb_enc='', bb_id='', bb_t='')
+@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', profile={}, bb_enc_pass='', bb_id='', bb_t='')
 class Account(RWLockMixin):
     def __preinit__(self):
         super().__init__()
@@ -30,7 +30,7 @@ class Account(RWLockMixin):
         self.key = key
         self.id = randint(0, 2**64-1)
         self.profile = {}
-        self.bb_enc = ''
+        self.bb_enc_pass = ''
         self.bb_id = ''
 
     def register(self, key):
@@ -63,7 +63,7 @@ class ShellAccount:
         self.bb_auth = ('', '')
         self.bb_t = ''
         self.bb_id = ''
-        self.bb_enc = ('', '')
+        self.bb_enc_pass = ''
 
     def new_key(self):
         return
@@ -114,7 +114,7 @@ class ClientObj:
 from json.decoder import JSONDecodeError
 try:
     AccountsSerializer.load()
-    user_tokens = AccountsSerializer.get('accounts')
+    user_tokens: PersistentDict = AccountsSerializer.get('accounts')
 except (JSONDecodeError, KeyError):
     user_tokens = PersistentDict()
 AccountsSerializer.set('accounts', user_tokens)

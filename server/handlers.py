@@ -1,7 +1,8 @@
 from .response import Request, Response
-from .client import ClientObj, Account, ShellAccount
+from .client import ClientObj, Account, ShellAccount, user_tokens
 from .config import get_config
 from .crypt import *
+from html import escape
 import updates
 import scrape
 
@@ -139,12 +140,16 @@ class HandlerSignup(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         if name not in updates.DIRECTORY:
-            self.response.refuse()
+            self.response.refuse('%s is not whitelisted.' % name)
+            return
+        if user_tokens.find(lambda a: a.name == name):
+            self.response.redirect('/accounts/login.html')
             return
         password = self.request.get_post('pwd')
         a = self.client.create_account(name, password)
         a.password_enc = hash(password, self.client.account.name)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
+        self.account.profile = updates.DIRECTORY[self.account.name]
         # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
 
@@ -152,15 +157,20 @@ class HandlerLogin(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
+        if not (name and password):
+            self.response.back()
+            return
         pe = hash(password, name)
         self.client.login(name, pe)
         account = self.client.account
         account.password = password
-        if account.bb_auth == ('', '') and account.bb_enc != '':
-            decoder = cryptrix(account.password, account.name)
-            account.bb_auth = decoder.decrypt(account.bb_enc)
-        self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
         if self.client.is_real():
+            if account.bb_auth == ('', '') and account.bb_enc_pass != '':
+                # If the account has cached passwords, load them with the key given
+                decoder = cryptrix(account.password, account.name)
+                account.bb_auth = decoder.decrypt(account.bb_enc_pass)
+            self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
+            account.profile = updates.DIRECTORY[account.name]
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/accounts/login.html')
@@ -188,13 +198,19 @@ class HandlerBBPage(RequestHandler):
         if self.rank < 1:
             self.response.redirect('/login')
             return
-        self.response.attach_file('/accounts/bb_login.html')
+        if self.account.bb_auth == ('', ''):
+            self.response.attach_file('/accounts/bb_login.html')
+        else:
+            self.response.redirect('/bb')
 
 class HandlerBBLogin(RequestHandler):
     def call(self):
+        # However, if the account has no cached passwords, cache it now
         encoder = cryptrix(self.account.password, self.account.name)
+        if not self.request.get_post('pass'):
+            self.response.back()
+            return
         self.account.bb_enc = encoder.encrypt(self.request.get_post('pass'))
-        self.account.profile = updates.DIRECTORY[self.account.name]
         self.account.bb_auth = self.account.profile.get('email'), self.request.get_post('pass')
         self.response.redirect('/bb')
 
@@ -204,7 +220,13 @@ class HandlerBBInfo(RequestHandler):
             self.response.refuse()
             return
         self.account.bb_id = self.account.profile['id']
-        self.account.profile.update(updates.register_bb_updater(self.account, 'profile-details', scrape.BlackbaudScraper.dir_details, (self.account.bb_id,), updates.WEEKLY).wait())
+        prf = updates.register_bb_updater(self.account, 'profile-details', scrape.BlackbaudScraper.dir_details, (self.account.bb_id,), updates.WEEKLY).wait()
+        if prf is None:
+            self.response.refuse('Invalid password for %s' % self.account.name)
+            self.account.bb_enc = ''
+            self.account.bb_auth = ('', '')
+            return
+        self.account.profile.update(prf)
 
         schedule = self.account.bb_cache.get('schedule')
         if not schedule:
@@ -255,9 +277,8 @@ class HandlerBBInfo(RequestHandler):
 
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
-                                  profile=scrape.prettify(self.account.profile).replace('\n', '<br>'),
                                   classes=classes,
-                                  menu='<br>'.join(updates.SAGEMENU[scrape.todaystr()]))
+                                  menu=escape('\n'.join(updates.SAGEMENU[scrape.todaystr()])).replace('\n', '<br>'))
 
 
 GET = {

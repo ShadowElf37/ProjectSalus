@@ -1,5 +1,5 @@
 Known bugs:
-    - There are no bugs.
+    - Git is a complete mess
 
 =======================
 Back-end and essentials:
@@ -24,9 +24,16 @@ Actual pages and functionality:
     - Sage menu
     - Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
     - IMAP/SMTP replacement for Outlook
+    - Click on email address to open small window for composing emails
     - Whitelist and ranking
     - Store updater information for SMS scheduler, etc.
     - Purge stale updaters; generally overhaul session tokens with something more flexible
+    - Whitelist and ranks
+    - User settings and customization (delete, reload, etc.)
+
+Check for:
+    - Bugs
+    - Everything is html escaped
 
 Post-deployment wishlist:
     - Integration with other clubs and sports (calendar, push notifications, etc.)

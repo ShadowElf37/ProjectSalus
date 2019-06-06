@@ -46,6 +46,8 @@ def get(dict, k, default=None):
     return dict.get(k, default) if dict.get(k) else default
 
 
+class StatusError(BaseException):...
+
 class Scraper:
     def __init__(self):
         self.useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
@@ -56,7 +58,7 @@ class Scraper:
     @staticmethod
     def check(resp: requests.Response) -> requests.Response:
         if resp.status_code != 200:
-            raise ValueError('Request failed with {}: {}'.format(resp.status_code, resp.text))
+            raise StatusError('Request failed with {}: {}'.format(resp.status_code, resp.text))
         return resp
 
 class SageScraper(Scraper):
@@ -165,7 +167,7 @@ class BlackbaudScraper(Scraper):
 
         login = self.check(requests.post('https://emeryweiner.myschoolapp.com/api/SignIn',
                               headers=headers, data=data))
-        cookies = {k:login.cookies[k] for k in needed_cookies}
+        cookies = {k:login.cookies.get(k) for k in needed_cookies}
         self.default_cookies.update(cookies)
         return cookies
 
@@ -410,13 +412,13 @@ if __name__ == '__main__':
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
-    schedule = Poolsafe(bb.schedule, '05/29/2019')
-    # grades = Poolsafe(bb.grades, '3510119')
+    # schedule = Poolsafe(bb.schedule, '05/29/2019')
+    grades = Poolsafe(bb.grades, '3510119')
     # assignments = Poolsafe(bb.assignments)
     # topics = Poolsafe(bb.topics, '89628484')
     tp = Pool(8)
     tp.launch()
-    tp.pushps(schedule)
+    tp.pushps(grades)
 
-    mydir = schedule.wait()
+    mydir = grades.wait()
     print(prettify(mydir))

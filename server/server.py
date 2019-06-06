@@ -73,7 +73,7 @@ class Server(HTTPServer):
         here = os.path.dirname(os.path.abspath(__file__))
         os.environ["GIT_ASKPASS"] = here + "/askpass.py"
         repo = Repo(here + "/..")
-        return repo.pull()
+        return repo.remotes.origin.pull()
 
     def close(self):
         self.cleanup()
