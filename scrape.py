@@ -37,10 +37,17 @@ def format_phone_num(string: str):
 
 def format_class_name(string: str):
     # ([0-9][a-z]* (Sem)*)|   Catches '2nd Sem' etc.
-    periodnames = re.findall('( - [A-Z]( \([0-9A-Za-z]*\))*( \([A-Z]\))*)', string)
+    periodnames = re.findall('( - [A-Z0-9]*( \(.*\))*( \([A-Z]\))*)|( \(.*\))', string)
     for bad in periodnames:
-        string = string.replace(bad[0], '')
+        for bad in bad:
+            string = string.replace(bad, '')
     return string
+
+def period_from_name(string: str):
+    try:
+        return re.findall('((?! \()([^(]+)(?=\)))', string)[-1][0]
+    except IndexError:
+        return string
 
 def get(dict, k, default=None):
     return dict.get(k, default) if dict.get(k) else default
@@ -181,7 +188,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
         directory = []
 
-        for grade in range(6, 13, 2):  # Site can only handle 200 results per search, so it must be divided into 3 2-grade searches
+        for grade in range(6, 13, 2):  # Site can only handle 200 results per search, so it must be divided into 4 2-grade searches
             grades = '3261_{}|3261_{}'.format(str(grade), str(grade + 1))
             params.update(facets=grades)
             resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
@@ -319,6 +326,66 @@ class BlackbaudScraper(Scraper):
 
         return schedule
 
+    def schedule_span(self, uid, start_date=datetime.datetime.now() - datetime.timedelta(days=10), end_date=datetime.datetime.now() + datetime.timedelta(days=10), **headers):
+        #https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/?format=json&viewerId=3510119&personaId=2&viewerPersonaId=2&start=1558846800&end=1562475600&_=1559936166683
+        params = {
+            'format': 'json',
+            'viewerId': uid,
+            'personaId': 2,
+            'viewerPersonaId': 2,
+            'start': start_date.timestamp(),
+            'end': end_date.timestamp(),
+        }
+        headers.update(self.default_headers)
+
+        schedule = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
+                                           params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        real = {}
+        for period in schedule:
+            t = period['title']
+            dt = bbdt(period['start'])
+            date = dt.strftime('%m/%d/%Y')
+            data = {
+                'start': dt.strftime('%I:%M %p'),
+                'end': bbdt(period['end']).strftime('%I:%M %p'),
+                'id': period['SectionId'],
+                'title': format_class_name(t)
+            }
+            if date not in real:
+                real[date] = {}
+            if period_from_name(t) == 'US' and data['id'] is None:
+                real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
+                continue
+            real[date][period_from_name(t)] = data
+
+        return real
+
+    def get_class_info(self, classid, **headers):
+        #https://emeryweiner.myschoolapp.com/api/datadirect/SectionInfoView/?format=json&sectionId=89628671&associationId=1
+        params = {
+            'format': 'json',
+            'sectionId': classid,
+            'associationId': 1,
+        }
+        headers.update(self.default_headers)
+
+        info = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
+                                           params=params, headers=headers, cookies=self.default_cookies)).json()
+
+        info = {
+            'id': classid,
+            'name': info['GroupName'],
+            'period': info['Block'],
+            'desc': info['Description'],
+            'teacher': info['Teacher'],
+            'teacher-id': info['TeacherId'],
+            'room': info['Room']
+        }
+
+        return info
+
+
     def grades(self, userid, **headers):
         params = {
             'userId': userid,
@@ -412,13 +479,14 @@ if __name__ == '__main__':
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
-    # schedule = Poolsafe(bb.schedule, '05/29/2019')
-    grades = Poolsafe(bb.grades, '3510119')
+    schedule = Poolsafe(bb.schedule, '05/29/2019')
+    # grades = Poolsafe(bb.grades, '3510119')
+    # schedule = Poolsafe(bb.schedule_span, '3510119')
     # assignments = Poolsafe(bb.assignments)
     # topics = Poolsafe(bb.topics, '89628484')
     tp = Pool(8)
     tp.launch()
-    tp.pushps(grades)
+    tp.pushps(schedule)
 
-    mydir = grades.wait()
+    mydir = schedule.wait()
     print(prettify(mydir))

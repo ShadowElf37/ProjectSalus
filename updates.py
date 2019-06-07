@@ -16,7 +16,7 @@ USER = env['BBUSER']
 PASS = env['BBPASS']
 
 print('Initializing Chronomancer...')
-updater_pool = Pool(20)
+updater_pool = Pool(32)
 updater_pool.launch()
 chronomancer = chronos.Chronos(updater_pool.pushps)
 updater_pool.pushf(chronomancer.arkhomai)
@@ -29,7 +29,6 @@ def bb_login_safe(scraper, f, user, pwd):
         try:
             return f(*args, **kwargs)
         except StatusError as e:
-            print('Fatal login error:', e)
             scraper.login(user, pwd, 't')
             return f(*args, **kwargs)
     return safe
@@ -43,6 +42,8 @@ chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
 
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
+classes_serializer
+CLASSINFO = {}
 
 FUNC = ...
 
