@@ -19,7 +19,7 @@ v0.4.0 (5/29/19)
 - Caught rendering exceptions
 - Solved issue with directory detail scraping
 - Revamped bb_test.html and its handler to have a spicy new interface
-- Added a couple things htmlutil.py
+- Added a couple things to htmlutil.py
 - Added topic downloads scraper
 - Fixed serializer-to-server synchronization issues
 

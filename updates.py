@@ -53,6 +53,13 @@ def update_menu(updater):
         return SAGEMENU, SAGEMENUINFO
     return u
 
+def dsetter(dict, key, updaterf):
+    def u(*args, **kwargs):
+        v = updaterf(*args, **kwargs)
+        setattr(key, dict, v)
+        return v
+    return u
+
 d = Poolsafe(update_directory(bb_login_safe(Blackbaud, Blackbaud.directory, USER, PASS)))
 t = Poolsafe(update_teachers(bb_login_safe(Blackbaud, Blackbaud.teacher_directory, USER, PASS)))
 s = Poolsafe(update_menu(Sage.inst_menu))
@@ -73,20 +80,23 @@ try:
     TEACHERS = DataSerializer.get('TEACHERS')
     SAGEMENU = DataSerializer.get('SAGEMENU')
     SAGEMENUINFO = DataSerializer.get('SAGEMENUINFO')
-    CLASSINFO = DataSerializer.get('CLASSINFO')
+    CLASSES = DataSerializer.get('CLASSES')
+    PROFILE_DETAILS = DataSerializer.get('PROFILES')
     print('Using cached scrape data.')
 except (JSONDecodeError, KeyError):
     # updater_pool.pushps_multi(d, t, s)
     DIRECTORY = d.wait()
     TEACHERS = t.wait()
     SAGEMENU, SAGEMENUINFO = s.wait()
-    CLASSINFO = {}
+    CLASSES = {}
+    PROFILE_DETAILS = {}
 
 DataSerializer.set('DIRECTORY', DIRECTORY)
 DataSerializer.set('TEACHERS', TEACHERS)
 DataSerializer.set('SAGEMENU', SAGEMENU)
 DataSerializer.set('SAGEMENUINFO', SAGEMENUINFO)
-DataSerializer.set('CLASSINFO', CLASSINFO)
+DataSerializer.set('CLASSES', CLASSES)
+DataSerializer.set('PROFILES', PROFILE_DETAILS)
 
 from server.threadpool import CALLABLE
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):

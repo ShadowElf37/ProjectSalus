@@ -5,7 +5,7 @@ from functools  import wraps
 from importlib  import import_module
 from copy       import deepcopy
 from .rotate    import RotationHandler
-from inspect    import isfunction, isclass
+from inspect    import isfunction, isclass, ismethod
 import json
 #from config import get_config
 localconf = {"dir": "data/", "ref_prefix": "REF##"}; get_config = lambda x: localconf
@@ -93,7 +93,7 @@ class PrimitiveSerializer(BaseSerializer):
     def _serialize_bytes(self, obj):
         return self.wrap("bytes", obj.hex())
 
-@can_serialize(lambda s, f: isfunction(f) or isclass(f), '_serialize_func', '_is_func', '_deserialize_func')
+@can_serialize(lambda s, f: isfunction(f) or isclass(f) or ismethod(f), '_serialize_func', '_is_func', '_deserialize_func')
 class FunctionSerializer(PrimitiveSerializer):
     def _is_func(self, obj):
         return self.is_wrapped(obj) and obj['type'] == 'callable'

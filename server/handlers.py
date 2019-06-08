@@ -150,6 +150,7 @@ class HandlerSignup(RequestHandler):
         a.password_enc = hash(password, self.client.account.name)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
         self.account.profile = updates.DIRECTORY[self.account.name]
+        updates.setter(self.account, 'profile', )
         # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
 
