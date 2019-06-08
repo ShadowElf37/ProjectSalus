@@ -1,3 +1,8 @@
+v0.4.3 (6/8/19)
+- Improved error catching in a number of places
+- Soft-Serialized scrape data for faster startups and clean profile caching
+- Scrape data is now properly updated by the Chronos
+
 v0.4.2 (6/7/19)
 - Added date-span schedule scrape
 - Added class details scrape

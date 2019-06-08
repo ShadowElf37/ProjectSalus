@@ -1,10 +1,10 @@
 from threading import *
 from .config import get_config
-from time import sleep
 from inspect import isfunction, ismethod
 
 config = get_config('threads')
 
+CALLABLE = object()
 class Poolsafe:
     NONCE = object()
     def __init__(self, f, *args, **kwargs):

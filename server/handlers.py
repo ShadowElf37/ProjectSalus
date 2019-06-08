@@ -230,7 +230,7 @@ class HandlerBBInfo(RequestHandler):
 
         schedule = self.account.bb_cache.get('schedule')
         if not schedule:
-            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.FUNC, scrape.todaystr),), 120)
+            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.CALLABLE, scrape.todaystr),), 120)
 
         assignments = self.account.bb_cache.get('assignments')
         if not assignments:
@@ -278,7 +278,7 @@ class HandlerBBInfo(RequestHandler):
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   classes=classes,
-                                  menu=escape('\n'.join(updates.SAGEMENU[scrape.todaystr()])).replace('\n', '<br>'))
+                                  menu=escape('\n'.join(updates.SAGEMENU.get(scrape.todaystr(), ('There is no food.',)))).replace('\n', '<br>'))
 
 
 GET = {

@@ -30,6 +30,7 @@ def bbdt(date_time_string):
     return datetime.datetime.strptime(date_time_string, '%m/%d/%Y %I:%M %p')
 
 def format_phone_num(string: str):
+    if not string: return ''
     if string.count('-') < 2:
         string = string.replace('-', '')
         return '-'.join((string[:3], string[3:6], string[6:]))
@@ -114,6 +115,8 @@ class SageScraper(Scraper):
         menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php',
                             params=params, headers=headers, cookies=self.default_cookies)).json()
 
+        if 'menu' not in menu:
+            return {}, {}
         start_date = datetime.datetime.strptime(menu['menu']['config']['meta']['menuFirstDate'], '%m/%d/%Y')
         # The start date is a lie; it will start on Sunday of the week of the start date
         start_date -= datetime.timedelta(days=start_date.weekday() + 1)  # Python's datetime uses Monday as first day of week for some reason

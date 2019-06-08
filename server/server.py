@@ -9,6 +9,7 @@ from .handlers      import *
 from .config        import CONFIG_CACHE
 from .cache         import FileCache
 from .              import handlers
+from time           import sleep
 
 RESPONSE_QUEUE = []
 
@@ -113,7 +114,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             'Oh frick.'
             ]
         print('='*100+'\nA fatal error was caught in handler:\n' + format_exc()+'\n'+'='*100)
-        self.send_error(500, (random.choice(responses) + ' ' + str(e)[0].upper() + str(e)[1:]))
+        self.send_error(500, (random.choice(responses) + ' {}: {}'.format(e.__class__.__name__, (str(e)[0].upper() + str(e)[1:]))))
         return 0
 
     def do_HEAD(self):

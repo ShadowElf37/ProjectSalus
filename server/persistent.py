@@ -1,8 +1,4 @@
-from .config import get_config
-import pickle
 from .serializer import BSManager
-
-#cfg = get_config('persistent')
 
 Manager = BSManager()
 AccountsSerializer = Manager.make_serializer('accounts.json')
