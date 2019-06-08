@@ -3,11 +3,11 @@ from subprocess import Popen
 import sys
 import os
 
-import importlib.util as imputil
+from importlib.util import find_spec
 
 DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git')
 
-assert all(imputil.find_spec(i) for i in DEPENDENCIES),\
+assert all(map(find_spec, DEPENDENCIES)),\
     'Missing libraries are required to continue. Check to make sure you have {} installed.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
 print('Library check passed.')
 
@@ -18,6 +18,8 @@ for folder in ('logs', 'data', 'config', 'web/assets'):
         os.mkdir(folder)
     except FileExistsError:
         pass
+
+assert os.path.exists('.env'), 'Toplevel env file not found.'
 
 while True:
     process = Popen([sys.executable, '_main.py'],

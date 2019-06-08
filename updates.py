@@ -42,7 +42,6 @@ chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
 
 DIRECTORY = d.wait()
 SAGEMENU, SAGEMENUINFO = s.wait()
-classes_serializer
 CLASSINFO = {}
 
 FUNC = ...
