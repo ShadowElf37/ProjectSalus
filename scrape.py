@@ -4,6 +4,7 @@ import re
 import datetime
 from time import time
 from bs4 import BeautifulSoup
+import calendar
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
@@ -17,11 +18,22 @@ def soup_without(soup: BeautifulSoup, **fields):
 def todaystr():
     return datetime.datetime.now().strftime('%m/%d/%Y')
 
+def now():
+    return datetime.datetime.now()
+
+def sun_era():
+    n = now()
+    return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'
+
 def last_sunday(from_date=datetime.datetime.now()):
     return from_date - datetime.timedelta(days=from_date.weekday()+1)
 
 def next_saturday(from_date=datetime.datetime.now()):
     return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
+
+def firstlast_of_month():
+    n = datetime.datetime.now()
+    return tuple(map(lambda m: n.replace(day=m), calendar.monthrange(n.year, n.month)))
 
 def prettify(jsonobj, indent=4):
     return json.dumps(jsonobj, indent=indent)
@@ -245,6 +257,7 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
+        print('@@', userid, self.default_cookies)
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
                                        params=params, headers=headers, cookies=self.default_cookies)).json()
 
@@ -254,7 +267,7 @@ class BlackbaudScraper(Scraper):
             'first': resp['FirstName'],
             'last': resp['LastName'],
             'middle': resp.get('MiddleName', ''),
-            'prefix': get(resp, 'Prefix', ('Mr.' if g == 'm' else 'Ms.' if g == 'f' else '')),
+            'prefix': get(resp, 'Prefix', ('Mr.' if g == 'm' else 'Ms.' if g == 'f' else 'Undefined')),
             'gender': g,
             'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
             'email': resp.get('Email', '').lower(),
@@ -329,7 +342,7 @@ class BlackbaudScraper(Scraper):
 
         return schedule
 
-    def schedule_span(self, uid, start_date=datetime.datetime.now() - datetime.timedelta(days=10), end_date=datetime.datetime.now() + datetime.timedelta(days=10), **headers):
+    def schedule_span(self, uid, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
         #https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/?format=json&viewerId=3510119&personaId=2&viewerPersonaId=2&start=1558846800&end=1562475600&_=1559936166683
         params = {
             'format': 'json',

@@ -2,20 +2,23 @@ from datetime import datetime
 from secrets import token_urlsafe as new_key
 from .config import get_config
 from .persistent import PersistentDict, AccountsSerializer
-from .threadpool import RWLockMixin
+from .threadpool import RWLockMixin, Poolsafe
 from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', profile={}, bb_enc_pass='', bb_id='', bb_t='')
+@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', bb_enc_pass='', bb_id='', bb_t='')
 class Account(RWLockMixin):
     def __preinit__(self):
         super().__init__()
     def __postinit__(self):
         self.shell = False
-        self.bb_cache = {}
         self.bb_t = ''
         self.bb_auth = ('', '')
+        self.updaters: {str: Poolsafe} = {}
+        self.scheduled = {}
+        self.dir = {}
+        self.personal_scraper = None
         if not getattr(self, 'password', False):
             self.password = ''
 
@@ -29,7 +32,6 @@ class Account(RWLockMixin):
         self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
-        self.profile = {}
         self.bb_enc_pass = ''
         self.bb_id = ''
 
@@ -58,12 +60,14 @@ class ShellAccount:
         self.name = ''
         self.email = ''
         self.shell = True
-        self.profile = {}
-        self.bb_cache = {}
         self.bb_auth = ('', '')
         self.bb_t = ''
         self.bb_id = ''
         self.bb_enc_pass = ''
+        self.updaters: {str: Poolsafe} = {}
+        self.scheduled = {}
+        self.dir = {}
+        self.personal_scraper = None
 
     def new_key(self):
         return

@@ -1,7 +1,8 @@
 from .response import Request, Response
-from .client import ClientObj, Account, ShellAccount, user_tokens
+from .client import *
 from .config import get_config
 from .crypt import *
+from .threadpool import Poolsafe
 from html import escape
 import updates
 import scrape
@@ -149,8 +150,8 @@ class HandlerSignup(RequestHandler):
         a = self.client.create_account(name, password)
         a.password_enc = hash(password, self.client.account.name)
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
-        self.account.profile = updates.DIRECTORY[self.account.name]
-        updates.setter(self.account, 'profile', )
+        a.dir = updates.DIRECTORY[a.name]
+        a.bb_id = a.dir['id']
         # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
 
@@ -171,7 +172,12 @@ class HandlerLogin(RequestHandler):
                 decoder = cryptrix(account.password, account.name)
                 account.bb_auth = decoder.decrypt(account.bb_enc_pass)
             self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
-            account.profile = updates.DIRECTORY[account.name]
+            account.dir = updates.DIRECTORY[account.name]
+            account.bb_id = account.dir['id']
+
+            # updates.register_bb_updater(account, 'profile-details', scrape.BlackbaudScraper.dir_details, account.bb_id, )
+            # account.updaters['profile'] = updates.register_bb_updater(account, 'profile', scrape.BlackbaudScraper.dir_details, account.bb_id)
+
             self.response.redirect('/home/index.html')
         else:
             self.response.redirect('/accounts/login.html')
@@ -207,49 +213,80 @@ class HandlerBBPage(RequestHandler):
 class HandlerBBLogin(RequestHandler):
     def call(self):
         # However, if the account has no cached passwords, cache it now
-        encoder = cryptrix(self.account.password, self.account.name)
         if not self.request.get_post('pass'):
             self.response.back()
             return
+
+        # Encrypt the password for storage and store unencrypted in RAM
+        encoder = cryptrix(self.account.password, self.account.name)
         self.account.bb_enc = encoder.encrypt(self.request.get_post('pass'))
-        self.account.bb_auth = self.account.profile.get('email'), self.request.get_post('pass')
+        self.account.bb_auth = auth = updates.DIRECTORY[self.account.name].get('email'), self.request.get_post('pass')
+
+        # Log into Blackbaud
+        myscraper = scrape.BlackbaudScraper()
+        try:
+            myscraper.login(*auth, 't')
+        except scrape.StatusError:
+            self.response.refuse('Invalid password for %s' % self.account.name)
+            self.account.bb_enc = ''
+            self.account.bb_auth = ('', '')
+            return
+
+        print(self.account.bb_auth, '$', self.account.bb_id)
+        # If we don't already have cached profile details, create a fetcher for it
+        if 'profile' not in self.account.updaters:
+            self.account.personal_scraper = myscraper
+            self.account.updaters['profile'] = Poolsafe(
+                updates.dsetter(
+                    updates.PROFILE_DETAILS, self.account.name, updates.bb_login_safe(myscraper.dir_details, *auth)
+                ), self.account.bb_id)
+            self.account.scheduled['profile'] = updates.chronomancer.metakhronos(updates.MONTHLY, self.account.updaters['profile'], now=True)
+
+        print('red')
         self.response.redirect('/bb')
 
 class HandlerBBInfo(RequestHandler):
     def call(self):
         if self.rank < 1:
-            self.response.refuse()
+            self.response.refuse('Sign in please.')
             return
-        self.account.bb_id = self.account.profile['id']
-        prf = updates.register_bb_updater(self.account, 'profile-details', scrape.BlackbaudScraper.dir_details, (self.account.bb_id,), updates.WEEKLY).wait()
-        if prf is None:
-            self.response.refuse('Invalid password for %s' % self.account.name)
-            self.account.bb_enc = ''
-            self.account.bb_auth = ('', '')
-            return
-        self.account.profile.update(prf)
 
-        schedule = self.account.bb_cache.get('schedule')
-        if not schedule:
-            schedule = updates.register_bb_updater(self.account, 'schedule', scrape.BlackbaudScraper.schedule, ((updates.CALLABLE, scrape.todaystr),), 120)
+        if 'schedule' not in self.account.updaters:
+            if self.account.personal_scraper is None:
+                self.response.refuse('You must use your Blackbaud password to sign in first.')
+                return
 
-        assignments = self.account.bb_cache.get('assignments')
-        if not assignments:
-            assignments = updates.register_bb_updater(self.account, 'assignments', scrape.BlackbaudScraper.assignments, (), 30)
+            scp: scrape.BlackbaudScraper = self.account.personal_scraper
+            auth = self.account.bb_auth
+            login_safe = updates.bb_login_safe
 
-        grades = self.account.bb_cache.get('grades')
-        if not grades:
-            grades = updates.register_bb_updater(self.account, 'grades', scrape.BlackbaudScraper.grades, (self.account.bb_id,), 60)
+            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id)
+            us = updates.chronomancer.metakhronos(120, schedule_ps, now=True)
+            self.account.updaters['schedule'] = schedule_ps
+            self.account.scheduled['schedule'] = us
 
-        if type(schedule) is not dict:
-            schedule = schedule.wait()
-        if type(assignments) is not dict:
-            assignments = assignments.wait()
-        if type(grades) is not dict:
-            grades = grades.wait()
-        #print(scrape.prettify(schedule))
+            assignments_ps = Poolsafe(login_safe(scp.assignments, *auth))
+            ua = updates.chronomancer.metakhronos(60, assignments_ps, now=True)
+            self.account.updaters['assignments'] = assignments_ps
+            self.account.scheduled['assignments'] = ua
+
+            grades_ps = Poolsafe(login_safe(scp.grades, *auth), self.account.bb_id)
+            ug = updates.chronomancer.metakhronos(60, grades_ps, now=True)
+            self.account.updaters['grades'] = grades_ps
+            self.account.scheduled['grades'] = ug
+
+            updates.chronomancer.track(us, self.account.name)
+            updates.chronomancer.track(ua, self.account.name)
+            updates.chronomancer.track(ug, self.account.name)
+
+        print('waiting')
+        schedule = self.account.updaters['schedule'].wait()[scrape.todaystr()]
+        assignments = self.account.updaters['assignments'].wait()
+        grades = self.account.updaters['grades'].wait()
+        print(scrape.prettify(schedule))
         #print(scrape.prettify(assignments))
         #print(scrape.prettify(grades))
+        prf = self.account.updaters['profile'].wait() if self.account.name not in updates.PROFILE_DETAILS else updates.PROFILE_DETAILS.get(self.account.name)
 
         classes = '\n'.join(["""<div class="class-tab">
                         <span class="period">{period}</span><span class="classname">{classname}</span>
@@ -266,19 +303,20 @@ class HandlerBBInfo(RequestHandler):
                         </div>
                     </div>""".format(
             period=c,
-            classname=schedule[c]['class'],
-            grade=(grades[schedule[c]['class']]['average'] + '%') if grades[schedule[c]['class']]['average'] else None,
-            teacher=grades[schedule[c]['class']]['teacher'],
-            teacher_email=grades[schedule[c]['class']]['teacher-email'],
+            classname=schedule[c]['title'],
+            grade=(grades[schedule[c]['title']]['average'] + '%') if grades[schedule[c]['class']]['average'] else None,
+            teacher=grades[schedule[c]['title']]['teacher'],
+            teacher_email=grades[schedule[c]['title']]['teacher-email'],
             assignments='\n'.join(['<li>{} <span class="assignment-details">{}</span></li>'.format(
                 title,
                 'Assigned {} - Due {}<br>{}'.format(assignments[title]['assigned'], assignments[title]['due'], assignments[title]['desc'])
-            ) for title in assignments.keys() if assignments[title]['class'] == schedule[c]['class']])
+            ) for title in assignments.keys() if assignments[title]['class'] == schedule[c]['title']])
         ) for c in schedule.keys() if c not in ('Lunch', 'Ha\'ashara', 'Ma\'amad', 'Chavaya')])
 
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   classes=classes,
+                                  prefix=prf['prefix'],
                                   menu=escape('\n'.join(updates.SAGEMENU.get(scrape.todaystr(), ('There is no food.',)))).replace('\n', '<br>'))
 
 

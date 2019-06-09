@@ -30,6 +30,7 @@ Actual pages and functionality:
     - Purge stale updaters; generally overhaul session tokens with something more flexible
     - Whitelist and ranks
     - User settings and customization (delete, reload, etc.)
+    - Sensitize schedule span scrape to half days and special events
 
 Check for:
     - Bugs

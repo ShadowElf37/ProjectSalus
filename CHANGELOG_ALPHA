@@ -1,3 +1,7 @@
+v0.4.4 (6/8/19)
+- Rewrote Blackbaud-related RequestHandlers to cleanly spawn updaters
+- register_bb_updater() is deprecated
+
 v0.4.3 (6/8/19)
 - Improved error catching in a number of places
 - Soft-Serialized scrape data for faster startups and clean profile caching

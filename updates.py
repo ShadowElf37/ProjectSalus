@@ -25,12 +25,15 @@ Blackbaud = BlackbaudScraper()
 Blackbaud.login(USER, PASS, 't')
 Sage = SageScraper()
 
-def bb_login_safe(scraper, f, user, pwd):
+def bb_login_safe(f, user, pwd):
     def safe(*args, **kwargs):
         try:
             return f(*args, **kwargs)
         except StatusError as e:
-            scraper.login(user, pwd, 't')
+            try:
+                f.__self__.login(user, pwd, 't')
+            except StatusError:
+                return
             return f(*args, **kwargs)
     return safe
 
@@ -56,12 +59,12 @@ def update_menu(updater):
 def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
         v = updaterf(*args, **kwargs)
-        setattr(key, dict, v)
+        dict[key] = v
         return v
     return u
 
-d = Poolsafe(update_directory(bb_login_safe(Blackbaud, Blackbaud.directory, USER, PASS)))
-t = Poolsafe(update_teachers(bb_login_safe(Blackbaud, Blackbaud.teacher_directory, USER, PASS)))
+d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
+t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
 s = Poolsafe(update_menu(Sage.inst_menu))
 
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
@@ -91,6 +94,8 @@ except (JSONDecodeError, KeyError):
     CLASSES = {}
     PROFILE_DETAILS = {}
 
+CLASS_UPDATERS = {}
+
 DataSerializer.set('DIRECTORY', DIRECTORY)
 DataSerializer.set('TEACHERS', TEACHERS)
 DataSerializer.set('SAGEMENU', SAGEMENU)
@@ -99,6 +104,8 @@ DataSerializer.set('CLASSES', CLASSES)
 DataSerializer.set('PROFILES', PROFILE_DETAILS)
 
 from server.threadpool import CALLABLE
+
+# DEPRECATED - use Poolsafe(bb_login_safe(f, user, pass))
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
     def update(f, *args, **kwargs):
         session = BlackbaudScraper()

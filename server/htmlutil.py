@@ -15,3 +15,10 @@ def getAmPm():
     return datetime.datetime.now().strftime('%p')
 def getDate():
     return datetime.datetime.now().strftime('%m/%d/%Y')
+
+def now():
+    return datetime.datetime.now()
+
+def sunEra():
+    n = now()
+    return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'

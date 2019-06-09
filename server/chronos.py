@@ -46,11 +46,11 @@ class Chronos:
             return f(*args, **kwargs)
         return wrapped
 
-    def delta(self, delta, ps: Poolsafe, start_at=datetime.datetime.now(), priority=0, now=False):
+    def delta(self, delta, ps: Poolsafe, delta_from=datetime.datetime.now(), priority=0, now=False):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.delta, delta, ps, priority=priority)
 
-        t = start_at + datetime.timedelta(seconds=delta*60)
+        t = delta_from + datetime.timedelta(seconds=delta*60)
         return self.scheduler.enter(t.timestamp(),
                                     priority=priority, action=pushrepeater, argument=(ps,))
 
