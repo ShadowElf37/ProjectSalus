@@ -232,7 +232,6 @@ class HandlerBBLogin(RequestHandler):
             self.account.bb_auth = ('', '')
             return
 
-        print(self.account.bb_auth, '$', self.account.bb_id)
         # If we don't already have cached profile details, create a fetcher for it
         if 'profile' not in self.account.updaters:
             self.account.personal_scraper = myscraper
@@ -242,7 +241,6 @@ class HandlerBBLogin(RequestHandler):
                 ), self.account.bb_id)
             self.account.scheduled['profile'] = updates.chronomancer.metakhronos(updates.MONTHLY, self.account.updaters['profile'], now=True)
 
-        print('red')
         self.response.redirect('/bb')
 
 class HandlerBBInfo(RequestHandler):
@@ -260,7 +258,7 @@ class HandlerBBInfo(RequestHandler):
             auth = self.account.bb_auth
             login_safe = updates.bb_login_safe
 
-            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id)
+            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(-1)[0])
             us = updates.chronomancer.metakhronos(120, schedule_ps, now=True)
             self.account.updaters['schedule'] = schedule_ps
             self.account.scheduled['schedule'] = us
@@ -279,8 +277,10 @@ class HandlerBBInfo(RequestHandler):
             updates.chronomancer.track(ua, self.account.name)
             updates.chronomancer.track(ug, self.account.name)
 
-        print('waiting')
-        schedule = self.account.updaters['schedule'].wait()[scrape.todaystr()]
+
+        schedule = self.account.updaters['schedule'].wait()
+        print(scrape.prettify(schedule))
+        schedule = schedule['05/30/2019']
         assignments = self.account.updaters['assignments'].wait()
         grades = self.account.updaters['grades'].wait()
         print(scrape.prettify(schedule))

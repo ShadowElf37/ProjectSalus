@@ -105,7 +105,7 @@ DataSerializer.set('PROFILES', PROFILE_DETAILS)
 
 from server.threadpool import CALLABLE
 
-# DEPRECATED - use Poolsafe(bb_login_safe(f, user, pass))
+# DEPRECATED - use Poolsafe(bb_login_safe(f, user, pass)) and chronomancer.f(ps)
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
     def update(f, *args, **kwargs):
         session = BlackbaudScraper()

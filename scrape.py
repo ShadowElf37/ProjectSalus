@@ -31,9 +31,10 @@ def last_sunday(from_date=datetime.datetime.now()):
 def next_saturday(from_date=datetime.datetime.now()):
     return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
 
-def firstlast_of_month():
+def firstlast_of_month(deltaMonth=0):
     n = datetime.datetime.now()
-    return tuple(map(lambda m: n.replace(day=m), calendar.monthrange(n.year, n.month)))
+    n = n.replace(month=n.month+deltaMonth)
+    return n.replace(day=1), n.replace(day=calendar.monthrange(n.year, n.month)[1])
 
 def prettify(jsonobj, indent=4):
     return json.dumps(jsonobj, indent=indent)
@@ -257,7 +258,6 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
-        print('@@', userid, self.default_cookies)
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
                                        params=params, headers=headers, cookies=self.default_cookies)).json()
 
@@ -366,13 +366,15 @@ class BlackbaudScraper(Scraper):
                 'start': dt.strftime('%I:%M %p'),
                 'end': bbdt(period['end']).strftime('%I:%M %p'),
                 'id': period['SectionId'],
-                'title': format_class_name(t)
+                'title': format_class_name(t),
             }
             if date not in real:
-                real[date] = {}
-            if period_from_name(t) == 'US' and data['id'] is None:
+                real[date] = {'SPECIAL': [], 'DAY': None}
+            if 'Day ' == t[:4] and t[4].isnumeric() and data['id'] is None:
                 real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
                 continue
+            elif period_from_name(t) == 'US':
+                real[date]['SPECIAL'].append(format_class_name(t))
             real[date][period_from_name(t)] = data
 
         return real
