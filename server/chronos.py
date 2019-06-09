@@ -77,6 +77,18 @@ class Chronos:
         return self.scheduler.enterabs(next_day,
                                        priority=priority, action=pushrepeater, argument=(ps,))
 
+    def monthly(self, nth_day, ps: Poolsafe, at: datetime.time=datetime.time(0,0), priority=0, now=False):
+        if now: self.push(ps)
+        pushrepeater = self.repeatwrap(self.push, self.monthly, nth_day, ps, at, priority=priority)
+
+        next_day = datetime.datetime.now() + datetime.timedelta(days=1)
+        while next_day.day != nth_day:
+            next_day += datetime.timedelta(days=1)
+        next_day = datetime.datetime.combine(next_day.date(), at)
+
+        return self.scheduler.enterabs(next_day.timestamp(),
+                                       priority=priority, action=pushrepeater, argument=(ps,))
+
     def annual(self, on: datetime.datetime, ps: Poolsafe, priority=0, now=False):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.annual, on, ps, priority=priority)

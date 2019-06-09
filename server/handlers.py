@@ -268,6 +268,7 @@ class HandlerBBInfo(RequestHandler):
             self.account.updaters['assignments'] = assignments_ps
             self.account.scheduled['assignments'] = ua
 
+            # For other pages
             grades_ps = Poolsafe(login_safe(scp.grades, *auth), self.account.bb_id)
             ug = updates.chronomancer.metakhronos(60, grades_ps, now=True)
             self.account.updaters['grades'] = grades_ps
@@ -281,12 +282,31 @@ class HandlerBBInfo(RequestHandler):
         schedule = self.account.updaters['schedule'].wait()
         print(scrape.prettify(schedule))
         schedule = schedule['05/30/2019']
+
+        # Spawn some class updaters to fill gaps; these won't matter for this page but we should spawn them for when they're needed
+        scp = self.account.personal_scraper
+        auth = self.account.bb_auth
+        for cls in schedule:
+            if cls['real']:
+                cid = cls['id']
+                if cid not in updates.CLASSES:
+                    cps = Poolsafe(
+                        updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth)),
+                        cid)
+                    cu = updates.chronomancer.monthly(1, cps, now=True)
+                    updates.chronomancer.track(cu, cid)
+                    updates.CLASS_UPDATERS[cid] = cps
+                    updates.CLASS_UPDATERS['s'+str(cid)] = cu
+
         assignments = self.account.updaters['assignments'].wait()
         grades = self.account.updaters['grades'].wait()
         print(scrape.prettify(schedule))
         #print(scrape.prettify(assignments))
         #print(scrape.prettify(grades))
         prf = self.account.updaters['profile'].wait() if self.account.name not in updates.PROFILE_DETAILS else updates.PROFILE_DETAILS.get(self.account.name)
+
+        # At the moment we have access to profile, schedule, assignments, grades, and basic class info
+        # We will only need profile for prefix, the schedule, assignments, and some basic class info
 
         classes = '\n'.join(["""<div class="class-tab">
                         <span class="period">{period}</span><span class="classname">{classname}</span>

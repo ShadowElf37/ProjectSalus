@@ -21,6 +21,9 @@ def todaystr():
 def now():
     return datetime.datetime.now()
 
+def dt_from_timestr(t):
+    return datetime.datetime.strptime(t, '%I:%M %p').time()
+
 def sun_era():
     n = now()
     return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'
@@ -367,7 +370,9 @@ class BlackbaudScraper(Scraper):
                 'end': bbdt(period['end']).strftime('%I:%M %p'),
                 'id': period['SectionId'],
                 'title': format_class_name(t),
+                'real': period_from_name(t) in tuple('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
             }
+
             if date not in real:
                 real[date] = {'SPECIAL': [], 'DAY': None}
             if 'Day ' == t[:4] and t[4].isnumeric() and data['id'] is None:
@@ -375,6 +380,8 @@ class BlackbaudScraper(Scraper):
                 continue
             elif period_from_name(t) == 'US':
                 real[date]['SPECIAL'].append(format_class_name(t))
+                continue
+
             real[date][period_from_name(t)] = data
 
         return real
