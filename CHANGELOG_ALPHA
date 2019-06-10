@@ -1,3 +1,8 @@
+v0.4.5 (6/9/19)
+- Main page after BB login now scrapes class info and class topics
+- Added Minisafe and on_completion to Poolsafe for increased control on execution data
+- Fixed schedule_span()
+
 v0.4.4 (6/8/19)
 - Rewrote Blackbaud-related RequestHandlers to cleanly spawn updaters
 - register_bb_updater() is deprecated

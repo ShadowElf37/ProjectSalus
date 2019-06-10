@@ -84,6 +84,7 @@ try:
     SAGEMENU = DataSerializer.get('SAGEMENU')
     SAGEMENUINFO = DataSerializer.get('SAGEMENUINFO')
     CLASSES = DataSerializer.get('CLASSES')
+    CLASS_TOPICS = DataSerializer.get('TOPICS')
     PROFILE_DETAILS = DataSerializer.get('PROFILES')
     print('Using cached scrape data.')
 except (JSONDecodeError, KeyError):
@@ -92,10 +93,13 @@ except (JSONDecodeError, KeyError):
     TEACHERS = t.wait()
     SAGEMENU, SAGEMENUINFO = s.wait()
     CLASSES = {}
+    CLASS_TOPICS = {}
     PROFILE_DETAILS = {}
 
 CLASS_UPDATERS = {}
+TOPICS_UPDATERS = {}
 
+DataSerializer.set('TOPICS', CLASS_TOPICS)
 DataSerializer.set('DIRECTORY', DIRECTORY)
 DataSerializer.set('TEACHERS', TEACHERS)
 DataSerializer.set('SAGEMENU', SAGEMENU)

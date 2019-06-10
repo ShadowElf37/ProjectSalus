@@ -4,6 +4,35 @@ from inspect import isfunction, ismethod
 
 config = get_config('threads')
 
+class Minisafe:
+    def __init__(self, f, *args, **kwargs):
+        self.f = f
+        self.args = args
+        self.kwargs = kwargs
+
+    @staticmethod
+    def find_minisafes(args):
+        nargs = []
+        for arg in args:
+            if isinstance(arg, Minisafe):
+                nargs.append(arg.call())
+            else:
+                nargs.append(arg)
+        return nargs
+
+    @staticmethod
+    def find_minisafes_kw(kwargs):
+        nkwargs = {}
+        for k,v in kwargs.items():
+            if isinstance(v, Minisafe):
+                nkwargs[k] = v.call()
+            else:
+                nkwargs[k] = v
+        return nkwargs
+
+    def call(self):
+        return self.f(*self.args, **self.kwargs)
+
 CALLABLE = object()
 class Poolsafe:
     NONCE = object()
@@ -14,6 +43,7 @@ class Poolsafe:
         self.kwargs = kwargs
         self.r = Poolsafe.NONCE  # None is bad because functions might actually return None and we want to see that
         self.cond = Condition(Lock())
+        self.after = []
 
     @staticmethod
     def await_all(*pses):
@@ -34,7 +64,13 @@ class Poolsafe:
 
     def call(self):
         with self.cond:
-            self.r = self.f(*self.args, **self.kwargs)
+            args = Minisafe.find_minisafes(self.args)
+            kwargs = Minisafe.find_minisafes_kw(self.kwargs)
+            self.r = self.f(*args, **kwargs)
+            for f, args, kwargs in self.after:
+                a = Minisafe.find_minisafes(self.args)
+                k = Minisafe.find_minisafes_kw(self.kwargs)
+                f(*a, **k)
             self.cond.notify_all()
 
     def read(self):
@@ -43,6 +79,9 @@ class Poolsafe:
     def reset(self):
         with self.cond:
             self.r = Poolsafe.NONCE
+
+    def on_completion(self, f, *args, **kwargs):
+        self.after.append((f, args, kwargs))
 
 
 class Pool:

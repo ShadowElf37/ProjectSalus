@@ -2,7 +2,7 @@ from .response import Request, Response
 from .client import *
 from .config import get_config
 from .crypt import *
-from .threadpool import Poolsafe
+from .threadpool import Poolsafe, Minisafe
 from html import escape
 import updates
 import scrape
@@ -290,13 +290,24 @@ class HandlerBBInfo(RequestHandler):
             if cls['real']:
                 cid = cls['id']
                 if cid not in updates.CLASSES:
+                    # Create class updater
                     cps = Poolsafe(
-                        updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth)),
-                        cid)
+                        updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth)), cid)
                     cu = updates.chronomancer.monthly(1, cps, now=True)
                     updates.chronomancer.track(cu, cid)
                     updates.CLASS_UPDATERS[cid] = cps
-                    updates.CLASS_UPDATERS['s'+str(cid)] = cu
+                    updates.CLASS_UPDATERS['_'+str(cid)] = cu
+
+                    # Create class topics updater
+                    updates.CLASS_TOPICS[cid] = {}
+                    tps = Poolsafe(
+                        updates.dsetter(updates.CLASS_TOPICS, cid, updates.bb_login_safe(scp.topics, *auth)), cid
+                    )
+                    tu = updates.chronomancer.daily(scrape.dt_from_timestr('3:15 pm'), tps, now=True)
+                    updates.chronomancer.track(tu, cid)
+                    updates.TOPICS_UPDATERS[cid] = tps
+                    updates.TOPICS_UPDATERS['_'+str(cid)] = tu
+
 
         assignments = self.account.updaters['assignments'].wait()
         grades = self.account.updaters['grades'].wait()

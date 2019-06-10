@@ -295,10 +295,11 @@ class BlackbaudScraper(Scraper):
 
         topics = {topic['Name']:{
             'id': topic['TopicID'],
-            'index-id': topic['TopicIndexID'],
+            'index': topic['TopicIndexID'],
             'desc': html(get(topic, 'Description', '').replace('<br />', '\n')).text,
             'teacher': topic['TopicAuthorShare'],
-            'published': bbdt(topic['PublishDate']).strftime('%m/%d/%Y')
+            'published': bbdt(topic['PublishDate']).strftime('%m/%d/%Y'),
+            'details': {}
         } for topic in resp}
 
         return topics
@@ -446,6 +447,7 @@ class BlackbaudScraper(Scraper):
         grades = requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/',
                               params=params, headers=headers, cookies=self.default_cookies).json()
 
+        print(grades)
         grades = {ass['AssignmentShortDescription']:{
             'id': ass['AssignmentId'],
             'type': ass['AssignmentType'],
@@ -497,21 +499,21 @@ class BlackbaudScraper(Scraper):
 if __name__ == '__main__':
     from server.threadpool import Pool, Poolsafe
 
-    t = time()
     bb = BlackbaudScraper()
     print('LOGGING IN...')
     bb.login('ykey-cohen@emeryweiner.org', 'Yoproductions3', 't')
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')
-    schedule = Poolsafe(bb.schedule, '05/29/2019')
+    # schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
+    grades = Poolsafe(bb.get_graded_assignments(89628484, 3510119))
     # schedule = Poolsafe(bb.schedule_span, '3510119')
     # assignments = Poolsafe(bb.assignments)
     # topics = Poolsafe(bb.topics, '89628484')
     tp = Pool(8)
     tp.launch()
-    tp.pushps(schedule)
+    tp.pushps(grades)
 
-    mydir = schedule.wait()
+    mydir = grades.wait()
     print(prettify(mydir))
