@@ -1,7 +1,13 @@
 import json
+import os
 
-CONFIG_DIR = './config'
+CONFIG_DIR = '../config'
+if not os.path.isdir(CONFIG_DIR):
+    CONFIG_DIR = './config'
+    assert os.path.isdir(CONFIG_DIR), '__main__ is in a bad location - move it to Salus or Salus/server and try again.'
+
 FMT_STR = '%s/{}.json' % CONFIG_DIR
+
 
 class ConfigCache:
     def __init__(self):
@@ -13,6 +19,7 @@ class ConfigCache:
 
 CONFIG_CACHE = ConfigCache()
 
+import os.path
 class Config:
     def __init__(self, name: str):
         self.fh = open(FMT_STR.format(name), 'r+')

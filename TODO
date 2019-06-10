@@ -28,9 +28,11 @@ Actual pages and functionality:
     - Whitelist and ranking
     - Store updater information for SMS scheduler, etc.
     - Purge stale updaters; generally overhaul session tokens with something more flexible
-    - Whitelist and ranks
+    - Whitelist ranks
     - User settings and customization (delete, reload, etc.)
     - Sensitize schedule span scrape to half days and special events
+    - Check dates of recently graded assignments
+    - Abstractify everything into configs so we only have to reboot in emergencies
 
 Check for:
     - Bugs

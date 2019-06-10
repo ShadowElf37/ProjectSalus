@@ -1,6 +1,7 @@
 from server.env import EnvReader
 from scrape import html, soup_without
 from bs4 import BeautifulSoup
+from server.threadpool import Pool, Poolsafe
 
 ENV = EnvReader('main.py')
 
@@ -56,6 +57,9 @@ class Message:
         f.add_header('Content-Disposition', 'attachment', filename=os.path.split(filepath)[-1])
         self.mime.attach(f)
         return f
+
+    def compile(self):
+        return self.mime.as_string()
 
 
 class Email(Message):
@@ -132,18 +136,25 @@ class IMAPAttachment:
         self.contents.append(data)
 
 class IMAPEmail:
-    def __init__(self, message: email.message.Message):
+    def __init__(self, message: email.message.Message, uid=None, index=None):
         self.msgobj = message
         # print(email.header.decode_header(message['subject']))
+        self.uid = uid
+        self.index = index
         self.recipients = message.get('to', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
         self.sender = message.get('from', '')
         self.subject = self.soft_decode(message.get('subject', ''))
         self.date = message.get('date', '')
         self.cc = message.get('cc', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
         self.bcc = message.get('bcc', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
+        self.server_uid = message.get('message-id', '').strip()
         self.attachments = self.resolve_attachments(message)
         self.body = self.decode_body(message)
         self.type = 'html' if isinstance(self.body, BeautifulSoup) else 'text'
+
+    def __repr__(self):
+        return 'Email from {} to {} with subject "{}".\nSent with {} attachments and body of length {}.\nCc\'d to {}.\nTimestamped "{}".\nID: {}'.format(
+            self.sender, self.recipients, self.subject, len(self.attachments), len(self.body), self.cc, self.date, self.uid)
 
     def get_body(self):
         if self.type == 'html':
@@ -186,7 +197,7 @@ class IMAPEmail:
                     return part.get_payload(decode=True).decode(charset).strip()
                 if part.get_content_type() == 'text/html':
                     return html(part.get_payload(decode=True).decode(charset))
-                # Note that we can just return because even though it's multipart, the only usual suspects for the parts are extra attachments, which we're avoiding.
+                # Note that we can just return because even though it's multipart, the only usual suspects for the multiple parts are extra attachments, which we're avoiding.
         else:
             return message.get_payload(decode=True).decode(message.get_content_charset()).strip()
 
@@ -202,30 +213,51 @@ class Inbox:
         if i < self.get_size():
             return self.messages[i]
         return None
-    def fetch(self):
-        self.messages = self._fetch_inbox(self.addr, self.pwd)
+    def fetch(self, max_count=10, threadpool: Pool=None, wait_for_pool=True):
+        self.messages = Inbox._fetch_inbox(self.addr, self.pwd, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
+        return self.messages
 
     @staticmethod
-    def _fetch_inbox(addr=USER, pwd=PASS, debug=False):
+    def _fetch_inbox(addr=USER, pwd=PASS, max_count=10, threadpool: Pool=None, wait_for_pool=True, debug=False):
         c = imaplib.IMAP4_SSL(IMAPHOST)
         if debug: print('Logging in...')
         c.login(addr, pwd)
         with c:
             msgs = []
             c.select('INBOX', readonly=True)
-            _, [ids] = c.search(None, 'ALL')
-            for msgid in ids.split():
-                _, data = c.fetch(msgid, '(RFC822)')
-                for response_part in data:
-                    if isinstance(response_part, tuple):
-                        msgs.append(IMAPEmail(email.message_from_bytes(response_part[1])))
+            _, [ids] = c.uid('SEARCH', 'ALL')
+            for i, msgid in enumerate(ids.split()):
+                if i == max_count:
+                    break
+                if threadpool:
+                    msg = Poolsafe(Inbox._fetch_msg, c, msgid, i+1)
+                    threadpool.pushps(msg)
+                else:
+                    msg = Inbox._fetch_msg(c, msgid, i+1)
+                msgs.append(msg)
+
+            if threadpool and wait_for_pool:
+                msgs = [ps.wait() for ps in msgs]
             return msgs
+
+    @staticmethod
+    def _fetch_msg(conn, id, index):
+        _, data = conn.uid('fetch', id, '(RFC822)')
+        for response_part in data:
+            if isinstance(response_part, tuple):
+                return IMAPEmail(email.message_from_bytes(response_part[1]), id, index)
+
 
 
 if __name__ == '__main__':
-    #inbox = Inbox(USER, PASS)
-    #inbox.fetch()
-    #print(inbox.get(-1).attachments[0].read())
+    print('Logging in...')
+    inbox = Inbox(USER, PASS)
+    testpool = Pool(20)
+    testpool.launch()
+    print('Fetching...')
+    inbox.fetch(1, threadpool=testpool, wait_for_pool=True)
+    print('Fetched.')
+    print(inbox.get(0))
 
     #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
@@ -233,6 +265,8 @@ if __name__ == '__main__':
     #smtp.send(e)
 
     #832-258-9790att
+
+    exit()
 
     smtp = Remote()
     m = MMS(
