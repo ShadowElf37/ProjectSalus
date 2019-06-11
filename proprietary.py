@@ -1,19 +1,16 @@
-from server.persistent import Manager
-from json import JSONDecodeError
+from server.persistent import AccountsSerializer
+import time
 
-MiscSerializer = Manager.make_serializer('miscdata.json')
-
-
-@MiscSerializer.serialized(name='', leader=None, members=[], announcements=[], meeting_dates=[])
+@AccountsSerializer.serialized(name='', leader=None, members=[], announcements=[], meeting_dates=[])
 class Club:
     def __init__(self, name, leader_account):
         self.name = name
         self.leader = leader_account
         self.members = []
         self.announcements = []
-        self.meeting_dates = []
+        self.meeting_datetimes = []
 
-@MiscSerializer.serialized(name='', desc='', date='', time='')
+@AccountsSerializer.serialized(name='', desc='', date='', time='')
 class Event:
     def __init__(self, name, description, date, time):
         self.name = name
@@ -21,7 +18,7 @@ class Event:
         self.date = date
         self.time = time
 
-@MiscSerializer.serialized()
+@AccountsSerializer.serialized(title='', state=0, complete=False, assigned=None)
 class TodoItem:
     STATES = [
         'Pending Approval',
@@ -31,6 +28,7 @@ class TodoItem:
     ]
     def __init__(self, title):
         self.title = title
+        self.details = ''
         self.state = 0
         self.complete = False
         self.assigned = None
@@ -44,14 +42,14 @@ class TodoItem:
     def get_state(self):
         return TodoItem.STATES[self.state]
 
-
-@MiscSerializer.serialized()
+@AccountsSerializer.serialized(title='', desc='', questions=[], responses={}, timestamp=0)
 class Poll:
     def __init__(self, title, desc):
         self.title = title
         self.desc = desc
         self.questions = []
         self.responses = {}
+        self.timestamp = time.time()
 
     def get_responses(self, qnum):
         return self.responses[self.questions[qnum][0]]
@@ -74,14 +72,17 @@ EVENTS = {}  # date:Event
 CLUBS = {}  # name:Club
 POLLS = {}  # name:Poll
 TODOLIST = []
+MEETINGNOTES = {}  # date:[str]
 try:
-    MiscSerializer.load()
-    EVENTS = MiscSerializer.get('EVENTS')
-    CLUBS = MiscSerializer.get('CLUBS')
-    POLLS = MiscSerializer.get('POLLS')
-    TODOLIST = MiscSerializer.get('TODO')
+    AccountsSerializer.load()
+    EVENTS = AccountsSerializer.get('EVENTS')
+    CLUBS = AccountsSerializer.get('CLUBS')
+    POLLS = AccountsSerializer.get('POLLS')
+    TODOLIST = AccountsSerializer.get('TODO')
+    MEETINGNOTES = AccountsSerializer.get('MEETINGNOTES')
 finally:
-    MiscSerializer.set('EVENTS', EVENTS)
-    MiscSerializer.set('CLUBS', CLUBS)
-    MiscSerializer.set('POLLS', POLLS)
-    MiscSerializer.set('TODO', TODOLIST)
+    AccountsSerializer.set('EVENTS', EVENTS)
+    AccountsSerializer.set('CLUBS', CLUBS)
+    AccountsSerializer.set('POLLS', POLLS)
+    AccountsSerializer.set('TODO', TODOLIST)
+    AccountsSerializer.set('MEETINGNOTES', MEETINGNOTES)
