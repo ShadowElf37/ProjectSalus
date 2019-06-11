@@ -93,8 +93,31 @@ class PrimitiveSerializer(BaseSerializer):
     def _serialize_bytes(self, obj):
         return self.wrap("bytes", obj.hex())
 
+from datetime import datetime, date, time
+@can_serialize(lambda s, val: isinstance(val, datetime) or isinstance(val, date) or isinstance(val, time), "_serialize_dt", "_is_dt", "_deserialize_dt")
+class DatetimeSerializer(PrimitiveSerializer):
+    def _is_dt(self, obj):
+        return self.is_wrapped(obj) and obj["type"] in ('date', 'time', 'datetime')
+
+    def _serialize_dt(self, obj):
+        n = datetime.now()
+        if type(obj) is time:
+            return self.wrapped('time', datetime.combine(n.date(), obj).timestamp())
+        elif type(obj) is date:
+            return self.wrapped('date', datetime.combine(obj, n.time()).timestamp())
+        return self.wrapped('datetime', obj.timestamp())
+
+    def _deserialize_dt(self, val):
+        typ = val['type']
+        dt = datetime.fromtimestamp(val['data'])
+        if typ == 'time':
+            return dt.time()
+        elif typ == 'date':
+            return dt.date()
+        return dt
+
 @can_serialize(lambda s, f: isfunction(f) or isclass(f) or ismethod(f), '_serialize_func', '_is_func', '_deserialize_func')
-class FunctionSerializer(PrimitiveSerializer):
+class FunctionSerializer(DatetimeSerializer):
     def _is_func(self, obj):
         return self.is_wrapped(obj) and obj['type'] == 'callable'
     def _serialize_func(self, f):

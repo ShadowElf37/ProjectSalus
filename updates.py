@@ -55,6 +55,12 @@ def update_menu(updater):
         SAGEMENU, SAGEMENUINFO = updater(*args, **kwargs)
         return SAGEMENU, SAGEMENUINFO
     return u
+def update_sports(updater):
+    def u(*args, **kwargs):
+        global SPORTCAL
+        SPORTCAL = updater(*args, **kwargs)
+        return SPORTCAL
+    return u
 
 def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
@@ -65,12 +71,14 @@ def dsetter(dict, key, updaterf):
 
 d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
 t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
+sp = Poolsafe(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)))
 s = Poolsafe(update_menu(Sage.inst_menu))
 
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), d)
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), t, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), t)
+chronomancer.daily(datetime.time(15, 0), sp)
 chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
 
 from server.persistent import Manager
@@ -86,12 +94,14 @@ try:
     CLASSES = DataSerializer.get('CLASSES')
     CLASS_TOPICS = DataSerializer.get('TOPICS')
     PROFILE_DETAILS = DataSerializer.get('PROFILES')
+    SPORTCAL = DataSerializer.get('SPORTCAL')
     print('Using cached scrape data.')
 except (JSONDecodeError, KeyError):
     # updater_pool.pushps_multi(d, t, s)
     DIRECTORY = d.wait()
     TEACHERS = t.wait()
     SAGEMENU, SAGEMENUINFO = s.wait()
+    SPORTCAL = sp.wait()
     CLASSES = {}
     CLASS_TOPICS = {}
     PROFILE_DETAILS = {}
@@ -106,6 +116,7 @@ DataSerializer.set('SAGEMENU', SAGEMENU)
 DataSerializer.set('SAGEMENUINFO', SAGEMENUINFO)
 DataSerializer.set('CLASSES', CLASSES)
 DataSerializer.set('PROFILES', PROFILE_DETAILS)
+DataSerializer.set('SPORTCAL', SPORTCAL)
 
 from server.threadpool import CALLABLE
 

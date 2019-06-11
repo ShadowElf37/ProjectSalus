@@ -1,3 +1,7 @@
+v0.4.8 (6/11/19)
+- Added datetime serializer
+- Sports are now scraped with directory etc.
+
 v0.4.7 (6/10/19)
 - Added sports game scraper
 - Added scraper for BB calendar filters (returns multiple groups of filter strings that can be sent in specific requests for calendar lists)

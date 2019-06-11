@@ -67,7 +67,7 @@ def period_from_name(string: str):
         return string
 
 def get(dict, k, default=None):
-    return dict.get(k, default) if dict.get(k) else default
+    return dict.get(k, default) if k in dict else default
 
 
 class StatusError(BaseException):...
@@ -217,7 +217,7 @@ class BlackbaudScraper(Scraper):
 
         return filters
 
-    def sports_calendar(self, start_date=firstlast_of_month(-2)[0], end_date=firstlast_of_month(-2)[1], **headers):
+    def sports_calendar(self, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
         params = {
             'startDate': start_date.strftime('%m/%d/%Y'),
             'endDate': end_date.strftime('%m/%d/%Y'),
@@ -296,7 +296,7 @@ class BlackbaudScraper(Scraper):
 
         directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
             'id': person['UserID'],
-            'title': person.get('Prefix', ''),
+            'prefix': person.get('Prefix', ''),
             'email': person.get('Email', '').lower().replace('mailto:', ''),
             'phone': person.get('OfficePhone', '').strip(),
             'dept': person.get('DepartmentDisplay', '').split(', ')
@@ -314,13 +314,13 @@ class BlackbaudScraper(Scraper):
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
                                        params=params, headers=headers, cookies=self.cookies)).json()
 
-        g = resp.get('Gender', 'o').lower()
+        g = resp.get('Gender', '').lower()
         entry = {
             'name': resp['FirstName'] + ' ' + resp['LastName'],
             'first': resp['FirstName'],
             'last': resp['LastName'],
             'middle': resp.get('MiddleName', ''),
-            'prefix': get(resp, 'Prefix', ('Mr.' if g == 'm' else 'Ms.' if g == 'f' else 'Undefined')),
+            'prefix': get(resp, 'Prefix', {'m':'Mr.','f':'Ms.'}.get(g, 'Undefined')),
             'gender': g,
             'birthdate': bbdt(resp['BirthDate']).strftime('%m/%d/%Y'),
             'email': resp.get('Email', '').lower(),

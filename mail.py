@@ -18,7 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-class Remote:
+class SMTPRemote:
     def __init__(self, user=USER, pwd=PASS, remote=SMTPHOST):
         self.remote = remote
         self.open()
@@ -170,9 +170,7 @@ class IMAPEmail:
     def resolve_attachments(message: email.message.Message):
         attachments = []
         for part in message.walk():
-            if part.get_content_maintype() == 'multipart':
-                continue
-            if part.get('Content-Disposition') is None:
+            if part.get_content_maintype() == 'multipart' or part.get('Content-Disposition') is None:
                 continue
             fileName = IMAPEmail.soft_decode(part.get_filename())
             if fileName:
@@ -341,8 +339,6 @@ if __name__ == '__main__':
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
     #e.write('Hello')
     #smtp.send(e)
-
-    #832-258-9790att
 
     exit()
 
