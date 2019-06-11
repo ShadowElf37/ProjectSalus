@@ -18,7 +18,7 @@ CONFIG_CACHE = ConfigCache()
 import os.path
 class Config:
     def __init__(self, name: str, location: str=None):
-        try: conf_dir = next(filter(ispath,
+        try: conf_dir = next(filter(isdir,
                 DEFAULT_LOCATIONS if location is None else location))
         except StopIteration:
             raise ValueError("Can't find suitable config directory!")
@@ -37,9 +37,6 @@ class Config:
     # To whom it may concern: self.fh is opened with r+. This means append. Call seek(0) and truncate() before dumping data. Thanks. Also, these configs are supposed to be read-only rn. Dynamic config editing only leads to pain. Thanks again, Alwinfy
     #def __del__(self):
         #self.fh.close()
-    @staticmethod
-    def verify_dir(directory: str) -> bool:
-        return ispath(directory)
 
 
 def get_config(name):
