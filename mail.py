@@ -342,7 +342,7 @@ if __name__ == '__main__':
 
     exit()
 
-    smtp = Remote()
+    smtp = SMTPRemote()
     m = MMS(
         #('832-258-9790', 'att'),
         #('713-325-3232', 'verizon'),

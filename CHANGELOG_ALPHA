@@ -1,6 +1,7 @@
 v0.4.8 (6/11/19)
 - Added datetime serializer
 - Sports are now scraped with directory etc.
+- Added proprietary.py to hold and serialize various objects for Clubs, Events, etc.
 
 v0.4.7 (6/10/19)
 - Added sports game scraper
