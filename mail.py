@@ -235,7 +235,6 @@ class Inbox:
     def pull(self, uid, inbox='INBOX', headeronly=False):
         return self._fetch_msg(Inbox._selected(self.new_conn(), inbox), uid, headeronly=headeronly)
 
-    # DEPRECATED - use update()
     # Fetch first max_count messages from server irrespective of whether or not they've been downloaded
     def fetch(self, inbox_name='INBOX', max_count=10, threadpool: Pool=None, wait_for_pool=True):
         self.messages = Inbox._fetch_inbox(self.addr, self.pwd, inbox_name=inbox_name, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
@@ -337,7 +336,6 @@ if __name__ == '__main__':
     inbox.update(threadpool=testpool)
     print('Fetched.')
     print(inbox.get_all())
-    print()
 
     #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')

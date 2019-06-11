@@ -76,7 +76,7 @@ class Scraper:
     def __init__(self):
         self.useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
         self.default_headers = {'user-agent': self.useragent}
-        self.default_cookies = {}
+        self.cookies = {}
         self.default_data = {}
 
     @staticmethod
@@ -129,7 +129,7 @@ class SageScraper(Scraper):
         headers.update(self.default_headers)
 
         menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php',
-                            params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         if 'menu' not in menu:
             return {}, {}
@@ -170,9 +170,8 @@ class BlackbaudScraper(Scraper):
     VALIDATOR = {
         # Very much required
         't': '4f2f3fec-4cf6-e98e-eea2-59b378226873',
-        # Might be sometimes required? I can't remember and my requests work
-        '__RequestVerificationToken_OnSuite': 'KsZTKw2tXnkfa_wBNLHXgBGZidtdqoF818UJWKudpebams4Y9SBRhPfg5_ij-s1QNgcyz5t2UOM07PpN42ua5klWdcye6pgwsZfx0B9zA5E1',
         # Never required, and appear to be rather static; sd and ss are returned by login cookie
+        '__RequestVerificationToken_OnSuite': 'KsZTKw2tXnkfa_wBNLHXgBGZidtdqoF818UJWKudpebams4Y9SBRhPfg5_ij-s1QNgcyz5t2UOM07PpN42ua5klWdcye6pgwsZfx0B9zA5E1',
         'sd': 'f5a978e7-b644-4d6f-910d-75ffb2dcfc90',
         'ss': 'a=lPfVrr4ZBywG2nD7es6ywg==',
         'rxVisitor': '1490698906134PELUKJHSTM43LJJJPTJU2GKAUI00EQIV',
@@ -181,7 +180,7 @@ class BlackbaudScraper(Scraper):
         'G_ENABLED_IDPS': 'google'
     }
 
-    def login(self, user, password, *needed_cookies, **headers):
+    def login(self, user, password, *extra_needed_cookies, **headers):
         # Provide 't' in needed_cookies
         data = {
             'From': None,
@@ -191,11 +190,62 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
+        needed_cookies = ('t',) + extra_needed_cookies
+
         login = self.check(requests.post('https://emeryweiner.myschoolapp.com/api/SignIn',
                               headers=headers, data=data))
         cookies = {k:login.cookies.get(k) for k in needed_cookies}
-        self.default_cookies.update(cookies)
+        self.cookies.update(cookies)
         return cookies
+
+    def calendar_filters(self, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
+        #https://emeryweiner.myschoolapp.com/api/mycalendar/list/?startDate=03%2F30%2F2019&endDate=05%2F04%2F2019&settingsTypeId=1&calendarSetId=1
+        params = {
+            'startDate': start_date.strftime('%m/%d/%Y'),
+            'endDate': end_date.strftime('%m/%d/%Y'),
+            'settingsTypeId': 1,
+            'calendarSetId': 1
+        }
+        headers.update(self.default_headers)
+
+        filters = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/mycalendar/list/',
+                                                 params=params, headers=headers, cookies=self.cookies)).json()
+
+        filters = {group['Calendar']:{
+            f['FilterName']:f['CalendarId'] for f in group['Filters']
+        } for group in filters}
+
+        return filters
+
+    def sports_calendar(self, start_date=firstlast_of_month(-2)[0], end_date=firstlast_of_month(-2)[1], **headers):
+        params = {
+            'startDate': start_date.strftime('%m/%d/%Y'),
+            'endDate': end_date.strftime('%m/%d/%Y'),
+            'filterString': ','.join(self.calendar_filters(start_date, end_date)['School Athletics'].values()),
+            'showPractice': False
+        }
+        headers.update(self.default_headers)
+
+        calendar_items = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/mycalendar/events',
+                                                 params=params, headers=headers, cookies=self.cookies)).json()
+
+        calendar_items = [{
+            'type': item.get('EventType'),
+            'sport': item['GroupName'],
+            'vs': item['Opponent'],
+            'homeaway': get(item, 'HomeAway', 'Unknown'),
+            'location': get(item, 'Location', 'EWS'),
+            'date': bbdt(item['StartDate']).strftime('%m/%d/%Y'),
+            'time': bbdt(item['StartDate']).strftime('%I:%M %p'),
+            'cancelled': item['Cancelled'],
+            'id': item['EventId'],
+            'results': ({
+                'home':int(item['Results'][0]['Score']) if item['Results'][0]['Score'] else None,
+                'away':int(item['Results'][0]['ScoreVs']) if item['Results'][0]['ScoreVs'] else None
+            } if item.get('Results') else {'home': None, 'away': None})
+        } for item in calendar_items]
+
+        return calendar_items
 
     def directory(self, **headers):
         params = {
@@ -211,7 +261,7 @@ class BlackbaudScraper(Scraper):
             grades = '3261_{}|3261_{}'.format(str(grade), str(grade + 1))
             params.update(facets=grades)
             resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
-                               params=params, headers=headers, cookies=self.default_cookies))
+                                           params=params, headers=headers, cookies=self.cookies))
             directory += resp.json()
 
         directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
@@ -242,7 +292,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
-                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
             'id': person['UserID'],
@@ -262,7 +312,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/user/{}/'.format(userid),
-                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         g = resp.get('Gender', 'o').lower()
         entry = {
@@ -291,7 +341,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/sectiontopicsget/{}/'.format(sectionid),
-                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         topics = {topic['Name']:{
             'id': topic['TopicID'],
@@ -313,7 +363,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/topiccontentget/{}/'.format(topicid),
-                                       params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         details = {dl['ShortDescription']:{
             'desc': dl.get('LongDescription'),
@@ -331,7 +381,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         schedule = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/schedule/MyDayCalendarStudentList/',
-                                params=params, headers=headers, cookies=self.default_cookies)).json()
+                                           params=params, headers=headers, cookies=self.cookies)).json()
 
         schedule = {period['Block']: {
             'class': format_class_name(period['CourseTitle']),
@@ -359,7 +409,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         schedule = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
-                                           params=params, headers=headers, cookies=self.default_cookies)).json()
+                                           params=params, headers=headers, cookies=self.cookies)).json()
 
         real = {}
         for period in schedule:
@@ -397,7 +447,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         info = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
-                                           params=params, headers=headers, cookies=self.default_cookies)).json()
+                                       params=params, headers=headers, cookies=self.cookies)).json()
 
         info = {
             'id': classid,
@@ -424,7 +474,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
-                              params=params, headers=headers, cookies=self.default_cookies)).json()
+                                         params=params, headers=headers, cookies=self.cookies)).json()
         grades = {format_class_name(_class['sectionidentifier']): {
             'id': _class['sectionid'],
             'teacher': _class['groupownername'],
@@ -445,7 +495,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         grades = requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/',
-                              params=params, headers=headers, cookies=self.default_cookies).json()
+                              params=params, headers=headers, cookies=self.cookies).json()
 
         print(grades)
         grades = {ass['AssignmentShortDescription']:{
@@ -471,7 +521,7 @@ class BlackbaudScraper(Scraper):
         headers.update(self.default_headers)
 
         assignments = requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/',
-                                   params=params, headers=headers, cookies=self.default_cookies).json()
+                                   params=params, headers=headers, cookies=self.cookies).json()
 
         assignments = {ass['short_description']:{
             'class-id': ass['section_id'],
@@ -491,7 +541,7 @@ class BlackbaudScraper(Scraper):
         params = {}
         headers.update(self.default_headers)
         downloads = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/assignment2/read/{}/'.format(assignment_id),
-                                 params=params, headers=headers, cookies=self.default_cookies)).json()
+                                            params=params, headers=headers, cookies=self.cookies)).json()
 
         return {d['FriendlyFileName']: d['DownloadUrl'] for d in downloads['DownloadItems']}
 
@@ -507,13 +557,14 @@ if __name__ == '__main__':
     # details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
-    grades = Poolsafe(bb.get_graded_assignments(89628484, 3510119))
+    # grades = Poolsafe(bb.get_graded_assignments(89628484, 3510119))
     # schedule = Poolsafe(bb.schedule_span, '3510119')
     # assignments = Poolsafe(bb.assignments)
-    # topics = Poolsafe(bb.topics, '89628484')
+    topics = Poolsafe(bb.topics, '89628484')
+    calendar = Poolsafe(bb.sports_calendar)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(grades)
+    tp.pushps(calendar)
 
-    mydir = grades.wait()
-    print(prettify(mydir))
+    r = calendar.wait()
+    print(prettify(r))

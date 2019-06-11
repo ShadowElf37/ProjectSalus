@@ -22,7 +22,7 @@ chronomancer = chronos.Chronos(updater_pool.pushps)
 updater_pool.pushf(chronomancer.arkhomai)
 
 Blackbaud = BlackbaudScraper()
-Blackbaud.login(USER, PASS, 't')
+Blackbaud.login(USER, PASS)
 Sage = SageScraper()
 
 def bb_login_safe(f, user, pwd):
@@ -31,7 +31,7 @@ def bb_login_safe(f, user, pwd):
             return f(*args, **kwargs)
         except StatusError as e:
             try:
-                f.__self__.login(user, pwd, 't')
+                f.__self__.login(user, pwd)
             except StatusError:
                 return
             return f(*args, **kwargs)
@@ -113,10 +113,10 @@ from server.threadpool import CALLABLE
 def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
     def update(f, *args, **kwargs):
         session = BlackbaudScraper()
-        session.default_cookies['t'] = account.bb_t
+        session.cookies['t'] = account.bb_t
         if not account.bb_t:
             try:
-                c = session.login(*account.bb_auth, 't')
+                c = session.login(*account.bb_auth)
             except StatusError:
                 return
             # print(c, account.bb_auth)
@@ -133,7 +133,7 @@ def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
             r = f(session, *newargs, **kwargs)
         except StatusError:
             try:
-                c = session.login(*account.bb_auth, 't')
+                c = session.login(*account.bb_auth)
             except StatusError:
                 return
             account.bb_t = c['t']

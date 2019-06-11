@@ -225,7 +225,7 @@ class HandlerBBLogin(RequestHandler):
         # Log into Blackbaud
         myscraper = scrape.BlackbaudScraper()
         try:
-            myscraper.login(*auth, 't')
+            myscraper.login(*auth)
         except scrape.StatusError:
             self.response.refuse('Invalid password for %s' % self.account.name)
             self.account.bb_enc = ''

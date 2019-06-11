@@ -1,3 +1,8 @@
+v0.4.7 (6/10/19)
+- Added sports game scraper
+- Added scraper for BB calendar filters (returns multiple groups of filter strings that can be sent in specific requests for calendar lists)
+- BB cookies are now stored by default in scraper instead of manually on each login call
+
 v0.4.6 (6/10/19)
 - Inbox is threaded
 - Inbox can now fetch up to a certain limit of messages
