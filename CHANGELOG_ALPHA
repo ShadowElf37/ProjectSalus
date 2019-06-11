@@ -1,3 +1,8 @@
+v0.4.6 (6/10/19)
+- Inbox is threaded
+- Inbox can now fetch up to a certain limit of messages
+- Inbox has a UID system and can update/clean itself of new/stale messages
+
 v0.4.5 (6/9/19)
 - Main page after BB login now scrapes class info and class topics
 - Added Minisafe and on_completion to Poolsafe for increased control on execution data

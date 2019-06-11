@@ -2,6 +2,7 @@ from server.env import EnvReader
 from scrape import html, soup_without
 from bs4 import BeautifulSoup
 from server.threadpool import Pool, Poolsafe
+from random import choice as rchoice
 
 ENV = EnvReader('main.py')
 
@@ -136,11 +137,10 @@ class IMAPAttachment:
         self.contents.append(data)
 
 class IMAPEmail:
-    def __init__(self, message: email.message.Message, uid=None, index=None):
+    def __init__(self, message: email.message.Message, uid=None):
         self.msgobj = message
         # print(email.header.decode_header(message['subject']))
         self.uid = uid
-        self.index = index
         self.recipients = message.get('to', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
         self.sender = message.get('from', '')
         self.subject = self.soft_decode(message.get('subject', ''))
@@ -153,8 +153,8 @@ class IMAPEmail:
         self.type = 'html' if isinstance(self.body, BeautifulSoup) else 'text'
 
     def __repr__(self):
-        return 'Email from {} to {} with subject "{}".\nSent with {} attachments and body of length {}.\nCc\'d to {}.\nTimestamped "{}".\nID: {}'.format(
-            self.sender, self.recipients, self.subject, len(self.attachments), len(self.body), self.cc, self.date, self.uid)
+        return '<Email "{}" (len {}) ({} attachments) from {}>'.format(
+            self.subject, len(self.body), len(self.attachments), self.sender)
 
     def get_body(self):
         if self.type == 'html':
@@ -206,46 +206,125 @@ class Inbox:
         self.addr = email_address
         self.pwd = email_password
         self.messages = []
+        self.uids = []
 
     def get_size(self):
         return len(self.messages)
+    def update_uids(self):
+        self.uids = [msg.uid for msg in self.messages if isinstance(msg, IMAPEmail)]
+
     def get(self, i) -> IMAPEmail:
         if i < self.get_size():
             return self.messages[i]
         return None
-    def fetch(self, max_count=10, threadpool: Pool=None, wait_for_pool=True):
-        self.messages = Inbox._fetch_inbox(self.addr, self.pwd, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
+    def get_uid(self, uid) -> IMAPEmail:
+        return next(filter(lambda m: m.uid == str(uid).encode(), self.messages), None)
+    def get_all(self) -> [IMAPEmail]:
+        return self.messages
+
+    def random_msg(self) -> IMAPEmail:
+        return rchoice(self.messages)
+    def random_uid(self):
+        return rchoice(self.uids)
+
+    def new_conn(self):
+        c = imaplib.IMAP4_SSL(IMAPHOST)
+        c.login(self.addr, self.pwd)
+        return c
+
+    def pull(self, uid, inbox='INBOX', headeronly=False):
+        return self._fetch_msg(Inbox._selected(self.new_conn(), inbox), uid, headeronly=headeronly)
+
+    # DEPRECATED - use update()
+    # Fetch first max_count messages from server irrespective of whether or not they've been downloaded
+    def fetch(self, inbox_name='INBOX', max_count=10, threadpool: Pool=None, wait_for_pool=True):
+        self.messages = Inbox._fetch_inbox(self.addr, self.pwd, inbox_name=inbox_name, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
+        self.update_uids()
+        return self.messages
+
+    # Get all messages that we don't have up to max_count (max_count counting from server)
+    def search_new(self, inbox_name='INBOX', max_count=10):
+        return [uid for uid in self._search_inbox(self.new_conn(), inbox_name)[:max_count] if uid not in self.uids]
+    # Get all messages that aren't on the server anymore
+    def search_stale(self, inbox_name='INBOX'):
+        return [uid for uid in self.uids if uid not in self._search_inbox(self.new_conn(), inbox_name)]
+
+    # Remove messages from here that can't be found in the inbox anymore
+    def clear_stale(self, inbox_name='INBOX'):
+        for uid in self.search_stale(inbox_name):
+            self.messages.remove(self.get_uid(uid))
+
+    # Get messages up to max_count from server that HAVEN'T been downloaded yet
+    def update(self, inbox_name='INBOX', max_count=10, threadpool: Pool=None):
+        if not threadpool:
+            masterconn = self.new_conn()
+        poolsafes = []
+
+        for uid in self.search_new(max_count=max_count):
+            if threadpool:
+                ps = Poolsafe(Inbox._fetch_msg_newc, self.addr, self.pwd, uid, folder=inbox_name)
+                threadpool.pushps(ps)
+                poolsafes.append(ps)
+            else:
+                msg = Inbox._fetch_msg(masterconn, uid)
+                self.messages.append(msg)
+
+        for ps in poolsafes:
+            self.messages.append(ps.wait())
+        self.messages.sort(key=lambda m: m.date)
+        self.update_uids()
         return self.messages
 
     @staticmethod
-    def _fetch_inbox(addr=USER, pwd=PASS, max_count=10, threadpool: Pool=None, wait_for_pool=True, debug=False):
+    def _selected(c, inbox):
+        c.select(inbox, readonly=True)
+        return c
+
+    # Get message UIDs
+    @staticmethod
+    def _search_inbox(conn, folder='INBOX'):
+        conn.select(folder, readonly=True)
+        _, [ids] = conn.uid('SEARCH', 'ALL')
+        return ids.split()
+
+    # Fetch entire inbox of any user, up to max_count messages
+    @staticmethod
+    def _fetch_inbox(addr=USER, pwd=PASS, inbox_name='INBOX', max_count=10, threadpool: Pool=None, wait_for_pool=True, debug=False):
         c = imaplib.IMAP4_SSL(IMAPHOST)
         if debug: print('Logging in...')
         c.login(addr, pwd)
         with c:
             msgs = []
-            c.select('INBOX', readonly=True)
-            _, [ids] = c.uid('SEARCH', 'ALL')
-            for i, msgid in enumerate(ids.split()):
+            ids = Inbox._search_inbox(c, inbox_name)
+            for i, msgid in enumerate(ids):
                 if i == max_count:
                     break
                 if threadpool:
-                    msg = Poolsafe(Inbox._fetch_msg, c, msgid, i+1)
+                    msg = Poolsafe(Inbox._fetch_msg_newc, addr, pwd, msgid, i+1, folder=inbox_name)
                     threadpool.pushps(msg)
                 else:
-                    msg = Inbox._fetch_msg(c, msgid, i+1)
+                    msg = Inbox._fetch_msg(c, msgid)
                 msgs.append(msg)
 
             if threadpool and wait_for_pool:
                 msgs = [ps.wait() for ps in msgs]
             return msgs
 
+    # Create a new connection and fetch from server by uid
     @staticmethod
-    def _fetch_msg(conn, id, index):
-        _, data = conn.uid('fetch', id, '(RFC822)')
+    def _fetch_msg_newc(addr, pwd, id, folder='INBOX', headeronly=False):
+        c = imaplib.IMAP4_SSL(IMAPHOST)
+        c.login(addr, pwd)
+        c.select(folder, readonly=True)
+        return Inbox._fetch_msg(c, id, headeronly=headeronly)
+
+    # Use an existing connection to fetch from server by uid
+    @staticmethod
+    def _fetch_msg(conn, id, headeronly=False):
+        _, data = conn.uid('fetch', id, '(RFC822)' if not headeronly else '(BODY.PEEK[HEADER])')
         for response_part in data:
             if isinstance(response_part, tuple):
-                return IMAPEmail(email.message_from_bytes(response_part[1]), id, index)
+                return IMAPEmail(email.message_from_bytes(response_part[1]), id)
 
 
 
@@ -255,9 +334,10 @@ if __name__ == '__main__':
     testpool = Pool(20)
     testpool.launch()
     print('Fetching...')
-    inbox.fetch(1, threadpool=testpool, wait_for_pool=True)
+    inbox.update(threadpool=testpool)
     print('Fetched.')
-    print(inbox.get(0))
+    print(inbox.get_all())
+    print()
 
     #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')
