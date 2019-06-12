@@ -22,6 +22,7 @@ CONTENT_TYPE = {
     'jpg': 'image/jpeg',
     'gif': 'image/gif',
     'bmp': 'image/bmp',
+    'ico': 'image/x-icon',
     'svg': 'image/svg+xml',
     'mp4': 'video/mp4',
     'mov': 'video/quicktime',

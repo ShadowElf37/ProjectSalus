@@ -44,6 +44,10 @@ class RequestHandler:
         self.account: Account  = self.client.account
         self.response.add_cookie('user_token', self.account.key, samesite='strict', path='/')
 
+    def noclient(self):
+        self.response.del_cookie('user_token')
+        self.account.manual_key(self.token)
+
     def pre_call(self):
         # For debug - remove and use admin board
         if self.account.name == 'Yovel Key-Cohen':
@@ -93,13 +97,16 @@ class HandlerLog(RequestHandler):
     def call(self):
         self.response.set_body(self.server.get_log())
 
+class HandlerFavicon(RequestHandler):
+    def call(self):
+        self.response.redirect('http://bbk12e1-cdn.myschoolcdn.com/ftpimages/813/logo/EWS-Circular-Logo--WHITEBG.png')
+        # self.response.attach_file('favicon.ico')
+
 class HandlerControlWords(RequestHandler):
     def call(self):
         self.response.set_body('0')
         cmd = self.request.get_post('cmd')
-
-        self.response.add_cookie('user_token', self.token, samesite='strict', path='/')
-        self.account.manual_key(self.token)
+        self.noclient()
 
         # if self.rank >= 4:
         if cmd == 'reboot':
@@ -353,6 +360,7 @@ class HandlerBBInfo(RequestHandler):
 
 GET = {
     '/': HandlerBlank,
+    '/favicon.ico': HandlerFavicon,
     '/accounts/signup.html': HandlerSignupPage,
     '/accounts/login.html': HandlerLoginPage,
     '/login': HandlerLoginPage,

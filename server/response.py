@@ -204,6 +204,9 @@ class Response:
     def clear_cookie(self, k):
         self.add_cookie(k, Request.NONE_COOKIE)
 
+    def del_cookie(self, k):
+        del self.cookie[k]
+
     def add_cookie(self, k, v, *args, expires_in_days=60, **kwargs):
         """
         Valid args:

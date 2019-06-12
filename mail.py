@@ -112,6 +112,9 @@ import email
 import codecs
 import os
 
+from server.persistent import AccountsSerializer
+
+@AccountsSerializer.serialized(name='', path='', contents=[])
 class IMAPAttachment:
     def __init__(self, name):
         self.name = name
@@ -136,9 +139,11 @@ class IMAPAttachment:
             raise TypeError('Attachment data must be bytes, not \'{}\''.format(data.__class__.__name__))
         self.contents.append(data)
 
+@AccountsSerializer.serialized(msgraw=b'', uid=0, recipients=[], sender='', subject='', date='', cc=[], bcc=[], server_uid='', attachments=[], body='', type='text')
 class IMAPEmail:
     def __init__(self, message: email.message.Message, uid=None):
-        self.msgobj = message
+        self.msgraw = message
+        message = email.message_from_bytes(message)
         # print(email.header.decode_header(message['subject']))
         self.uid = uid
         self.recipients = message.get('to', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
@@ -199,10 +204,14 @@ class IMAPEmail:
         else:
             return message.get_payload(decode=True).decode(message.get_content_charset()).strip()
 
+@AccountsSerializer.serialized(addr='', pwd_enc='', messages=[], uids=[])
 class Inbox:
-    def __init__(self, email_address=USER, email_password=PASS):
+    def __postinit__(self):
+        self.pwd = ''
+    def __init__(self, email_address, encrypted_password, email_password=PASS):
         self.addr = email_address
         self.pwd = email_password
+        self.pwd_enc = encrypted_password
         self.messages = []
         self.uids = []
 
@@ -273,6 +282,10 @@ class Inbox:
         return self.messages
 
     @staticmethod
+    def cmd(conn, command, *args):
+        conn.send((command + ' '.join(args)).encode())
+
+    @staticmethod
     def _selected(c, inbox):
         c.select(inbox, readonly=True)
         return c
@@ -321,7 +334,7 @@ class Inbox:
         _, data = conn.uid('fetch', id, '(RFC822)' if not headeronly else '(BODY.PEEK[HEADER])')
         for response_part in data:
             if isinstance(response_part, tuple):
-                return IMAPEmail(email.message_from_bytes(response_part[1]), id)
+                return IMAPEmail(response_part[1], id)
 
 
 
