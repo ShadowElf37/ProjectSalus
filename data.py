@@ -1,5 +1,6 @@
 from server.persistent import AccountsSerializer
 import time
+import uuid
 
 @AccountsSerializer.serialized(name='', leader=None, members=[], announcements=[], meeting_dates=[])
 class Club:
@@ -50,6 +51,7 @@ class Poll:
         self.questions = []
         self.responses = {}
         self.timestamp = time.time()
+        self.id = str(uuid.uuid1())
 
     def get_responses(self, qnum):
         return self.responses[self.questions[qnum][0]]
@@ -70,7 +72,7 @@ class Poll:
 
 EVENTS = {}  # date:Event
 CLUBS = {}  # name:Club
-POLLS = {}  # name:Poll
+POLLS = {}  # id:Poll
 TODOLIST = []
 MEETINGNOTES = {}  # date:[str]
 try:
