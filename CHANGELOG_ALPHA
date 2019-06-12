@@ -1,3 +1,9 @@
+v0.4.9 (6/12/19)
+- Renamed proprietary.py to data.py and added most of the stuff we'll need for the future
+- Added ellipsis serializer because why not
+- IMAP Inboxes are now serialized
+- Lots of data structures floating around are now stored in accounts
+
 v0.4.8 (6/11/19)
 - Added datetime serializer
 - Sports are now scraped with directory etc.

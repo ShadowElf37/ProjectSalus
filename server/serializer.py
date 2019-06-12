@@ -79,6 +79,7 @@ def can_serialize(spredicate, serialize, dpredicate, deserialize, priority: Prio
     return serializer_decor
 
 @can_serialize(lambda s, val: type(val) is bytes, "_serialize_bytes", "_is_bytes", lambda s, val: bytes.fromhex(val["data"]))
+@can_serialize(lambda s, val: val is ..., '_serialize_ellipsis', '_is_ellipsis', lambda s, val: ...)
 @can_serialize("_is_primitive", noop2, "_is_primitive", noop2)
 class PrimitiveSerializer(BaseSerializer):
     PRIMITIVE_TYPES = (str, int, float, bool, type(None))
@@ -88,10 +89,16 @@ class PrimitiveSerializer(BaseSerializer):
     def _is_primitive(self, obj):
         """Checks primitivity-- direct serialization for these"""
         return type(obj) in self.__class__.PRIMITIVE_TYPES
+
     def _is_bytes(self, obj):
         return self.is_wrapped(obj) and obj["type"] == "bytes"
     def _serialize_bytes(self, obj):
         return self.wrap("bytes", obj.hex())
+
+    def _is_ellipsis(self, obj):
+        return self.is_wrapped(obj) and obj["type"] == 'ellipsis'
+    def _serialize_ellipsis(self, obj):
+        return self.wrap('ellipsis', 'ellipsis')
 
 from datetime import datetime, date, time
 @can_serialize(lambda s, val: isinstance(val, datetime) or isinstance(val, date) or isinstance(val, time), "_serialize_dt", "_is_dt", "_deserialize_dt")
