@@ -287,13 +287,15 @@ class HandlerBBInfo(RequestHandler):
 
 
         schedule = self.account.updaters['schedule'].wait()
-        print(scrape.prettify(schedule))
+        #print(scrape.prettify(schedule))
         schedule = schedule['05/30/2019']
 
         # Spawn some class updaters to fill gaps; these won't matter for this page but we should spawn them for when they're needed
         scp = self.account.personal_scraper
         auth = self.account.bb_auth
-        for cls in schedule:
+        for cls in schedule.values():
+            if type(cls) is not dict:
+                continue
             if cls['real']:
                 cid = cls['id']
                 if cid not in updates.CLASSES:
@@ -318,42 +320,15 @@ class HandlerBBInfo(RequestHandler):
 
         assignments = self.account.updaters['assignments'].wait()
         grades = self.account.updaters['grades'].wait()
-        print(scrape.prettify(schedule))
         #print(scrape.prettify(assignments))
         #print(scrape.prettify(grades))
-        prf = self.account.updaters['profile'].wait() if self.account.name not in updates.PROFILE_DETAILS else updates.PROFILE_DETAILS.get(self.account.name)
+        prf = self.account.updaters['profile'].wait()
 
         # At the moment we have access to profile, schedule, assignments, grades, and basic class info
         # We will only need profile for prefix, the schedule, assignments, and some basic class info
 
-        classes = '\n'.join(["""<div class="class-tab">
-                        <span class="period">{period}</span><span class="classname">{classname}</span>
-                        <div class="dropdown">
-                            <div class="grade">
-                                <h3>Grade: {grade}</h3>
-                                <p>{teacher}</p>
-                                <p>{teacher_email}</p>
-                            </div>
-                            <ul class="assignments">
-                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
-                                {assignments}
-                            </ul>
-                        </div>
-                    </div>""".format(
-            period=c,
-            classname=schedule[c]['title'],
-            grade=(grades[schedule[c]['title']]['average'] + '%') if grades[schedule[c]['class']]['average'] else None,
-            teacher=grades[schedule[c]['title']]['teacher'],
-            teacher_email=grades[schedule[c]['title']]['teacher-email'],
-            assignments='\n'.join(['<li>{} <span class="assignment-details">{}</span></li>'.format(
-                title,
-                'Assigned {} - Due {}<br>{}'.format(assignments[title]['assigned'], assignments[title]['due'], assignments[title]['desc'])
-            ) for title in assignments.keys() if assignments[title]['class'] == schedule[c]['title']])
-        ) for c in schedule.keys() if c not in ('Lunch', 'Ha\'ashara', 'Ma\'amad', 'Chavaya')])
-
-
         self.response.attach_file('/accounts/bb_test.html', cache=False,
-                                  classes=classes,
+                                  classes=None,
                                   prefix=prf['prefix'],
                                   menu=escape('\n'.join(updates.SAGEMENU.get(scrape.todaystr(), ('There is no food.',)))).replace('\n', '<br>'))
 

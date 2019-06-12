@@ -7,6 +7,6 @@ var sendControlKey = (function() {
         xhr.send("cmd=" + cmd);
         xhr.timeout = 100;
         xhr.ontimeout = function(){};
-        alert('Command sent.');
+        console.log('Command sent.');
     };
 })();

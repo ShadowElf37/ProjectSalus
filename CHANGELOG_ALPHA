@@ -1,3 +1,8 @@
+v0.4.10 (6/12/19)
+- Fixed some bugs, including a fatal one in class info scrape
+- Beginning to rewrite bb_test.html to be the true user landing page for the site
+- asyncpost.js no longer sends multiple xhr requests on timeout
+
 v0.4.9 (6/12/19)
 - Renamed proprietary.py to data.py and added most of the stuff we'll need for the future
 - Added ellipsis serializer because why not

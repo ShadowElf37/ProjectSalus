@@ -67,7 +67,7 @@ def period_from_name(string: str):
         return string
 
 def get(dict, k, default=None):
-    return dict.get(k, default) if k in dict else default
+    return dict.get(k, default) if dict.get(k) else default
 
 
 class StatusError(BaseException):...
@@ -446,8 +446,10 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
-        info = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
+        info = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/SectionInfoView/',
                                        params=params, headers=headers, cookies=self.cookies)).json()
+        if type(info) is list:
+            info = info[0]
 
         info = {
             'id': classid,
@@ -494,8 +496,8 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
-        grades = requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/',
-                              params=params, headers=headers, cookies=self.cookies).json()
+        grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/GradeBookPerformanceAssignmentStudentList/',
+                              params=params, headers=headers, cookies=self.cookies)).json()
 
         print(grades)
         grades = {ass['AssignmentShortDescription']:{
@@ -520,8 +522,8 @@ class BlackbaudScraper(Scraper):
         }
         headers.update(self.default_headers)
 
-        assignments = requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/',
-                                   params=params, headers=headers, cookies=self.cookies).json()
+        assignments = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/',
+                                   params=params, headers=headers, cookies=self.cookies)).json()
 
         assignments = {ass['short_description']:{
             'class-id': ass['section_id'],
@@ -557,14 +559,15 @@ if __name__ == '__main__':
     # details = Poolsafe(bb.dir_details, '3509975')
     # schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
-    # grades = Poolsafe(bb.get_graded_assignments(89628484, 3510119))
+    # grades = Poolsafe(bb.get_graded_assignments, 89628484, 3510119)
     # schedule = Poolsafe(bb.schedule_span, '3510119')
     # assignments = Poolsafe(bb.assignments)
-    topics = Poolsafe(bb.topics, '89628484')
-    calendar = Poolsafe(bb.sports_calendar)
+    # topics = Poolsafe(bb.topics, '89628484')
+    # calendar = Poolsafe(bb.sports_calendar)
+    cinfo = Poolsafe(bb.get_class_info, 89628484)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(calendar)
+    tp.pushps(cinfo)
 
-    r = calendar.wait()
+    r = cinfo.wait()
     print(prettify(r))

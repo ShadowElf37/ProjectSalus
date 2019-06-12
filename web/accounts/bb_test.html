@@ -5,30 +5,35 @@
         {{css('general.css')}}
         {{js('asyncpost.js')}}
         <style>
+            .page-container{
+                background-color: #111;
+                color: #eee;
+            }
+
             #schedule-container{
-                min-width: 20%;
-                background-color: #EEE;
-                height: 70px;
+                width: 250px;
+                background-color: #222;
+                height: 500px;
                 position: relative;
                 margin: 20px;
-                border-radius: 20px 20px 4px 4px;
-                border: 1px solid #BBB;
+                border-radius: 4px;
+                box-shadow: 0 0 20px #02f6;
+                border: 1px solid #9BF;
+                float: left;
             }
 
             .class-tab{
-                width: 200px;
+                width: 220px;
                 height: 50px;
                 position: relative;
                 margin-top: 10px;
-                margin-right: 10px;
                 padding: 0px;
-                border-radius: 5px 5px 15px 15px;
-                border: 1px solid #9BF;
-                border-right: 0;
-                border-left: 0;
-                /*box-shadow: 0 0 2px #9BF;*/
-                background-color: #FAFAFF;
-                display: inline-block;
+                border-radius: 3px;
+                border: 1px solid #FB5;
+                box-shadow: 0 0 5px #f206;
+                background-color: #333;
+                display: block;
+                color: white;
             }
 
             .period{
@@ -48,28 +53,21 @@
             .dropdown{
                 display: none;
                 position: absolute;
-                left: -250px;
-                background-color: inherit;
-                top: 52px;
+                left: 250px;
+                top: 0;
+                background-color: #8775;
                 width: 700px;
-                min-height: 200px;
-                box-shadow: 0 5px 5px #0003;
+                height: 400px;
+                box-shadow: 0 0 20px #02f6;
+                border: 1px solid #9BF;
                 padding: 12px;
                 z-index: 1;
                 border-radius: 10px;
-                border: 1px solid #9BF;
-                border-top: 0;
-
                 overflow: hidden;
+                color: white;
             }
             .class-tab:hover .dropdown{
-                display: table;
-            }
-            .class-tab:hover{
-                border-bottom: 0px;
-                border-radius: 4px 4px 0px 0px;
-                height: 52px;
-                text-align: center;
+                display: block;
             }
 
             .grade{
@@ -136,17 +134,42 @@
                 <div style="text-align: left; margin-left: 50px; font-size: 150%">
                     <h1 style="float: right; display: block; margin-top: 10px; margin-right: 70px">{{getDate()}}</h1>
                     <h1 style="margin-top: 20px; margin-bottom: 0px;">Good {{sunEra()}} [[prefix]] {{'[[name]]'.split()[-1]}}.</h1>
-
-                    <h2 style="margin-top: 0px; margin-bottom: 50px">Here's your schedule for today.</h2>
                     
                 </div>
                 <div id="schedule-container">
-                    [[classes]]
+                    <div class="class-tab">
+                        <span class="period">{period}</span><span class="classname">{classname}</span>
+                        <div class="dropdown">
+                            <div class="grade">
+                                <h3>Grade: {grade}</h3>
+                                <p>{teacher}</p>
+                                <p>{teacher_email}</p>
+                            </div>
+                            <ul class="assignments">
+                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
+                                {assignments}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="class-tab">
+                        <span class="period">{period}</span><span class="classname">{classname}</span>
+                        <div class="dropdown">
+                            <div class="grade">
+                                <h3>Grade: {grade}</h3>
+                                <p>{teacher}</p>
+                                <p>{teacher_email}</p>
+                            </div>
+                            <ul class="assignments">
+                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
+                                {assignments}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <br>
                 <div style="text-align: left; display: inline-block; float: left; font-size: 140%; margin-left: 70px">
                     <h4 style='margin-bottom: 10px; font-size: 160%; margin-left: -20px'>Today's Menu</h4>
-                    [[menu]]
+                    Item 1<br>Item 2
                 </div>
             </div>
         </center>
