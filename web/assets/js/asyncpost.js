@@ -5,6 +5,8 @@ var sendControlKey = (function() {
     return function(cmd) {
         xhr.open('POST', '/ctrl-words');
         xhr.send("cmd=" + cmd);
-        xhr.close();
+        xhr.timeout = 100;
+        xhr.ontimeout = function(){};
+        alert('Command sent.');
     };
 })();

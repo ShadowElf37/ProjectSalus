@@ -46,8 +46,7 @@ class Account(RWLockMixin):
 
     def manual_key(self, key):
         user_tokens.delete(self.key)
-        user_tokens.set(key, self)
-        self.key = key
+        self.register(key)
 
     def check_pwd(self, pwd):
         return self.password == pwd

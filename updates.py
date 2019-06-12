@@ -71,14 +71,14 @@ def dsetter(dict, key, updaterf):
 
 d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
 t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
-sp = Poolsafe(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)))
+sp = Poolsafe(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)), end_date=firstlast_of_month(+1)[1])
 s = Poolsafe(update_menu(Sage.inst_menu))
 
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), d)
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), t, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), t)
-chronomancer.daily(datetime.time(15, 0), sp)
+chronomancer.daily(datetime.time(15, 0), sp, now=True)
 chronomancer.enkhronon(chronos.SUNDAY, s, now=True)
 
 from server.persistent import Manager
