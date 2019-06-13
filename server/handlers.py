@@ -8,6 +8,7 @@ import updates
 import scrape
 
 navbar = get_config('navbar')
+snippets = get_config('snippets')
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -332,11 +333,9 @@ class HandlerBBInfo(RequestHandler):
                 continue
 
             if _class['real']:
-                periods.append("""<div class="class-tab">
-                                        <span class="period">{period}</span><span class="classname">{classname}</span>
-                                    </div>""".format(period=period, classname=_class['title']))
+                periods.append(snippets.get('classtab').format(period=period, classname=_class['title']))
             else:
-                periods.append("""<div class="null-class">{name}</div>""".format(name=period))
+                periods.append(snippets.get('nullclass').format(name=period))
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   periods='\n'.join(periods),

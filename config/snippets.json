@@ -1,0 +1,4 @@
+{
+  "classtab":"<div class=\"class-tab\"><span class=\"period\">{period}</span><span class=\"classname\">{classname}</span></div>",
+  "nullclass":"<div class=\"null-class\">{name}</div>"
+}

@@ -1,7 +1,9 @@
 from html import escape, unescape
 import re
 import datetime
+from .config import get_config
 
+snippets = get_config('snippets')
 
 def css(s):
     return '<link rel="stylesheet" href="{}">'.format(s)
