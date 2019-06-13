@@ -326,9 +326,20 @@ class HandlerBBInfo(RequestHandler):
 
         # At the moment we have access to profile, schedule, assignments, grades, and basic class info
         # We will only need profile for prefix, the schedule, assignments, and some basic class info
+        periods = []
+        for period, _class in schedule.items():
+            if type(_class) is not dict:
+                continue
+
+            if _class['real']:
+                periods.append("""<div class="class-tab">
+                                        <span class="period">{period}</span><span class="classname">{classname}</span>
+                                    </div>""".format(period=period, classname=_class['title']))
+            else:
+                periods.append("""<div class="null-class">{name}</div>""".format(name=period))
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
-                                  classes=None,
+                                  periods='\n'.join(periods),
                                   prefix=prf['prefix'],
                                   menu=escape('\n'.join(updates.SAGEMENU.get(scrape.todaystr(), ('There is no food.',)))).replace('\n', '<br>'))
 

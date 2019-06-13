@@ -64,6 +64,20 @@ class Poll:
         self.responses = {}
         self.timestamp = time.time()
         self.id = str(uuid.uuid1())
+        self.priority = 1
+
+    def __lt__(self, o):
+        return self.priority < o.priority
+    def __le__(self, o):
+        return self.priority <= o.priority
+    def __gt__(self, o):
+        return self.priority > o.priority
+    def __ge__(self, o):
+        return self.priority >= o.priority
+    def __eq__(self, o):
+        return self.priority == o.priority
+    def __ne__(self, o):
+        return self.priority != o.priority
 
     def get_responses(self, qnum):
         return self.responses[self.questions[qnum][0]]

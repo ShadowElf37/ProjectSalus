@@ -4,36 +4,77 @@
         <title>Home</title>
         {{css('general.css')}}
         {{js('asyncpost.js')}}
+
+        <!--Override old dumb style for now, ignore-->
         <style>
+            body{
+                background-color: #010101;
+            }
             .page-container{
                 background-color: #111;
                 color: #eee;
+                box-shadow: 0 0 0px #f206;
+                margin-top: -100px;
+            }
+            .navbar, .navbar *{
+                background-color: #111 !important;
+                border: 0;
+            }
+        </style>
+        <style>
+            .widget{
+                border-radius: 4px;
+                box-shadow: 0 0 20px #02f6;
+                border: 1px solid #9BF;
+                margin: 1%;
+                display: inline-block;
+                position: relative;
+                padding: 10px;
+                background-color: #222;
+                margin-bottom: 25px;
             }
 
             #schedule-container{
                 width: 250px;
                 background-color: #222;
-                height: 500px;
+                min-height: 500px;
                 position: relative;
                 margin: 20px;
-                border-radius: 4px;
-                box-shadow: 0 0 20px #02f6;
-                border: 1px solid #9BF;
+                padding: 0;
+                padding-top: 15px;
                 float: left;
+                z-index: 2;
+                text-align: center;
+            }
+
+            .null-class{
+                width: 180px;
+                height: 30px;
+                padding: 5px;
+                position: relative;
+                padding: 0;
+                border-radius: 3px;
+                background-color: #333;
+                display: inline-block;
+                color: white;
+                z-index: 3;
+                font-size: 24px;
+                margin-bottom: 12px;
             }
 
             .class-tab{
                 width: 220px;
                 height: 50px;
                 position: relative;
-                margin-top: 10px;
-                padding: 0px;
+                margin-bottom: 12px;
+                padding: 0;
                 border-radius: 3px;
-                border: 1px solid #FB5;
+                border: 1px solid #FA3;
                 box-shadow: 0 0 5px #f206;
                 background-color: #333;
-                display: block;
+                display: inline-block;
                 color: white;
+                z-index: 3;
             }
 
             .period{
@@ -51,9 +92,9 @@
             }
 
             .dropdown{
-                display: none;
+                opacity: 0;
                 position: absolute;
-                left: 250px;
+                left: 0;
                 top: 0;
                 background-color: #8775;
                 width: 700px;
@@ -67,54 +108,88 @@
                 color: white;
             }
             .class-tab:hover .dropdown{
-                display: block;
+                /*opacity: 1;
+                left: 250px;*/
             }
 
-            .grade{
-                float: left;
-                margin: 0px;
-                display: block;
-                width: 250px;
-                text-align: left;
-            }
-            .grade h3{
-                font-size: 40px;
-            }
-            .grade p{
-                font-size: 20px;
-            }
-
-            .assignments{
-                list-style: none;
-                display: block;
-                width: 400px;
-                float: right;
-                font-size: 120%;
+            h1{
+                font-size: 48px;
                 margin: 0;
+            }
+            h2{
+                font-size: 36px;
+                margin: 0;
+            }
+            hr{
+                margin-top: 0;
+                width: 90%;
+                margin-bottom: 20px;
+            }
+
+            #announcements{
+                float: left;
                 text-align: left;
-                height: 400px;
-                border-left: 1px solid #BBB;
-                flex: 1;
+                width: 65%;
+                min-height: 300px;
             }
-            .assignments li{
-                padding-left: 20px;
-                border-bottom: 1px solid #ddd;
-                width: 200px;
-                white-space: nowrap;
-                margin-bottom: 10px;
+            #announcements hr{
+                float: left;
+            }
+            #announcements h1{
+                margin-left: 20px;
+            }
+
+            .announcement{
+                border-radius: 7px;
+                background-color: #272727;
+                margin: 10px;
+                margin-top: 20px;
+                min-height: 70px;
+                padding: 5px 10px;
                 font-size: 20px;
-                display: block;
+            }
+            .announcement:nth-of-type(1){
+                border: 1px solid #223;
+            }
+            .announcement p{
+                margin: 0;
+                margin-bottom: 5px;
             }
 
-            .assignment-details{
-                display: none;
-                font-size: 14px;
+            #snack-poll{
+                float: right;
+                height: 300px;
+                width: 25%;
             }
 
-            .assignments li:hover .assignment-details{
+            #maamad-info{
+                float: right;
+                right: 5%;
+                height: 400px;
+                width: 20%;
+                margin-right: 0;
+            }
+
+            #sagemenu{
+                float: right;
+                height: 400px;
+                width: 25%;
+                margin-left: 0;
+            }
+            #menuitems{
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .menuitem{
+                width: 92%;
                 display: block;
-                margin-top: 1px;
-                margin-left: 10px;
+                text-align: left;
+                background-color: #333;
+                margin-bottom: 5px;
+                font-size: 24px;
+                padding: 3px 6px;
+                border-radius: 2px;
             }
         </style>
     </head>
@@ -132,45 +207,41 @@
         <center>
             <div class="page-container">
                 <div style="text-align: left; margin-left: 50px; font-size: 150%">
-                    <h1 style="float: right; display: block; margin-top: 10px; margin-right: 70px">{{getDate()}}</h1>
-                    <h1 style="margin-top: 20px; margin-bottom: 0px;">Good {{sunEra()}} [[prefix]] {{'[[name]]'.split()[-1]}}.</h1>
-                    
+                    <!--<h1 style="float: right; display: block; margin-top: 10px; margin-right: 70px">{{getDate()}}</h1>
+                    <h1 style="margin-top: 20px; margin-bottom: 0px;">Good {{sunEra()}} [[prefix]] {{'[[name]]'.split()[-1]}}.</h1>-->
                 </div>
-                <div id="schedule-container">
-                    <div class="class-tab">
-                        <span class="period">{period}</span><span class="classname">{classname}</span>
-                        <div class="dropdown">
-                            <div class="grade">
-                                <h3>Grade: {grade}</h3>
-                                <p>{teacher}</p>
-                                <p>{teacher_email}</p>
-                            </div>
-                            <ul class="assignments">
-                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
-                                {assignments}
-                            </ul>
-                        </div>
+
+
+                <div id="announcements" class="widget">
+                    <h1>Announcements</h1>
+                    <hr>
+                    <div class="announcement">
+                        <p>This is an announcement.</p>
                     </div>
-                    <div class="class-tab">
-                        <span class="period">{period}</span><span class="classname">{classname}</span>
-                        <div class="dropdown">
-                            <div class="grade">
-                                <h3>Grade: {grade}</h3>
-                                <p>{teacher}</p>
-                                <p>{teacher_email}</p>
-                            </div>
-                            <ul class="assignments">
-                                <h4 style="margin: 5px 0px 25px 0px">This Week's Assignments</h4>
-                                {assignments}
-                            </ul>
-                        </div>
+                </div>
+                <div id="snack-poll" class="widget">
+                    <h1>Snack Poll</h1>
+                    <hr>
+                    <form action="submit-poll" method="POST">
+                        <input type="text">
+                    </form>
+                </div>
+                <div id="schedule-container" class="widget">
+                    [[periods]]
+                </div>
+                <div id="sagemenu" class="widget">
+                    <h1>Today's Lunch</h1>
+                    <hr>
+                    <div id="menuitems">
+                        <span class="menuitem">Thing 1</span>
+                        <span class="menuitem">Thing 2</span>
                     </div>
+                </div>
+                <div id="maamad-info" class="widget">
+                    <h1>Ma'amad</h1>
+                    <hr>
                 </div>
                 <br>
-                <div style="text-align: left; display: inline-block; float: left; font-size: 140%; margin-left: 70px">
-                    <h4 style='margin-bottom: 10px; font-size: 160%; margin-left: -20px'>Today's Menu</h4>
-                    Item 1<br>Item 2
-                </div>
             </div>
         </center>
     </body>
