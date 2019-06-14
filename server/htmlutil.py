@@ -24,3 +24,6 @@ def now():
 def sunEra():
     n = now()
     return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'
+
+def sp(n=1):
+    return '&nbsp;'*n

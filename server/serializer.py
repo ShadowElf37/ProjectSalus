@@ -128,7 +128,7 @@ class FunctionSerializer(DatetimeSerializer):
     def _is_func(self, obj):
         return self.is_wrapped(obj) and obj['type'] == 'callable'
     def _serialize_func(self, f):
-        return self.wrapped('callable', dict(module=f.__module__, qualifier=f.__qualname__))
+        return self.wrap('callable', dict(module=f.__module__, qualifier=f.__qualname__))
     def _deserialize_func(self, val):
         module = val['data']['module']
         qualifier = val['data']['qualifier']

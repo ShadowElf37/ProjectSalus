@@ -8,6 +8,10 @@ class ConfigCache:
     def __init__(self):
         self.configs = []
 
+    def add(self, cfg):
+        self.configs.append(cfg)
+        return cfg
+
     def reload(self):
         for c in self.configs:
             c.reload()
@@ -39,4 +43,4 @@ class Config:
 
 
 def get_config(name):
-    return Config(name)
+    return CONFIG_CACHE.add(Config(name))

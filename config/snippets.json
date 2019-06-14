@@ -1,4 +1,7 @@
 {
-  "classtab":"<div class=\"class-tab\"><span class=\"period\">{period}</span><span class=\"classname\">{classname}</span></div>",
-  "nullclass":"<div class=\"null-class\">{name}</div>"
+  "classtab": "<div class=\"class-tab\"><span class=\"period\">{period}</span><span class=\"classname\">{classname}</span></div>",
+  "nullclass": "<div class=\"null-class\">{name}</div>",
+  "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>{{sp(2)}}<i style=\"font-size:14px;\">{date}</i>{text}</div>",
+  "no-announcement": "<p style=\"font-size: 24px;\">There are no announcements today!</p>",
+  "menuitem": "<span class=\"{veg}menuitem\">{name}</span>"
 }

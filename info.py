@@ -1,7 +1,8 @@
 from server.persistent import AccountsSerializer
+from datetime import datetime
+from json import JSONDecodeError
 import time
 import uuid
-from datetime import datetime
 
 @AccountsSerializer.serialized(name='', leader=None, members=[], announcements=[], meeting_dates=[], admin_access=[])
 class Club:
@@ -127,7 +128,7 @@ class Announcement:
         self._forceoff = False
 
 
-def create_announcement(title, text, display_until):
+def create_announcement(title, text, display_until: int):
     a = Announcement(title, text, display_until)
     GENERAL_ANNOUNCEMENTS.append(a)
     return a
@@ -156,12 +157,12 @@ def add_meeting_notes(date, *notes):
         MEETINGNOTES[date] += notes
 
 
-EVENTS = {}  # datetime:Event
-CLUBS = {}  # name:Club
-POLLS = {}  # id:Poll
-TODOLIST = []
-MEETINGNOTES = {}  # date:[str]
-GENERAL_ANNOUNCEMENTS = []
+EVENTS: {datetime:Event} = {}
+CLUBS: {str:Club} = {} # name:Club
+POLLS: {str:Poll} = {}  # id:Poll
+TODOLIST: [TodoItem] = []
+MEETINGNOTES: {datetime:[str]} = {}
+GENERAL_ANNOUNCEMENTS: [Announcement] = []
 try:
     AccountsSerializer.load()
     EVENTS = AccountsSerializer.get('EVENTS')
@@ -170,10 +171,12 @@ try:
     TODOLIST = AccountsSerializer.get('TODO')
     MEETINGNOTES = AccountsSerializer.get('MEETINGNOTES')
     GENERAL_ANNOUNCEMENTS = AccountsSerializer.get('GENERAL_ANNOUNCEMENTS')
-finally:
-    AccountsSerializer.set('EVENTS', EVENTS)
-    AccountsSerializer.set('CLUBS', CLUBS)
-    AccountsSerializer.set('POLLS', POLLS)
-    AccountsSerializer.set('TODO', TODOLIST)
-    AccountsSerializer.set('MEETINGNOTES', MEETINGNOTES)
-    AccountsSerializer.set('GENERAL_ANNOUNCEMENTS', GENERAL_ANNOUNCEMENTS)
+except (KeyError, JSONDecodeError):
+    pass
+
+AccountsSerializer.set('EVENTS', EVENTS)
+AccountsSerializer.set('CLUBS', CLUBS)
+AccountsSerializer.set('POLLS', POLLS)
+AccountsSerializer.set('TODO', TODOLIST)
+AccountsSerializer.set('MEETINGNOTES', MEETINGNOTES)
+AccountsSerializer.set('GENERAL_ANNOUNCEMENTS', GENERAL_ANNOUNCEMENTS)

@@ -70,7 +70,7 @@
                 padding: 0;
                 border-radius: 3px;
                 border: 1px solid #FA3;
-                box-shadow: 0 0 5px #f206;
+                box-shadow: 0 0 6px #f206;
                 background-color: #333;
                 display: inline-block;
                 color: white;
@@ -120,6 +120,17 @@
                 font-size: 36px;
                 margin: 0;
             }
+            h3{
+                font-size: 28px;
+                margin: 0;
+            }
+            h4{
+                font-size: 20px;
+                margin: 0;
+                font-weight: normal;
+                text-decoration: underline;
+                margin-bottom: 5px;
+            }
             hr{
                 margin-top: 0;
                 width: 90%;
@@ -149,11 +160,12 @@
                 font-size: 20px;
             }
             .announcement:nth-of-type(1){
-                border: 1px solid #223;
+                border-left: 1px solid #0c0;
             }
             .announcement p{
                 margin: 0;
                 margin-bottom: 5px;
+                margin-left: 15px;
             }
 
             #snack-poll{
@@ -165,14 +177,14 @@
             #maamad-info{
                 float: right;
                 right: 50px;
-                height: 400px;
+                height: 500px;
                 width: 20%;
                 margin-right: 0;
             }
 
             #sagemenu{
                 float: right;
-                height: 400px;
+                min-height: 500px;
                 width: 25%;
                 margin-left: 0;
             }
@@ -182,14 +194,30 @@
                 padding: 0;
             }
             .menuitem{
-                width: 92%;
+                width: 90%;
                 display: block;
                 text-align: left;
                 background-color: #333;
-                margin-bottom: 5px;
-                font-size: 24px;
-                padding: 3px 6px;
-                border-radius: 2px;
+                margin-bottom: 7px;
+                font-size: 20px;
+                padding: 5px 10px;
+                border-radius: 3px;
+            }
+            .vegitem{
+                border-left: 1px solid #0c0;
+            }
+            #allergens{
+                border-radius: 3px;
+                border: 1px solid #dd4;
+                box-shadow: 0 0 5px #ca0f;
+                border: 1px solid #FA3;
+                box-shadow: 0 0 6px #f206;
+                background-color: #333;
+                width: 80%;
+                height: 100px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                padding: 3px;
             }
         </style>
     </head>
@@ -215,9 +243,7 @@
                 <div id="announcements" class="widget">
                     <h1>Announcements</h1>
                     <hr>
-                    <div class="announcement">
-                        <p>This is an announcement.</p>
-                    </div>
+                    [[announcements]]
                 </div>
                 <div id="snack-poll" class="widget">
                     <h1>Snack Poll</h1>
@@ -233,8 +259,11 @@
                     <h1>Today's Lunch</h1>
                     <hr>
                     <div id="menuitems">
-                        <span class="menuitem">Thing 1</span>
-                        <span class="menuitem">Thing 2</span>
+                        [[menu]]
+                    </div>
+                    <div id="allergens">
+                        <h4>Food Today May Contain</h4>
+                        [[allergens]]
                     </div>
                 </div>
                 <div id="maamad-info" class="widget">

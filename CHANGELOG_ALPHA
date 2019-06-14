@@ -1,3 +1,13 @@
+v0.5.0 (6/13/19)
+- Configs are now added to CONFIG_CACHE automatically, so the Reload Config button works
+- Added a couple htmlutil functions
+- Added snippets.json to contain configurable format strings
+- Built landing page prototype with schedule, announcements, Ma'amad info, snack poll, lunch, menu dietary info, and class info
+- Temporarily scraping menu from simplemenu.json while the Sage website is on vacation
+- Fixed a couple bugs
+
+=== MAJOR ===
+
 v0.4.10 (6/12/19)
 - Fixed some bugs, including a fatal one in class info scrape
 - Beginning to rewrite bb_test.html to be the true user landing page for the site

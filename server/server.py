@@ -9,7 +9,7 @@ from .handlers      import *
 from .config        import CONFIG_CACHE
 from .cache         import FileCache
 from .              import handlers
-from time           import sleep
+import time
 
 RESPONSE_QUEUE = []
 
@@ -135,7 +135,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             self.make_error(e)
 
         while RESPONSE_QUEUE[0] != rsp:
-            sleep(0.00001)
+            time.sleep(0.00001)
         del RESPONSE_QUEUE[0]
 
     def do_POST(self):
@@ -152,7 +152,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             self.make_error(e)
 
         while RESPONSE_QUEUE[0] != rsp:
-            sleep(0.00001)
+            time.sleep(0.00001)
         del RESPONSE_QUEUE[0]
 
 

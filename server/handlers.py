@@ -3,12 +3,16 @@ from .client import *
 from .config import get_config
 from .crypt import *
 from .threadpool import Poolsafe, Minisafe
-from html import escape
+from html import escape, unescape
+from time import time
 import updates
 import scrape
+import info
 
 navbar = get_config('navbar')
-snippets = get_config('snippets')
+from .htmlutil import snippets
+
+info.create_announcement('Test', 'This is an announcement.', time()+100000)
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -288,8 +292,9 @@ class HandlerBBInfo(RequestHandler):
 
 
         schedule = self.account.updaters['schedule'].wait()
+        TESTDATE = '05/30/2019'
         #print(scrape.prettify(schedule))
-        schedule = schedule['05/30/2019']
+        schedule = schedule[TESTDATE]
 
         # Spawn some class updaters to fill gaps; these won't matter for this page but we should spawn them for when they're needed
         scp = self.account.personal_scraper
@@ -337,10 +342,31 @@ class HandlerBBInfo(RequestHandler):
             else:
                 periods.append(snippets.get('nullclass').format(name=period))
 
+        menulist = updates.SAGEMENU.get(TESTDATE, ('There is no food.',))
+        avd = scrape.SageScraper.AVOID
+        menu = []
+        for item in menulist:
+            di = updates.SAGEMENUINFO.get(item, [])
+            veg = 'vegitem ' if avd['611'] not in di or avd['601'] not in di[1] else ''
+            menu.append(snippets.get('menuitem').format(name=item, veg=veg))
+
+        aggregate_allergens = {al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] in (0,1)}
+
+        announcements = [snippets.get('announcement').format(
+            title=ann.title,
+            date=datetime.fromtimestamp(ann.timestamp).strftime('%m/%d/%Y'),
+            text='\n'.join(['<p>{}</p>'.format(text) for text in ann.text.split('\n')])
+        ) for ann in info.GENERAL_ANNOUNCEMENTS if ann.displayed]
+
+        if not announcements:
+            announcements = [snippets.get('no-announcement')]
+
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   periods='\n'.join(periods),
+                                  announcements='\n'.join(announcements),
+                                  allergens=', '.join(aggregate_allergens),
                                   prefix=prf['prefix'],
-                                  menu=escape('\n'.join(updates.SAGEMENU.get(scrape.todaystr(), ('There is no food.',)))).replace('\n', '<br>'))
+                                  menu='\n'.join(menu))
 
 
 GET = {

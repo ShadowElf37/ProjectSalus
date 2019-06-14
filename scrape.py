@@ -2,9 +2,10 @@ import requests
 import json
 import re
 import datetime
-from time import time
+from time import time, sleep
 from bs4 import BeautifulSoup
 import calendar
+from html import escape, unescape
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
@@ -33,6 +34,9 @@ def last_sunday(from_date=datetime.datetime.now()):
 
 def next_saturday(from_date=datetime.datetime.now()):
     return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
+
+def week_of(dt: datetime.datetime):
+    return [last_sunday(dt) + datetime.timedelta(days=i) for i in range(7)]
 
 def firstlast_of_month(deltaMonth=0):
     n = datetime.datetime.now()
@@ -128,8 +132,10 @@ class SageScraper(Scraper):
         }
         headers.update(self.default_headers)
 
-        menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php',
-                                       params=params, headers=headers, cookies=self.cookies)).json()
+        # TESTING PURPOSES - Sage menu isn't available during summer
+        sleep(2)
+        menu = json.loads(escape(open('samplemenu.json', 'r').read(), quote=False))
+        #menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php', params=params, headers=headers, cookies=self.cookies)).json()
 
         if 'menu' not in menu:
             return {}, {}
