@@ -13,6 +13,7 @@ navbar = get_config('navbar')
 from .htmlutil import snippets
 
 info.create_announcement('Test', 'This is an announcement.', time()+100000)
+info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -350,13 +351,18 @@ class HandlerBBInfo(RequestHandler):
             veg = 'vegitem ' if avd['611'] not in di or avd['601'] not in di[1] else ''
             menu.append(snippets.get('menuitem').format(name=item, veg=veg))
 
-        aggregate_allergens = {al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] in (0,1)}
+        allergen_0 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 0})  # Contains
+        allergen_1 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 1})  # May contain
+        allergen_2 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 2})  # Cross contamination warning
+        contains = ', '.join(allergen_0[:-1]) + ', and ' + allergen_0[-1]
+        may_contain = ', '.join(allergen_1[:-1]) + ', and ' + allergen_1[-1]
+        cross = 'Some food is subject to cross-contamination in oil.' if allergen_2 else ''
 
         announcements = [snippets.get('announcement').format(
             title=ann.title,
             date=datetime.fromtimestamp(ann.timestamp).strftime('%m/%d/%Y'),
             text='\n'.join(['<p>{}</p>'.format(text) for text in ann.text.split('\n')])
-        ) for ann in info.GENERAL_ANNOUNCEMENTS if ann.displayed]
+        ) for ann in reversed(info.GENERAL_ANNOUNCEMENTS) if ann.displayed]
 
         if not announcements:
             announcements = [snippets.get('no-announcement')]
@@ -364,7 +370,7 @@ class HandlerBBInfo(RequestHandler):
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   periods='\n'.join(periods),
                                   announcements='\n'.join(announcements),
-                                  allergens=', '.join(aggregate_allergens),
+                                  allergens=snippets.get('allergens').format(contains, may_contain, cross),
                                   prefix=prf['prefix'],
                                   menu='\n'.join(menu))
 

@@ -1,7 +1,9 @@
 {
   "classtab": "<div class=\"class-tab\"><span class=\"period\">{period}</span><span class=\"classname\">{classname}</span></div>",
   "nullclass": "<div class=\"null-class\">{name}</div>",
-  "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>{{sp(2)}}<i style=\"font-size:14px;\">{date}</i>{text}</div>",
+  "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>&nbsp;&nbsp;<i style=\"font-size:14px;\">{date}</i>{text}</div>",
   "no-announcement": "<p style=\"font-size: 24px;\">There are no announcements today!</p>",
-  "menuitem": "<span class=\"{veg}menuitem\">{name}</span>"
+  "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p>{2}",
+  "menuitem": "<span class=\"{veg}menuitem\">{name}</span>",
+  "css-noselect": "user-select: none; -moz-user-select: -moz-none; -khtml-user-select: none; -webkit-user-select: none; -o-user-select: none;"
 }

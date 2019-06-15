@@ -3,6 +3,7 @@
     <head>
         <title>Home</title>
         {{css('general.css')}}
+        {{css('darkbb.css')}}
         {{js('asyncpost.js')}}
 
         <!--Override old dumb style for now, ignore-->
@@ -19,205 +20,6 @@
             .navbar, .navbar *{
                 background-color: #111 !important;
                 border: 0;
-            }
-        </style>
-        <style>
-            .widget{
-                border-radius: 4px;
-                box-shadow: 0 0 20px #02f6;
-                border: 1px solid #9BF;
-                margin: 1%;
-                display: inline-block;
-                position: relative;
-                padding: 10px;
-                background-color: #222;
-                margin-bottom: 25px;
-            }
-
-            #schedule-container{
-                width: 250px;
-                background-color: #222;
-                min-height: 500px;
-                position: relative;
-                margin: 20px;
-                padding: 0;
-                padding-top: 15px;
-                float: left;
-                z-index: 2;
-                text-align: center;
-            }
-
-            .null-class{
-                width: 180px;
-                height: 30px;
-                padding: 5px;
-                position: relative;
-                padding: 0;
-                border-radius: 3px;
-                background-color: #333;
-                display: inline-block;
-                color: white;
-                z-index: 3;
-                font-size: 24px;
-                margin-bottom: 12px;
-            }
-
-            .class-tab{
-                width: 220px;
-                height: 50px;
-                position: relative;
-                margin-bottom: 12px;
-                padding: 0;
-                border-radius: 3px;
-                border: 1px solid #FA3;
-                box-shadow: 0 0 6px #f206;
-                background-color: #333;
-                display: inline-block;
-                color: white;
-                z-index: 3;
-            }
-
-            .period{
-                display: block;
-                margin: 0;
-                padding: 0;
-                font-size: 24px;
-                font-weight: bold;
-            }
-            .classname{
-                display: block;
-                margin: 0;
-                padding: 0;
-                font-size: 12px;
-            }
-
-            .dropdown{
-                opacity: 0;
-                position: absolute;
-                left: 0;
-                top: 0;
-                background-color: #8775;
-                width: 700px;
-                height: 400px;
-                box-shadow: 0 0 20px #02f6;
-                border: 1px solid #9BF;
-                padding: 12px;
-                z-index: 1;
-                border-radius: 10px;
-                overflow: hidden;
-                color: white;
-            }
-            .class-tab:hover .dropdown{
-                /*opacity: 1;
-                left: 250px;*/
-            }
-
-            h1{
-                font-size: 48px;
-                margin: 0;
-            }
-            h2{
-                font-size: 36px;
-                margin: 0;
-            }
-            h3{
-                font-size: 28px;
-                margin: 0;
-            }
-            h4{
-                font-size: 20px;
-                margin: 0;
-                font-weight: normal;
-                text-decoration: underline;
-                margin-bottom: 5px;
-            }
-            hr{
-                margin-top: 0;
-                width: 90%;
-                margin-bottom: 20px;
-            }
-
-            #announcements{
-                float: left;
-                text-align: left;
-                width: 65%;
-                min-height: 300px;
-            }
-            #announcements hr{
-                float: left;
-            }
-            #announcements h1{
-                margin-left: 20px;
-            }
-
-            .announcement{
-                border-radius: 7px;
-                background-color: #272727;
-                margin: 10px;
-                margin-top: 20px;
-                min-height: 70px;
-                padding: 5px 10px;
-                font-size: 20px;
-            }
-            .announcement:nth-of-type(1){
-                border-left: 1px solid #0c0;
-            }
-            .announcement p{
-                margin: 0;
-                margin-bottom: 5px;
-                margin-left: 15px;
-            }
-
-            #snack-poll{
-                float: right;
-                height: 300px;
-                width: 25%;
-            }
-
-            #maamad-info{
-                float: right;
-                right: 50px;
-                height: 500px;
-                width: 20%;
-                margin-right: 0;
-            }
-
-            #sagemenu{
-                float: right;
-                min-height: 500px;
-                width: 25%;
-                margin-left: 0;
-            }
-            #menuitems{
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }
-            .menuitem{
-                width: 90%;
-                display: block;
-                text-align: left;
-                background-color: #333;
-                margin-bottom: 7px;
-                font-size: 20px;
-                padding: 5px 10px;
-                border-radius: 3px;
-            }
-            .vegitem{
-                border-left: 1px solid #0c0;
-            }
-            #allergens{
-                border-radius: 3px;
-                border: 1px solid #dd4;
-                box-shadow: 0 0 5px #ca0f;
-                border: 1px solid #FA3;
-                box-shadow: 0 0 6px #f206;
-                background-color: #333;
-                width: 80%;
-                height: 100px;
-                margin-top: 20px;
-                margin-bottom: 20px;
-                padding: 3px;
             }
         </style>
     </head>
@@ -248,12 +50,27 @@
                 <div id="snack-poll" class="widget">
                     <h1>Snack Poll</h1>
                     <hr>
-                    <form action="submit-poll" method="POST">
-                        <input type="text">
+                    <form action="submit-poll" method="POST" class="snack-poll">
+                        <div class="poll-options">
+                            <input type="radio" name="monday" value="op1" id="op1"><label for="op1">Churros</label><br>
+                            <input type="radio" name="monday" value="op2" id="op2"><label for="op2">Fruit Roll Ups</label><br>
+                            <input type="radio" name="monday" value="op3" id="op3"><label for="op3">Cereal</label><br>
+                        </div>
+                        <div class="day-label-container"><div class="snack-poll-day-label">Monday</div></div>
+                        <div class="button-wrapper">
+                            <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 5%" disabled>
+                            <input type="submit" value="Submit" class="submit yellow-border">
+                            <input type="button" value="⇒" class="movement-arrow yellow-border"  style="margin-left: 5%">
+                        </div>
                     </form>
+                    
                 </div>
                 <div id="schedule-container" class="widget">
+                    <center><span class="sdaymarker">Day 1</span></center>
                     [[periods]]
+                    <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 2%">
+                    <span class="sdatemarker">05/30/2019</span>
+                    <input type="button" value="⇒" class="movement-arrow yellow-border" style="margin-left: 2%">
                 </div>
                 <div id="sagemenu" class="widget">
                     <h1>Today's Lunch</h1>
@@ -262,7 +79,7 @@
                         [[menu]]
                     </div>
                     <div id="allergens">
-                        <h4>Food Today May Contain</h4>
+                        <h4>Dietary Information</h4>
                         [[allergens]]
                     </div>
                 </div>

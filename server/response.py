@@ -17,7 +17,7 @@ Morsel._reserved['samesite'] = 'SameSite'
 cache_db = get_config('cache')
 
 
-class BinDict(dict):
+class ByteDict(dict):
     def __getitem__(self, item):
         return self.get(item.decode(ENCODING), 'ERROR').encode(ENCODING)
 
@@ -86,7 +86,7 @@ class Response:
         self.header = {}
         self.cookie = SimpleCookie()
         self.body = ''
-        self.default_renderopts = BinDict(
+        self.default_renderopts = ByteDict(
             ip=self.server.host,
             port=self.server.port,
             addr=self.server.host+':'+str(self.server.port),
@@ -147,7 +147,7 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, **render_opts):
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, htmlsafe=False, **render_opts):
         """This function has a fair number of very important features to understand.
             Firstly, the path. The path will default to be in /web/, and the cache will automatically search folders from the given path all the way back up to /web/ for a requested file.
             The path here can also accept /../ in order to escape /web/.
@@ -158,8 +158,8 @@ class Response:
 
             Finally, **render_opts decides what, aside from the default_renderopts decided topside, will be rendered with what text."""
 
-        f = self.server.cache.read(path, True, cache)
-        if f == None:
+        f = self.server.cache.read(path, True, cache=cache)
+        if f is None:
             self.send_error(404, 'Requested page not found.')
             return
 
@@ -171,28 +171,37 @@ class Response:
 
         if render and path.split('.')[-1] in Response.RENDER or force_render:
             self.default_renderopts.update(render_opts)
-            render_opts = self.default_renderopts
+            f = self.render(f, self.default_renderopts)
 
-            argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
-            for arg in argrender:
-                f = f.replace(b'[[' + arg + b']]', render_opts[arg])
-
-            kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
-            for kw in kwrender:
-                try:
-                    r = eval(kw)
-                except SyntaxError:
-                    exec(kw)
-                    r = ''
-                except Exception as e:
-                    f = f.replace(b'{{' + kw + b'}}', e.__name__.upper())
-                if type(r) != bytes:
-                    r = bytes(str(r), ENCODING)
-                f = f.replace(b'{{' + kw + b'}}', r)
-
+        mime = guess_mime(path)
         if resolve_ctype:
-            self.set_content_type(guess_mime(path))
+            self.set_content_type(mime)
+        if 'html' in mime or 'xml' in mime or htmlsafe:
+            f = f.decode(ENCODING).encode('ascii', 'xmlcharrefreplace')
         self.set_body(f, append=append, ctype=self.content_type)
+
+
+    @staticmethod
+    def render(byte, render_opts):
+        f = byte
+        argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
+        for arg in argrender:
+            f = f.replace(b'[[' + arg + b']]', render_opts[arg])
+
+        kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
+        for kw in kwrender:
+            try:
+                r = eval(kw)
+            except SyntaxError:
+                exec(kw)
+                r = ''
+            except Exception as e:
+                f = f.replace(b'{{' + kw + b'}}', e.__class__.__name__.upper().encode(ENCODING))
+            if type(r) != bytes:
+                r = bytes(str(r), ENCODING)
+            f = f.replace(b'{{' + kw + b'}}', r)
+
+        return f
 
     def set_content_type(self, type):
         self.add_header('Content-Type', type)
@@ -246,8 +255,8 @@ class Response:
         if self.head:
             return
 
-        try:
+        if type(self.body) is str:
             b = self.body.encode(ENCODING)
-        except AttributeError:
+        else:
             b = self.body
         self.req.wfile.write(b if b else b'')
