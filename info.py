@@ -129,40 +129,46 @@ class Announcement:
 
 
 def create_announcement(title, text, display_until: int):
+    global GENERAL_ANNOUNCEMENTS
     a = Announcement(title, text, display_until)
     GENERAL_ANNOUNCEMENTS.append(a)
     return a
 def create_poll(title, desc):
+    global POLLS
     p = Poll(title, desc)
     POLLS[p.id] = p
     return p
 def create_todo(title):
+    global TODOLIST
     t = TodoItem(title)
     TODOLIST.append(t)
     return t
 def create_event(name, desc, date, time):
+    global EVENTS
     e = Event(name, desc, date, time)
     EVENTS[e.datetime] = e
     return e
 def create_club(name, leader):
+    global CLUBS
     c = Club(name, leader)
     CLUBS[name] = c
     leader.clubs.append(c)
     return c
 
 def add_meeting_notes(date, *notes):
+    global MEETINGNOTES
     if date not in MEETINGNOTES:
         MEETINGNOTES[date] = notes
     else:
         MEETINGNOTES[date] += notes
 
 
-EVENTS: {datetime:Event} = {}
-CLUBS: {str:Club} = {} # name:Club
-POLLS: {str:Poll} = {}  # id:Poll
-TODOLIST: [TodoItem] = []
-MEETINGNOTES: {datetime:[str]} = {}
-GENERAL_ANNOUNCEMENTS: [Announcement] = []
+EVENTS = {}
+CLUBS = {} # name:Club
+POLLS = {}  # id:Poll
+TODOLIST = []
+MEETINGNOTES = {}
+GENERAL_ANNOUNCEMENTS = []
 try:
     AccountsSerializer.load()
     EVENTS = AccountsSerializer.get('EVENTS')
