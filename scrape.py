@@ -30,10 +30,16 @@ def sun_era():
     return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'
 
 def last_sunday(from_date=datetime.datetime.now()):
-    return from_date - datetime.timedelta(days=from_date.isoweekday())
+    offset = from_date.isoweekday()
+    if from_date.isoweekday() == 7:
+        offset = 0
+    return from_date - datetime.timedelta(days=offset)
 
 def next_saturday(from_date=datetime.datetime.now()):
-    return from_date + datetime.timedelta(days=6-(from_date.isoweekday()))
+    offset = from_date.isoweekday()
+    if from_date.isoweekday() == 7:
+        offset = 0
+    return from_date + datetime.timedelta(days=6-offset)
 
 def week_of(dt: datetime.datetime):
     return [last_sunday(dt) + datetime.timedelta(days=i) for i in range(7)]
@@ -144,9 +150,8 @@ class SageScraper(Scraper):
 
         if 'menu' not in menu:
             return {}, {}
-        start_date = datetime.datetime.strptime(menu['menu']['config']['meta']['menuFirstDate'], '%m/%d/%Y')
-        # The start date is a lie; it will start on Sunday of the week of the start date
-        start_date -= datetime.timedelta(days=start_date.isoweekday())
+        # The start date written in the file is a lie; it will start on Sunday of the week of the start date
+        start_date = last_sunday(datetime.datetime.strptime(menu['menu']['config']['meta']['menuFirstDate'], '%m/%d/%Y'))
         menu_dict = {}
         daycount = 0
 

@@ -16,8 +16,6 @@ def noop(*args, **kwargs):
     pass
 def noop2(self, arg):
     return arg
-class Dummy:
-    __preinit__ = __postinit__ = noop
 
 class Priority(Enum):
     BEFORE  = lambda queue, item: queue.insert(0, item)
@@ -166,6 +164,7 @@ class RecursiveSerializer(FunctionSerializer):
 @can_serialize("_is_sclass", "_from_pool", "_is_dsclass", "_deserialize_class", Priority.BEFORE)
 class ClassSerializer(RecursiveSerializer):
     RPF             = config.get("ref_prefix")
+    METACLASSES     = {}
     def __init__(self):
         super().__init__()
         self.antipool = dict() # map uuid to serialized data
@@ -261,8 +260,14 @@ class ClassSerializer(RecursiveSerializer):
         if uuid in self.antiset:
             return self.pool[uuid]
         cls = self._lookup_class(data["module"], data["type"])
-        obj = Dummy()
+
+        metaclass = ClassSerializer.METACLASSES.get(cls, None)
+        if metaclass is None:
+            metaclass = ClassSerializer.METACLASSES[cls] = type(cls.__name__, cls.__mro__, dict(cls.__dict__))
+        obj = cls.__new__(metaclass)
         obj.__class__ = cls
+
+        # obj.__dict__ = dict(cls.__dict__)
         assert self._is_sclass(obj)
         # obj = cls()  # Work on signature
         fields = data["data"]

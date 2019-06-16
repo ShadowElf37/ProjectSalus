@@ -1,11 +1,11 @@
-Known bugs:
-    !!! info.py object internals aren't being serialized, although the objects themselves are
 
-
-- Landing page JS, poll rendering, schedule rendering
+- Navbar CSS
 - Sensitize schedule to weekends and days off
+- Rework general.css
 - Command to mod server via specific import after an update (to save on reboots for small but crucial changes)
-- Rewrite navbar CSS and rest of general.css
+- Landing page JS, poll rendering, schedule rendering
+- Add back navbar pages
+- Scalability improvements
 
 - Admin control board
 - SGA feedback form & email forwarding system

@@ -1,3 +1,11 @@
+v0.5.1 (6/16/19)
+- Fixed a bug with weekday solving
+- Made darkbb.css more scalable
++ Added #define to render()
++ Added PersistentList
+- Reformed PersistentDict and PersistentList to inherit dict and list respectively
+- Reformed deserializer class production to work with inheritance of builtins
+
 v0.5.0 (6/15/19)
 - Configs are now added to CONFIG_CACHE automatically, so the Reload Config button works
 - Added some nice htmlutil functions

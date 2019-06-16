@@ -1,4 +1,4 @@
-from server.persistent import AccountsSerializer
+from server.persistent import *
 from datetime import datetime
 from json import JSONDecodeError
 from scrape import week_of
@@ -101,13 +101,13 @@ class Poll:
     def remove_question(self, idx):
         self.questions.pop(idx)
 
-@AccountsSerializer.serialized(title='', text='', time=0, display_until=0, _forceon=False, _forceoff=False)
+@AccountsSerializer.serialized(title='', text='', timestamp=0, _display_until=0, _forceon=False, _forceoff=False)
 class Announcement:
-    def __init__(self, title, text, display_until: int):
+    def __init__(self, title, text, displayuntil: int):
         self.title = title
         self.text = text
         self.timestamp = time.time()
-        self._display_until = display_until
+        self._display_until = displayuntil
         self._forceon = False
         self._forceoff = False
 
@@ -185,17 +185,15 @@ def add_meeting_notes(date, *notes):
         MEETINGNOTES[date] += notes
 
 
-EVENTS = {}
-CLUBS = {} # name:Club
-POLLS = {}  # id:Poll
-TODOLIST = []
-MEETINGNOTES = {}
-GENERAL_ANNOUNCEMENTS = []
-MAAMADS = []
-"""Tuesday, May 28: Chavaya - Individual Chavaya study hall for all grades<br>
-                      Wednesday, May 29: Ma'amad - End of year announcements<br>
-                      Thursday, May 30: Chavaya - Individual Chavaya study hall for all grades<br>
-                      Friday, May 31: Jewish Life & Shabbat Programming<br>"""
+EVENTS = PersistentDict()
+CLUBS = PersistentDict() # name:Club
+POLLS = PersistentDict()  # id:Poll
+TODOLIST = PersistentList()
+MEETINGNOTES = PersistentDict()
+GENERAL_ANNOUNCEMENTS = PersistentList()
+MAAMADS = PersistentList()
+
+
 try:
     AccountsSerializer.load()
     EVENTS = AccountsSerializer.get('EVENTS')

@@ -42,10 +42,10 @@ class Account(RWLockMixin):
 
     def register(self, key):
         self.key = key
-        user_tokens.set(key, self)
+        user_tokens[key] = self
 
     def manual_key(self, key):
-        user_tokens.delete(self.key)
+        del user_tokens[self.key]
         self.register(key)
 
     def check_pwd(self, pwd):

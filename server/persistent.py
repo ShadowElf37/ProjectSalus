@@ -4,26 +4,30 @@ Manager = BSManager()
 AccountsSerializer = Manager.make_serializer('accounts.json')
 
 @AccountsSerializer.serialized(value={})
-class PersistentDict:
+class PersistentDict(dict):
     def __init__(self):
         self.value = {}
-
-    def get(self, k, default):
-        return self.value.get(k, default)
-    def set(self, k, v):
-        self.value[k] = v
-    def delete(self, k):
-        del self.value[k]
-
-    def values(self):
-        return self.value.values()
-    def items(self):
-        return self.value.items()
+        super().__init__(self.value)
 
     def valuesl(self):
         return list(self.values())
     def itemsl(self):
         return list(self.items())
-
     def find(self, condition):
         return next(filter(condition, self.values()), None)
+
+@AccountsSerializer.serialized(value=[])
+class PersistentList(list):
+    def __init__(self):
+        self.value = []
+        super().__init__(self.value)
+
+    def find(self, condition):
+        return next(filter(condition, self.value), None)
+
+@AccountsSerializer.serialized(value=[])
+class PersistentList:
+    def __init__(self):
+        self.value = []
+    def append(self, x):
+        self.value.append(x)

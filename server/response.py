@@ -184,9 +184,18 @@ class Response:
     @staticmethod
     def render(byte, render_opts):
         f = byte
+
+        defrender = re.findall(b'#(?:define|DEFINE) "?([^"]*)"? "?([^"]*)"?;', f)
+        if defrender:
+            for df in defrender:
+                f.replace(df[0], df[1])
+
         argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
         for arg in argrender:
             f = f.replace(b'[[' + arg + b']]', render_opts[arg])
+        if defrender:
+            for df in defrender:
+                f.replace(df[0], df[1])
 
         kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
         for kw in kwrender:
@@ -200,6 +209,9 @@ class Response:
             if type(r) != bytes:
                 r = bytes(str(r), ENCODING)
             f = f.replace(b'{{' + kw + b'}}', r)
+        if defrender:
+            for df in defrender:
+                f.replace(df[0], df[1])
 
         return f
 

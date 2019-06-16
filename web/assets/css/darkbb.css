@@ -17,6 +17,10 @@
     color: #eee;
 }
 
+html{
+    font-size: 0.81vw;
+}
+
 a{
     text-decoration: none;
     color: #0099ff;
@@ -26,23 +30,23 @@ a:hover{
 }
 
 h1.smaller{
-    font-size: 40px;
+    font-size: 2.5rem;
 }
 
 h1{
-    font-size: 48px;
+    font-size: 3rem;
     margin: 0;
 }
 h2{
-    font-size: 36px;
+    font-size: 2.25rem;
     margin: 0;
 }
 h3{
-    font-size: 28px;
+    font-size: 1.75rem;
     margin: 0;
 }
 h4{
-    font-size: 20px;
+    font-size: 1.25rem;
     margin: 0;
     font-weight: normal;
     text-decoration: underline;
@@ -90,7 +94,7 @@ hr{
 #class-info{
     float: left;
     min-height: 500px;
-    width: 406px;
+    width: 400px;
     margin-top: 1%;
     margin-right: 0;
     text-align: left;
@@ -101,16 +105,17 @@ hr{
     padding: 0;
     margin-top: -2px;
     margin-bottom: 5px;
-    line-height: 40px; 
+    line-height: 4vh; 
     color: #eee;
     width: 90%;
     text-align: left;
     margin-left: 20px;
     text-indent: -20px;
+    font-size: 28px;
 }
 #class-info .important{
     color: #fff;
-    font-size: 41px;
+    font-size: 34px;
 }
 #info{
     font-size: 20px;
@@ -139,10 +144,14 @@ hr{
     margin-top: 10px;
     margin-right: 15px;
 }
+#info #assignments{
+    width: 100%;
+}
 #info #assignments h3{
     margin-top: 20px;
     margin-left: -10px;
     margin-bottom: 10px;
+    font-size: 30px;
 }
 #info #assignments ul{
     margin: 0;
@@ -241,7 +250,7 @@ hr{
 }
 
 .class-tab{
-    width: 220px;
+    width: 210px;
     height: 50px;
     position: relative;
     margin-bottom: 12px;
@@ -302,7 +311,8 @@ hr{
     float: left;
     text-align: left;
     width: 65%;
-    min-height: 300px;
+    height: 300px;
+    overflow-y: hidden;
 }
 #announcements hr{
     float: left;
@@ -318,7 +328,7 @@ hr{
     margin-top: 20px;
     min-height: 70px;
     padding: 5px 10px;
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 .announcement:nth-of-type(1){
     border-left: 1px solid #0c0;
@@ -339,7 +349,7 @@ hr{
 #maamad-info{
     float: left;
     height: 500px;
-    width: 320px;
+    width: 19.3%;
     margin-right: 40px;
     left: 30px;
 }
@@ -349,7 +359,7 @@ hr{
     margin-bottom: 15px;
     border-radius: 3px;
     height: 35px;
-    width: 300px;
+    width: 90%;
     overflow-y: hidden;
     transition: height 0.3s ease;
 }
@@ -358,7 +368,7 @@ hr{
 }
 .maamad-title{
     display: block;
-    font-size: 20px;
+    font-size: 1.25rem;
     margin-bottom: 10px;
     margin-top: 4px;
     text-align: center;
@@ -386,7 +396,7 @@ hr{
     text-align: left;
     background-color: #333;
     margin-bottom: 7px;
-    font-size: 20px;
+    font-size: 1.3rem;
     padding: 5px 10px;
     border-radius: 3px;
     border-left: 1px solid #FA3;
@@ -402,9 +412,10 @@ hr{
     box-shadow: 0 0 6px #f206;
     background-color: #333;
     width: 80%;
-    min-height: 100px;
+    min-height: 10vh;
+    margin: 0;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 5vh;
     padding: 3px;
 }
 #allergens h4{
@@ -412,7 +423,7 @@ hr{
 }
 #allergens p{
     margin: 0px 5px;
-    font-size: 14px;
+    font-size: 0.875rem;
     text-align: left;
     font-style: italic;
 }
@@ -444,7 +455,7 @@ hr{
     margin: 0;
     padding: 2px 0;
     margin-bottom: 10px;
-    font-size: 20px;
+    font-size: 1.25rem;
     background-color: #333;
     border-radius: 20px;
     z-index: 4;
@@ -474,9 +485,9 @@ hr{
     z-index: 3;
 }
 .snack-poll .submit{
-    width: 100px;
-    height: 36px;
-    font-size: 20px;
+    width: 5.5vw;
+    height: 3.9vh;
+    font-size: 1.25rem;
     border-radius: 5px;
     position: relative;
     text-align: center;
@@ -517,10 +528,10 @@ hr{
     border-radius: 5px;
     color: #ddd;
     font-weight: normal;
-    font-size: 24px;
+    font-size: 1.5rem;
     outline: none;
-    width: 60px;
-    height: 35px;
+    width: 3.4vw;
+    height: 3.5vh;
     font-weight: bold;
     transition: box-shadow 0.1s, border 0.1s;
     cursor: pointer;
@@ -550,7 +561,7 @@ hr{
 
 .day-label-container{
     position: absolute;
-    bottom: 16%;
+    bottom: 53px;
     width: 95%;
 }
 .snack-poll-day-label{
