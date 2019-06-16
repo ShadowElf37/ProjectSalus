@@ -403,11 +403,12 @@ class HandlerBBInfo(RequestHandler):
             if week.is_this_week(TESTDATE):
                 for day in week.week:
                     activity, desc = week.get_date(day)
+                    dt = datetime.strptime(day, '%m/%d/%Y')
                     maamads.append(snippet('maamad-tab',
                                            title=activity,
                                            desc=desc.replace('\n', '<br>'),
-                                           weekday=WEEKDAYNAMES[now.isoweekday()],
-                                           dayord=ordinal(now.day)))
+                                           weekday=WEEKDAYNAMES[dt.isoweekday()],
+                                           dayord=ordinal(dt.day)))
                 break
 
         self.response.attach_file('/accounts/bb_test.html', cache=False,
