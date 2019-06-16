@@ -16,6 +16,7 @@
                 color: #eee;
                 box-shadow: 0 0 0px #f206;
                 margin-top: -100px;
+                padding-bottom: 100px;
             }
             .navbar, .navbar *{
                 background-color: #111 !important;
@@ -43,7 +44,7 @@
 
 
                 <div id="announcements" class="widget">
-                    <h1>Announcements{{sp(2)}}–{{sp(2)}}{{getDate()}}</h1>
+                    <h1>Announcements{{sp(2)}}–{{sp(2)}}{{WEEKDAYNAMES[now().isoweekday()]}} {{getDate()}}</h1>
                     <hr>
                     [[announcements]]
                 </div>
@@ -65,15 +66,28 @@
                     </form>
                 </div>
                 <div id="schedule-container" class="widget">
-                    <center><span class="sdaymarker">Day 1</span></center>
+                    <center><span class="sdaymarker">[[classday]]</span></center>
                     [[periods]]
                     <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 2%">
-                    <span class="sdatemarker">05/30/2019</span>
+                    <span class="sdatemarker">05/22/2019</span>
                     <input type="button" value="⇒" class="movement-arrow yellow-border" style="margin-left: 2%">
                 </div>
                 <div id="class-info" class="widget">
-                    <h1>Class Info</h1>
+                    <h2>Your next period is <span class="important">[[next_period]]</span> at [[startp]]</h2>
                     <hr>
+                    <div id="info">
+                        <div id="meta-container">
+                            <span id="classname">[[next_name]]</span><span id="start-end">[[start]] - [[end]]</span>
+                            <span id="teacher">[[next_teacher]]</span>
+                            <span id="teacher-email">[[next_teacher_email]]</span>
+                        </div>
+                        <div id="assignments">
+                            <h3>Assignments Due This Week</h3>
+                            <ul>
+                                [[assignments]]
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div id="sagemenu" class="widget">
                     <h1>Today's Lunch</h1>
@@ -89,9 +103,20 @@
                 <div id="maamad-info" class="widget">
                     <h1>Ma'amad</h1>
                     <hr>
-                    <div class="maamad-tab"></div>
+                    [[maamads]]
                 </div>
                 <br>
+                <div id="links-wrapper">
+                    <center>
+                        <div id="links">
+                            <h4>Direct Resources:</h4>
+                            <a target="blank" href="http://www.sagedining.com/menus/emeryweiner">Menu</a> | 
+                            <a target="blank" href="https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center">Assignments</a> | 
+                            <a target="blank" href="https://emeryweiner.myschoolapp.com/app/student#studentmyday/schedule">Schedule</a> | 
+                            <a target="blank" href="https://outlook.office.com/owa/?realm=emeryweiner.org">Outlook</a>
+                        </div>
+                    </center>
+                </div>
             </div>
         </center>
     </body>

@@ -1,11 +1,21 @@
-v0.5.0 (6/13/19)
+v0.5.0 (6/15/19)
 - Configs are now added to CONFIG_CACHE automatically, so the Reload Config button works
-- Added a couple htmlutil functions
-- Added snippets.json to contain configurable format strings
-- Built landing page prototype (no js) with schedule, announcements, Ma'amad info, snack poll, lunch, menu dietary info, and class info
+- Added some nice htmlutil functions
+- Added snippets.json to contain configurable format strings, mostly of HTML
+- Built landing page prototype in bb_test.html (no js)
+	+ Added schedule
+	+ Added announcements
+	+ Added Ma'amad info
+	+ Added snack poll template
+	+ Added Sage menu
+	+ Added class info for next period
+	+ Added assignments for week
+	+ Added links to various external resources
+- Moved landing page CSS to darkbb.css
 - Temporarily scraping menu from simplemenu.json while the Sage website is on vacation
 - Response will now properly encode data to be html-safe
-- Fixed a couple bugs
+- Added MaamadWeek to info.py
+- Fixed some bugs
 
 === MAJOR ===
 

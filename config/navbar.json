@@ -9,8 +9,6 @@
   "1":
       [
           ["Home", "/home/index.html", false],
-
-
           ["Directory", "/accounts/directory.html", true],
           ["Logout", "/logout", false]
       ],

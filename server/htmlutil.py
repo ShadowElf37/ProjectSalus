@@ -4,6 +4,8 @@ import datetime
 from .config import get_config
 
 snippets = get_config('snippets')
+def snippet(key, **fmt):
+    return snippets.get(key).format(**fmt)
 
 def css(s):
     return '<link rel="stylesheet" href="{}">'.format(s)
@@ -17,6 +19,10 @@ def getAmPm():
     return datetime.datetime.now().strftime('%p')
 def getDate():
     return datetime.datetime.now().strftime('%m/%d/%Y')
+WEEKDAYNAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+def ordinal(n: int):
+    return str(n) + {'1':'st', '2':'nd', '3':'rd'}.get(str(n)[-1], 'th')
 
 def now():
     return datetime.datetime.now()

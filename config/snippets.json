@@ -3,7 +3,9 @@
   "nullclass": "<div class=\"null-class\">{name}</div>",
   "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>&nbsp;&nbsp;<i style=\"font-size:14px;\">{date}</i>{text}</div>",
   "no-announcement": "<p style=\"font-size: 24px;\">There are no announcements today!</p>",
-  "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p>{2}",
+  "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p>",
   "menuitem": "<span class=\"{veg}menuitem\">{name}</span>",
+  "maamad-tab": "<div class=\"maamad-tab\"><span class=\"maamad-title\">{weekday} the {dayord}: {title}</span><span class=\"maamad-desc\">{desc}</span></div>",
+  "assignment": "<li>–<span class=\"assignment-title\">{title}</span><div class=\"sub-li\"><p>Due {due}{s12}(Assigned {assnd})</p><p class=\"desc\">{desc}</p></div></li>",
   "css-noselect": "user-select: none; -moz-user-select: -moz-none; -khtml-user-select: none; -webkit-user-select: none; -o-user-select: none;"
 }

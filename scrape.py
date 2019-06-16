@@ -30,10 +30,10 @@ def sun_era():
     return 'morning' if n.hour < 12 else 'afternoon' if n.hour < 17 else 'evening'
 
 def last_sunday(from_date=datetime.datetime.now()):
-    return from_date - datetime.timedelta(days=from_date.weekday()+1)
+    return from_date - datetime.timedelta(days=from_date.isoweekday())
 
 def next_saturday(from_date=datetime.datetime.now()):
-    return from_date + datetime.timedelta(days=6-(from_date.weekday()+1))
+    return from_date + datetime.timedelta(days=6-(from_date.isoweekday()))
 
 def week_of(dt: datetime.datetime):
     return [last_sunday(dt) + datetime.timedelta(days=i) for i in range(7)]
@@ -72,6 +72,11 @@ def period_from_name(string: str):
 
 def get(dict, k, default=None):
     return dict.get(k, default) if dict.get(k) else default
+
+def striptimezeros(string):
+    if string[0] == '0':
+        return string[1:]
+    return string
 
 
 class StatusError(BaseException):...
@@ -141,7 +146,7 @@ class SageScraper(Scraper):
             return {}, {}
         start_date = datetime.datetime.strptime(menu['menu']['config']['meta']['menuFirstDate'], '%m/%d/%Y')
         # The start date is a lie; it will start on Sunday of the week of the start date
-        start_date -= datetime.timedelta(days=start_date.weekday() + 1)  # Python's datetime uses Monday as first day of week for some reason
+        start_date -= datetime.timedelta(days=start_date.isoweekday())
         menu_dict = {}
         daycount = 0
 
@@ -483,10 +488,10 @@ class BlackbaudScraper(Scraper):
 
         grades = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/datadirect/ParentStudentUserAcademicGroupsGet',
                                          params=params, headers=headers, cookies=self.cookies)).json()
-        grades = {format_class_name(_class['sectionidentifier']): {
-            'id': _class['sectionid'],
+        grades = {_class['sectionid']: {
+            'title': format_class_name(_class['sectionidentifier']),
             'teacher': _class['groupownername'],
-            'teacher-email': _class['groupowneremail'],
+            'teacher-email': get(_class, 'groupowneremail', '').lower(),
             'semester': int(re.match('[0-9]', _class['currentterm']).group()),
             'average': _class['cumgrade'],
         } for _class in grades}
@@ -515,13 +520,13 @@ class BlackbaudScraper(Scraper):
 
         return grades
 
-    def assignments(self, start_date=last_sunday().strftime('%m/%d/%Y'), end_date=next_saturday().strftime('%m/%d/%Y'), **headers):
+    def assignments(self, start_date=last_sunday(), end_date=next_saturday(), **headers):
         # https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/?format=json&filter=1&dateStart=5%2F12%2F2019&dateEnd=5%2F19%2F2019&persona=2&statusList=&sectionList=
         params = {
             'format': 'json',
             'filter': 1,
-            'dateStart': start_date,
-            'dateEnd': end_date,
+            'dateStart': start_date.strftime('%m/%d/%Y'),
+            'dateEnd': end_date.strftime('%m/%d/%Y'),
             'persona': 2,
             'statusList': None,
             'sectionList': None,

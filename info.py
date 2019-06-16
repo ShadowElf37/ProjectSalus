@@ -1,6 +1,7 @@
 from server.persistent import AccountsSerializer
 from datetime import datetime
 from json import JSONDecodeError
+from scrape import week_of
 import time
 import uuid
 
@@ -127,6 +128,22 @@ class Announcement:
         self._forceon = False
         self._forceoff = False
 
+@AccountsSerializer.serialized(days=[None]*5, week=[])
+class MaamadWeek:
+    def __init__(self, weekofdt):
+        self.days = [('', '')]*5
+        self.week = list(map(lambda d: d.strftime('%m/%d/%Y'), week_of(weekofdt)))[1:-1]
+
+    def set_day(self, n, activity, desc):
+        self.days[n] = (activity, desc)
+
+    def get_date(self, dstr):
+        return self.days[self.week.index(dstr)]
+    def get_daynum(self, n):
+        return self.days[n]
+    def is_this_week(self, manual=None):
+        return (manual if manual else datetime.now().strftime('%m/%d/%Y')) in self.week
+
 
 def create_announcement(title, text, display_until: int):
     global GENERAL_ANNOUNCEMENTS
@@ -154,6 +171,11 @@ def create_club(name, leader):
     CLUBS[name] = c
     leader.clubs.append(c)
     return c
+def create_maamad_week(weekofdstr):
+    global MAAMADS
+    m = MaamadWeek(datetime.strptime(weekofdstr, '%m/%d/%Y'))
+    MAAMADS.append(m)
+    return m
 
 def add_meeting_notes(date, *notes):
     global MEETINGNOTES
@@ -169,6 +191,11 @@ POLLS = {}  # id:Poll
 TODOLIST = []
 MEETINGNOTES = {}
 GENERAL_ANNOUNCEMENTS = []
+MAAMADS = []
+"""Tuesday, May 28: Chavaya - Individual Chavaya study hall for all grades<br>
+                      Wednesday, May 29: Ma'amad - End of year announcements<br>
+                      Thursday, May 30: Chavaya - Individual Chavaya study hall for all grades<br>
+                      Friday, May 31: Jewish Life & Shabbat Programming<br>"""
 try:
     AccountsSerializer.load()
     EVENTS = AccountsSerializer.get('EVENTS')
@@ -177,6 +204,7 @@ try:
     TODOLIST = AccountsSerializer.get('TODO')
     MEETINGNOTES = AccountsSerializer.get('MEETINGNOTES')
     GENERAL_ANNOUNCEMENTS = AccountsSerializer.get('GENERAL_ANNOUNCEMENTS')
+    MAAMADS = AccountsSerializer.get('MAAMADS')
 except (KeyError, JSONDecodeError):
     pass
 
@@ -186,3 +214,4 @@ AccountsSerializer.set('POLLS', POLLS)
 AccountsSerializer.set('TODO', TODOLIST)
 AccountsSerializer.set('MEETINGNOTES', MEETINGNOTES)
 AccountsSerializer.set('GENERAL_ANNOUNCEMENTS', GENERAL_ANNOUNCEMENTS)
+AccountsSerializer.set('MAAMADS', MAAMADS)

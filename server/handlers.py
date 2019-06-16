@@ -10,10 +10,18 @@ import scrape
 import info
 
 navbar = get_config('navbar')
-from .htmlutil import snippets
+from .htmlutil import snippets, snippet, WEEKDAYNAMES, ordinal
 
 info.create_announcement('Test', 'This is an announcement.', time()+100000)
 info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
+m = info.create_maamad_week('05/20/2019')
+m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
+m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
+10th Grade: Flex Time
+11th Grade: Flex Time''')
+m.set_day(2, 'Ma\'amad', 'Meet with Maccabiah teams (meeting locations will be emailed out)')
+m.set_day(3, 'Chavaya', 'Flex Time for all grades')
+m.set_day(4, 'Maccabiah', '')
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -262,6 +270,10 @@ class HandlerBBInfo(RequestHandler):
             self.response.refuse('Sign in please.')
             return
 
+        TESTTIME = '12:30 pm'
+        TESTDATE = '05/21/2019'
+        TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
+
         if 'schedule' not in self.account.updaters:
             if self.account.personal_scraper is None:
                 self.response.refuse('You must use your Blackbaud password to sign in first.')
@@ -276,7 +288,7 @@ class HandlerBBInfo(RequestHandler):
             self.account.updaters['schedule'] = schedule_ps
             self.account.scheduled['schedule'] = us
 
-            assignments_ps = Poolsafe(login_safe(scp.assignments, *auth))
+            assignments_ps = Poolsafe(login_safe(scp.assignments, *auth), start_date=scrape.last_sunday(TESTDT), end_date=scrape.next_saturday(TESTDT))
             ua = updates.chronomancer.metakhronos(60, assignments_ps, now=True)
             self.account.updaters['assignments'] = assignments_ps
             self.account.scheduled['assignments'] = ua
@@ -293,7 +305,6 @@ class HandlerBBInfo(RequestHandler):
 
 
         schedule = self.account.updaters['schedule'].wait()
-        TESTDATE = '05/30/2019'
         #print(scrape.prettify(schedule))
         schedule = schedule[TESTDATE]
 
@@ -319,7 +330,7 @@ class HandlerBBInfo(RequestHandler):
                     tps = Poolsafe(
                         updates.dsetter(updates.CLASS_TOPICS, cid, updates.bb_login_safe(scp.topics, *auth)), cid
                     )
-                    tu = updates.chronomancer.daily(scrape.dt_from_timestr('3:15 pm'), tps, now=True)
+                    tu = updates.chronomancer.daily(scrape.dt_from_timestr(TESTTIME), tps, now=True)
                     updates.chronomancer.track(tu, cid)
                     updates.TOPICS_UPDATERS[cid] = tps
                     updates.TOPICS_UPDATERS['_'+str(cid)] = tu
@@ -331,14 +342,24 @@ class HandlerBBInfo(RequestHandler):
         #print(scrape.prettify(grades))
         prf = self.account.updaters['profile'].wait()
 
-        # At the moment we have access to profile, schedule, assignments, grades, and basic class info
-        # We will only need profile for prefix, the schedule, assignments, and some basic class info
         periods = []
+        classday = 'Day {}'.format(schedule['DAY'])
+        start = None
+        end = None
+        nextclass = None
         for period, _class in schedule.items():
             if type(_class) is not dict:
                 continue
 
             if _class['real']:
+                s = datetime.strptime(_class['start'], '%I:%M %p').time()
+                e = datetime.strptime(_class['end'], '%I:%M %p').time()
+                n = datetime.strptime('12:30 pm', '%I:%M %p').time()
+                if n < s and nextclass is None:
+                    start = scrape.striptimezeros(s.strftime('%I:%M'))
+                    end = scrape.striptimezeros(e.strftime('%I:%M'))
+                    nextclass = period, _class
+
                 periods.append(snippets.get('classtab').format(period=period, classname=_class['title']))
             else:
                 periods.append(snippets.get('nullclass').format(name=period))
@@ -367,11 +388,43 @@ class HandlerBBInfo(RequestHandler):
         if not announcements:
             announcements = [snippets.get('no-announcement')]
 
+        assignmentlist = []
+        for title, assignment in assignments:
+            assignmentlist.append(snippet('assignment',
+                                          title=title,
+                                          due=assignment['due'],
+                                          s12='&nbsp;'*12,
+                                          assnd=assignment['assigned'],
+                                          desc=assignment['desc']))
+
+        maamads = []
+        now = datetime.now()
+        for week in info.MAAMADS:
+            if week.is_this_week(TESTDATE):
+                for day in week.week:
+                    activity, desc = week.get_date(day)
+                    maamads.append(snippet('maamad-tab',
+                                           title=activity,
+                                           desc=desc.replace('\n', '<br>'),
+                                           weekday=WEEKDAYNAMES[now.isoweekday()],
+                                           dayord=ordinal(now.day)))
+                break
+
         self.response.attach_file('/accounts/bb_test.html', cache=False,
+                                  classday=classday,
+                                  start=start,
+                                  end=end,
+                                  startp=scrape.striptimezeros(nextclass[1]['start']).lower(),
+                                  next_period=nextclass[0],
+                                  next_name=nextclass[1]['title'],
+                                  next_teacher=grades[nextclass[1]['id']]['teacher'],
+                                  next_teacher_email=grades[nextclass[1]['id']]['teacher-email'],
                                   periods='\n'.join(periods),
                                   announcements='\n'.join(announcements),
                                   allergens=snippets.get('allergens').format(contains, may_contain, cross),
                                   prefix=prf['prefix'],
+                                  assignments='\n'.join(assignmentlist) if assignmentlist else "There are no assignments from any class this week.<br>Lucky you...",
+                                  maamads='\n'.join(maamads),
                                   menu='\n'.join(menu))
 
 
