@@ -187,24 +187,24 @@ class ClassSerializer(RecursiveSerializer):
         return {"values": super()._prepare(), "pool": pool}
 
     @staticmethod
-    def serialized_carefully(**kwargs):
+    def extends(base=None, **kwargs):
         """For use with objects that inherit builtins"""
         def make(cls):
-            cls._baseclass = cls.__bases__[0]
+            if base is not None and (base not in cls.__bases__):
+                raise NotImplementedError('Serialized class %s must inherit emulated superclass %s' % (cls, base))
+            cls._baseclass = cls.__bases__[0] if base is None else base
             cls._basevalue = cls._baseclass.__new__(cls._baseclass)
+            var = '_value_'+cls._baseclass.__name__
 
             def __postinit__(self):
-                if '_value' not in self.__dict__.keys():
-                    self.__dict__['_value'] = deepcopy(cls._basevalue)
-                super(cls._baseclass, self.__dict__['_value']).__init__()
+                if var not in self.__dict__.keys():
+                    self.__dict__[var] = deepcopy(cls._basevalue)
+                super(cls._baseclass, self.__dict__[var]).__init__()
 
             cls.__postinit__ = __postinit__
             def _s_value(self, v):
                 super(cls._baseclass, v).__init__()
-            def _g_value(self):
-                print(self, self._baseclass)
-                return cls._baseclass(self)
-            cls._value = property(_g_value, _s_value)
+            setattr(cls, var, property(lambda self: cls._baseclass(self), _s_value))
 
             return ClassSerializer.serialized(_value=cls._basevalue, **kwargs)(cls)
         return make

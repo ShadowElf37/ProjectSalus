@@ -1,6 +1,6 @@
 v0.5.2 (6/16/19)
-- Fixed bug with persistent.py objects not writing
-- Moved all that messy builtin compat to a new carefully_serialized decorator in serializer.py
+- Fixed bug with persistent.py objects not serializing properly
+- Moved some code to @protects decorator in serializer.py - use when you need to store parent attributes more carefully than you otherwise might
 
 v0.5.1 (6/16/19)
 - Fixed a bug with weekday solving

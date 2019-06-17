@@ -6,7 +6,7 @@ AccountsSerializer = Manager.make_serializer('accounts.json')
 class PersistentBuiltin(object): pass
 
 
-@AccountsSerializer.serialized_carefully()
+@AccountsSerializer.extends(dict)
 class PersistentDict(dict):
     def valuesl(self):
         return list(self.values())
@@ -15,7 +15,7 @@ class PersistentDict(dict):
     def find(self, condition):
         return next(filter(condition, self.values()), None)
 
-@AccountsSerializer.serialized_carefully()
+@AccountsSerializer.extends(list)
 class PersistentList(list):
     def find(self, condition):
         return next(filter(condition, self), None)
