@@ -185,13 +185,7 @@ def add_meeting_notes(date, *notes):
         MEETINGNOTES[date] += notes
 
 
-EVENTS = PersistentDict()
-CLUBS = PersistentDict() # name:Club
-POLLS = PersistentDict()  # id:Poll
-TODOLIST = PersistentList()
-MEETINGNOTES = PersistentDict()
-GENERAL_ANNOUNCEMENTS = PersistentList()
-MAAMADS = PersistentList()
+
 
 
 try:
@@ -204,7 +198,13 @@ try:
     GENERAL_ANNOUNCEMENTS = AccountsSerializer.get('GENERAL_ANNOUNCEMENTS')
     MAAMADS = AccountsSerializer.get('MAAMADS')
 except (KeyError, JSONDecodeError):
-    pass
+    EVENTS = PersistentDict()
+    CLUBS = PersistentDict()  # name:Club
+    POLLS = PersistentDict()  # id:Poll
+    TODOLIST = PersistentList()
+    MEETINGNOTES = PersistentDict()
+    GENERAL_ANNOUNCEMENTS = PersistentList()
+    MAAMADS = PersistentList()
 
 AccountsSerializer.set('EVENTS', EVENTS)
 AccountsSerializer.set('CLUBS', CLUBS)

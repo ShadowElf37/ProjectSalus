@@ -187,6 +187,29 @@ class ClassSerializer(RecursiveSerializer):
         return {"values": super()._prepare(), "pool": pool}
 
     @staticmethod
+    def carefullySerialized(**kwargs):
+        """For use with objects that inherit builtins"""
+        def make(cls):
+            cls._baseclass = cls.__bases__[0]
+            cls._basevalue = cls._baseclass.__new__(cls._baseclass)
+
+            def __postinit__(self):
+                if '_value' not in self.__dict__.keys():
+                    self.__dict__['_value'] = deepcopy(cls._basevalue)
+                super(cls._baseclass, self.__dict__['_value']).__init__()
+
+            cls.__postinit__ = __postinit__
+            def _s_value(self, v):
+                super(cls._baseclass, v).__init__()
+            def _g_value(self):
+                print(self, self._baseclass)
+                return cls._baseclass(self)
+            cls._value = property(_g_value, _s_value)
+
+            return ClassSerializer.serialized(_value=cls._basevalue, **kwargs)(cls)
+        return make
+
+    @staticmethod
     def serialized(**kwargs):
         """Register a class as serialiable"""
         def s_decor(cls):
@@ -243,6 +266,7 @@ class ClassSerializer(RecursiveSerializer):
 
         assert getattr(obj, "_uuid")
         for key in cls._defaults:
+            print(obj.__class__, key)
             data[key] = self._serialize(getattr(obj, key))
         return value
 
