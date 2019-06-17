@@ -200,7 +200,6 @@ class ClassSerializer(RecursiveSerializer):
                 if var not in self.__dict__.keys():
                     self.__dict__[var] = deepcopy(cls._basevalue)
                 super(cls._baseclass, self.__dict__[var]).__init__()
-
             cls.__postinit__ = __postinit__
             def _s_value(self, v):
                 super(cls._baseclass, v).__init__()

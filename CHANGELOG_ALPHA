@@ -1,6 +1,6 @@
 v0.5.2 (6/16/19)
 - Fixed bug with persistent.py objects not serializing properly
-- Moved some code to @protects decorator in serializer.py - use when you need to store parent attributes more carefully than you otherwise might
+- Moved some code to @extends decorator in serializer.py - use when you need to store parent attributes more carefully than you otherwise might
 
 v0.5.1 (6/16/19)
 - Fixed a bug with weekday solving
