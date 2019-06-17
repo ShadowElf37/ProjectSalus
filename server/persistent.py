@@ -7,8 +7,13 @@ class PersistentBuiltin(object): pass
 
 
 @AccountsSerializer.carefullySerialized()
-class PersistentDict(dict): pass
-
+class PersistentDict(dict):
+    def valuesl(self):
+        return list(self.values())
+    def itemsl(self):
+        return list(self.items())
+    def find(self, condition):
+        return next(filter(condition, self.values()), None)
 
 @AccountsSerializer.carefullySerialized()
 class PersistentList(list):
