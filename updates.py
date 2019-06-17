@@ -2,6 +2,7 @@ import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
 from server.threadpool import Pool, Poolsafe
+from server.persistent import PersistentDict
 
 HOURLY = 60
 DAILY = 60*24
@@ -40,25 +41,27 @@ def bb_login_safe(f, user, pwd):
 def update_directory(updater):
     def u(*args, **kwargs):
         global DIRECTORY
-        DIRECTORY = updater(*args, **kwargs)
+        DIRECTORY.point(updater(*args, **kwargs))
         return DIRECTORY
     return u
 def update_teachers(updater):
     def u(*args, **kwargs):
         global TEACHERS
-        TEACHERS = updater(*args, **kwargs)
+        TEACHERS.point(updater(*args, **kwargs))
         return TEACHERS
     return u
 def update_menu(updater):
     def u(*args, **kwargs):
         global SAGEMENU, SAGEMENUINFO
-        SAGEMENU, SAGEMENUINFO = updater(*args, **kwargs)
+        u = updater(*args, **kwargs)
+        SAGEMENU.point(u[0])
+        SAGEMENUINFO.point(u[1])
         return SAGEMENU, SAGEMENUINFO
     return u
 def update_sports(updater):
     def u(*args, **kwargs):
         global SPORTCAL
-        SPORTCAL = updater(*args, **kwargs)
+        SPORTCAL.point(updater(*args, **kwargs))
         return SPORTCAL
     return u
 
@@ -98,13 +101,14 @@ try:
     print('Using cached scrape data.')
 except (JSONDecodeError, KeyError):
     # updater_pool.pushps_multi(d, t, s)
-    DIRECTORY = d.wait()
-    TEACHERS = t.wait()
-    SAGEMENU, SAGEMENUINFO = s.wait()
-    SPORTCAL = sp.wait()
-    CLASSES = {}
-    CLASS_TOPICS = {}
-    PROFILE_DETAILS = {}
+    DIRECTORY = PersistentDict(d.wait())
+    TEACHERS = PersistentDict(t.wait())
+    s = s.wait()
+    SAGEMENU, SAGEMENUINFO = PersistentDict(s[0]), PersistentDict(s[1])
+    SPORTCAL = PersistentDict(sp.wait())
+    CLASSES = PersistentDict()
+    CLASS_TOPICS = PersistentDict()
+    PROFILE_DETAILS = PersistentDict()
 
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
