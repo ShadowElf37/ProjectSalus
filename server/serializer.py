@@ -204,6 +204,12 @@ class ClassSerializer(RecursiveSerializer):
             def _s_value(self, v):
                 super(cls._baseclass, v).__init__()
             setattr(cls, var, property(lambda self: cls._baseclass(self), _s_value))
+            
+            def point(self, v):
+                if type(v) not in self.__class__.__bases__:
+                    raise TypeError('Class %s cannot emulate uninherited type %s' % (type(self), type(v)))
+                super(type(v), v).__init__()
+            cls.point = point
 
             return ClassSerializer.serialized(_value=cls._basevalue, **kwargs)(cls)
         return make
