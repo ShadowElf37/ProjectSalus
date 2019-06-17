@@ -3,9 +3,6 @@ from .serializer import BSManager
 Manager = BSManager()
 AccountsSerializer = Manager.make_serializer('accounts.json')
 
-class PersistentBuiltin(object): pass
-
-
 @AccountsSerializer.extends(dict)
 class PersistentDict(dict):
     def valuesl(self):

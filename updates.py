@@ -2,7 +2,7 @@ import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
 from server.threadpool import Pool, Poolsafe
-from server.persistent import PersistentDict
+from server.persistent import PersistentDict, PersistentList
 
 HOURLY = 60
 DAILY = 60*24
@@ -41,28 +41,23 @@ def bb_login_safe(f, user, pwd):
 def update_directory(updater):
     def u(*args, **kwargs):
         global DIRECTORY
-        DIRECTORY.point(updater(*args, **kwargs))
-        return DIRECTORY
+        return DIRECTORY.points(updater(*args, **kwargs))
     return u
 def update_teachers(updater):
     def u(*args, **kwargs):
         global TEACHERS
-        TEACHERS.point(updater(*args, **kwargs))
-        return TEACHERS
+        return TEACHERS.points(updater(*args, **kwargs))
     return u
 def update_menu(updater):
     def u(*args, **kwargs):
         global SAGEMENU, SAGEMENUINFO
         u = updater(*args, **kwargs)
-        SAGEMENU.point(u[0])
-        SAGEMENUINFO.point(u[1])
-        return SAGEMENU, SAGEMENUINFO
+        return SAGEMENU.points(u[0]), SAGEMENUINFO.points(u[1])
     return u
 def update_sports(updater):
     def u(*args, **kwargs):
         global SPORTCAL
-        SPORTCAL.point(updater(*args, **kwargs))
-        return SPORTCAL
+        return SPORTCAL.points(updater(*args, **kwargs))
     return u
 
 def dsetter(dict, key, updaterf):
@@ -71,6 +66,12 @@ def dsetter(dict, key, updaterf):
         dict[key] = v
         return v
     return u
+
+DIRECTORY = PersistentDict()
+TEACHERS = PersistentDict()
+SAGEMENU = PersistentDict()
+SAGEMENUINFO = PersistentDict()
+SPORTCAL = PersistentList()
 
 d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
 t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
@@ -101,14 +102,12 @@ try:
     print('Using cached scrape data.')
 except (JSONDecodeError, KeyError):
     # updater_pool.pushps_multi(d, t, s)
-    DIRECTORY = PersistentDict(d.wait())
-    TEACHERS = PersistentDict(t.wait())
-    s = s.wait()
-    SAGEMENU, SAGEMENUINFO = PersistentDict(s[0]), PersistentDict(s[1])
-    SPORTCAL = PersistentDict(sp.wait())
     CLASSES = PersistentDict()
     CLASS_TOPICS = PersistentDict()
     PROFILE_DETAILS = PersistentDict()
+    Poolsafe.await_all(d, t, s, sp)
+    # d.wait();t.wait();s.wait();sp.wait()
+
 
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
@@ -121,49 +120,3 @@ DataSerializer.set('SAGEMENUINFO', SAGEMENUINFO)
 DataSerializer.set('CLASSES', CLASSES)
 DataSerializer.set('PROFILES', PROFILE_DETAILS)
 DataSerializer.set('SPORTCAL', SPORTCAL)
-
-from server.threadpool import CALLABLE
-
-# DEPRECATED - use Poolsafe(bb_login_safe(f, user, pass)) and chronomancer.f(ps)
-def register_bb_updater(account, cachekey, f, args, deltaMinutes, **kwargs):
-    def update(f, *args, **kwargs):
-        session = BlackbaudScraper()
-        session.cookies['t'] = account.bb_t
-        if not account.bb_t:
-            try:
-                c = session.login(*account.bb_auth)
-            except StatusError:
-                return
-            # print(c, account.bb_auth)
-            account.bb_t = c['t']
-
-        newargs = []
-        for arg in args:
-            if type(arg) is tuple and arg[0] is CALLABLE:
-                newargs.append(arg[1]())
-            else:
-                newargs.append(arg)
-
-        try:
-            r = f(session, *newargs, **kwargs)
-        except StatusError:
-            try:
-                c = session.login(*account.bb_auth)
-            except StatusError:
-                return
-            account.bb_t = c['t']
-            try:
-                r = f(session, *newargs, **kwargs)
-            except StatusError:
-                return
-        except Exception as e:
-            print(f, args, kwargs)
-            raise e
-        account.bb_cache[cachekey] = r
-        return r
-
-    ps = Poolsafe(update, f, *args, **kwargs)
-    d = chronomancer.metakhronos(deltaMinutes, ps, now=True)
-    chronomancer.track(d, account.name)
-
-    return ps

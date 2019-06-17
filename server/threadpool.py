@@ -48,6 +48,7 @@ class Poolsafe:
     @staticmethod
     def await_all(*pses):
         it = iter(pses)
+        print(list(it))
         ps = next(it, Poolsafe.NONCE)
         if ps is Poolsafe.NONCE:
             return

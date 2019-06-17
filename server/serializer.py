@@ -209,7 +209,8 @@ class ClassSerializer(RecursiveSerializer):
                 if type(v) not in self.__class__.__bases__:
                     raise TypeError('Class %s cannot emulate uninherited type %s' % (type(self), type(v)))
                 super(type(v), v).__init__()
-            cls.point = point
+                return self
+            cls.points = point
 
             return ClassSerializer.serialized(_value=cls._basevalue, **kwargs)(cls)
         return make
