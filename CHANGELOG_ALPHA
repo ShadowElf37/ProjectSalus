@@ -1,3 +1,7 @@
+v0.5.2 (6/16/19)
+- Fixed bug with persistent.py objects not writing
+- Moved all that messy builtin compat to a new carefully_serialized decorator in serializer.py
+
 v0.5.1 (6/16/19)
 - Fixed a bug with weekday solving
 - Made darkbb.css more scalable

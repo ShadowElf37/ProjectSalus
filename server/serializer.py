@@ -187,7 +187,7 @@ class ClassSerializer(RecursiveSerializer):
         return {"values": super()._prepare(), "pool": pool}
 
     @staticmethod
-    def carefullySerialized(**kwargs):
+    def serialized_carefully(**kwargs):
         """For use with objects that inherit builtins"""
         def make(cls):
             cls._baseclass = cls.__bases__[0]
