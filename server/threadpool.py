@@ -1,6 +1,6 @@
 from threading import *
 from .config import get_config
-from inspect import isfunction, ismethod
+from inspect import isfunction, ismethod, isbuiltin
 
 config = get_config('threads')
 
@@ -37,7 +37,7 @@ CALLABLE = object()
 class Poolsafe:
     NONCE = object()
     def __init__(self, f, *args, **kwargs):
-        if not (isfunction(f) or ismethod(f)): raise TypeError('Poolsafe needs a function to run.')
+        if not (isfunction(f) or ismethod(f) or isbuiltin(f)): raise TypeError('Poolsafe needs a function to run.')
         self.f = f
         self.args = args
         self.kwargs = kwargs

@@ -9,44 +9,47 @@
   "1":
       [
           ["Home", "/home/index.html", false],
+          ["SGA", "", true],
+          ["Classes", "", true],
+          ["Mail", "", true],
+          ["Calendar", "", true],
           ["Directory", "/accounts/directory.html", true],
+          ["Settings", "", true],
           ["Logout", "/logout", false]
       ],
   "2":
       [
           ["Home", "/home/index.html", false],
-          ["SLB", "/home/slb.html", true],
-          ["Town Hall", "/townhall/index.html", true],
-          ["Surveys", "/townhall/surveys.html", true],
-          ["Calendar", "/home/calendar.html", true],
-          ["SGA", "/sga/index.html", true],
-          ["Clubs", "/sga/clubs.html", true],
+          ["SGA", "", true],
+          ["Classes", "", true],
+          ["Mail", "", true],
+          ["Calendar", "", true],
           ["Directory", "/accounts/directory.html", true],
+          ["Settings", "", true],
           ["Logout", "/logout", false]
       ],
   "3":
       [
           ["Home", "/home/index.html", false],
-          ["SLB", "/home/slb.html", true],
-          ["Town Hall", "/townhall/index.html", true],
-          ["Surveys", "/townhall/surveys.html", true],
-          ["Calendar", "/home/calendar.html", true],
-          ["SGA", "/sga/index.html", true],
-          ["Clubs", "/sga/clubs.html", true],
+          ["SGA", "", true],
+          ["Classes", "", true],
+          ["Mail", "", true],
+          ["Calendar", "", true],
           ["Directory", "/accounts/directory.html", true],
+          ["Settings", "", true],
           ["Logout", "/logout", false]
       ],
   "4":
       [
           ["Home", "/home/index.html", false],
-          ["SLB", "/home/slb.html", true],
-          ["Town Hall", "/townhall/index.html", true],
-          ["Surveys", "/townhall/surveys.html", true],
-          ["Calendar", "/home/calendar.html", true],
-          ["SGA", "/sga/index.html", true],
-          ["Clubs", "/sga/clubs.html", true],
+          ["SGA", "", true],
+          ["Classes", "", true],
+          ["Mail", "", true],
+          ["Calendar", "", true],
           ["Directory", "/accounts/directory.html", true],
+          ["Settings", "", true],
           ["Controls", "/admin/controlboard.html", false],
           ["Logout", "/logout", false]
+
       ]
 }

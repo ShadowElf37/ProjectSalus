@@ -3,7 +3,6 @@
 - Sensitize schedule to weekends and days off
 - Rework general.css
 - Landing page JS, poll rendering, schedule rendering
-- Add back navbar pages
 - Scalability improvements
 
 - Admin control board

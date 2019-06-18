@@ -73,6 +73,8 @@ SAGEMENU = PersistentDict()
 SAGEMENUINFO = PersistentDict()
 SPORTCAL = PersistentList()
 
+chronomancer.delta(0.01, Poolsafe(print, DIRECTORY), now=True)
+
 d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
 t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
 sp = Poolsafe(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)), end_date=firstlast_of_month(+1)[1])
@@ -105,6 +107,7 @@ except (JSONDecodeError, KeyError):
     CLASSES = PersistentDict()
     CLASS_TOPICS = PersistentDict()
     PROFILE_DETAILS = PersistentDict()
+    DIRECTORY = PersistentDict(d.wait())
     Poolsafe.await_all(d, t, s, sp)
     # d.wait();t.wait();s.wait();sp.wait()
 

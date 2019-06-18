@@ -192,27 +192,30 @@ class ClassSerializer(RecursiveSerializer):
         def make(cls):
             if base is not None and (base not in cls.__bases__):
                 raise NotImplementedError('Serialized class %s must inherit emulated superclass %s' % (cls, base))
-            cls._baseclass = cls.__bases__[0] if base is None else base
-            cls._basevalue = cls._baseclass.__new__(cls._baseclass)
-            var = '_value_'+cls._baseclass.__name__
+            baseclass = cls.__bases__[0] if base is None else base
+            setattr(cls, '_baseclass_'+baseclass.__name__, baseclass)
+            basevalue = baseclass.__new__(baseclass)
+            var = '_value_'+baseclass.__name__
 
             def __postinit__(self):
                 if var not in self.__dict__.keys():
-                    self.__dict__[var] = deepcopy(cls._basevalue)
-                super(cls._baseclass, self.__dict__[var]).__init__()
+                    self.__dict__[var] = deepcopy(basevalue)
+                baseclass.__init__(self, self.__dict__[var])
             cls.__postinit__ = __postinit__
             def _s_value(self, v):
-                super(cls._baseclass, v).__init__()
-            setattr(cls, var, property(lambda self: cls._baseclass(self), _s_value))
+                super(baseclass, v).__init__()
+            setattr(cls, var, property(lambda self: baseclass(self), _s_value))
             
             def point(self, v):
                 if type(v) not in self.__class__.__bases__:
                     raise TypeError('Class %s cannot emulate uninherited type %s' % (type(self), type(v)))
-                super(type(v), v).__init__()
+                type(v).__init__(self, v)
+                self.__dict__[var] = v
+
                 return self
             cls.points = point
 
-            return ClassSerializer.serialized(**{var:cls._basevalue}, **kwargs)(cls)
+            return ClassSerializer.serialized(**{var:basevalue}, **kwargs)(cls)
         return make
 
     @staticmethod
