@@ -10,6 +10,7 @@ from .config        import CONFIG_CACHE
 from .cache         import FileCache
 from .              import handlers
 import time
+import mods.modding
 
 RESPONSE_QUEUE = []
 
@@ -69,6 +70,9 @@ class Server(HTTPServer):
 
     def reload_cache(self):
         self.cache.reload()
+
+    def load_plugin(self, name):
+        return mods.modding.Plugins.load(name, scope=globals())
 
     def update(self):
         here = os.path.dirname(os.path.abspath(__file__))
