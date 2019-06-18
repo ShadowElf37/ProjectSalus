@@ -187,7 +187,7 @@ class ClassSerializer(RecursiveSerializer):
         return {"values": super()._prepare(), "pool": pool}
 
     @staticmethod
-    def extends(base=None, **kwargs):
+    def extending(base=None, **kwargs):
         """For use with objects that inherit builtins"""
         def make(cls):
             if base is not None and (base not in cls.__bases__):
@@ -212,7 +212,7 @@ class ClassSerializer(RecursiveSerializer):
                 return self
             cls.points = point
 
-            return ClassSerializer.serialized(_value=cls._basevalue, **kwargs)(cls)
+            return ClassSerializer.serialized(**{var:cls._basevalue}, **kwargs)(cls)
         return make
 
     @staticmethod
@@ -272,7 +272,6 @@ class ClassSerializer(RecursiveSerializer):
 
         assert getattr(obj, "_uuid")
         for key in cls._defaults:
-            print(obj.__class__, key)
             data[key] = self._serialize(getattr(obj, key))
         return value
 

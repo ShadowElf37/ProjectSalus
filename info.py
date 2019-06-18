@@ -185,9 +185,6 @@ def add_meeting_notes(date, *notes):
         MEETINGNOTES[date] += notes
 
 
-
-
-
 try:
     AccountsSerializer.load()
     EVENTS = AccountsSerializer.get('EVENTS')

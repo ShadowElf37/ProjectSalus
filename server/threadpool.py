@@ -47,15 +47,10 @@ class Poolsafe:
 
     @staticmethod
     def await_all(*pses):
-        it = iter(pses)
-        print(list(it))
-        ps = next(it, Poolsafe.NONCE)
-        if ps is Poolsafe.NONCE:
-            return
-        with ps.cond:
-            while ps.r is Poolsafe.NONCE:
-                ps.cond.wait()
-            Poolsafe.await_all(it)
+        for ps in pses:
+            with ps.cond:
+                while ps.r is Poolsafe.NONCE:
+                    ps.cond.wait()
 
     def wait(self):
         with self.cond:

@@ -1,3 +1,7 @@
+v0.5.3 (6/17/19)
+- Fixed more bugs; made all the scrapes use Persistent
+- Added modding framework; needs further research into functionality
+
 v0.5.2 (6/16/19)
 - Fixed bug with persistent.py objects not serializing properly
 - Moved some code to @extends decorator in serializer.py - use when you need to store parent attributes more carefully than you otherwise might

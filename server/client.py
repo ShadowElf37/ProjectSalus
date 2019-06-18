@@ -122,7 +122,7 @@ class ClientObj:
 from json.decoder import JSONDecodeError
 try:
     AccountsSerializer.load()
-    user_tokens: PersistentDict = AccountsSerializer.get('accounts')
+    user_tokens: PersistentDict = AccountsSerializer.get('Accounts')
 except (JSONDecodeError, KeyError):
     user_tokens = PersistentDict()
-AccountsSerializer.set('accounts', user_tokens)
+AccountsSerializer.set('Accounts', user_tokens)

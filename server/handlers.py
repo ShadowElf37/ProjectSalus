@@ -8,9 +8,10 @@ from time import time
 import updates
 import scrape
 import info
+import mods.modding
 
 navbar = get_config('navbar')
-from .htmlutil import snippets, snippet, ISOWEEKDAYNAMES, ordinal
+from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
 info.create_announcement('Test', 'This is an announcement.', time()+100000)
 info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
@@ -115,6 +116,10 @@ class HandlerFavicon(RequestHandler):
     def call(self):
         self.response.redirect('http://bbk12e1-cdn.myschoolcdn.com/ftpimages/813/logo/EWS-Circular-Logo--WHITEBG.png')
         # self.response.attach_file('favicon.ico')
+
+class HandlerModding(RequestHandler):
+    def call(self):
+        ...
 
 class HandlerControlWords(RequestHandler):
     def call(self):
@@ -398,7 +403,6 @@ class HandlerBBInfo(RequestHandler):
                                           desc=assignment['desc']))
 
         maamads = []
-        now = datetime.now()
         for week in info.MAAMADS:
             if week.is_this_week(TESTDATE):
                 for day in week.week:

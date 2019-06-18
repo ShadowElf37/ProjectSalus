@@ -3,7 +3,7 @@ from .serializer import BSManager
 Manager = BSManager()
 AccountsSerializer = Manager.make_serializer('accounts.json')
 
-@AccountsSerializer.extends(dict)
+@AccountsSerializer.extending(dict)
 class PersistentDict(dict):
     def valuesl(self):
         return list(self.values())
@@ -12,7 +12,7 @@ class PersistentDict(dict):
     def find(self, condition):
         return next(filter(condition, self.values()), None)
 
-@AccountsSerializer.extends(list)
+@AccountsSerializer.extending(list)
 class PersistentList(list):
     def find(self, condition):
         return next(filter(condition, self), None)
