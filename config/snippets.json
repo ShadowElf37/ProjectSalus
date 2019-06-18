@@ -1,11 +1,25 @@
 {
   "classtab": "<div class=\"class-tab\"><span class=\"period\">{period}</span><span class=\"classname\">{classname}</span></div>",
   "nullclass": "<div class=\"null-class\">{name}</div>",
+  "no-periods": "<span style=\"font-size: 24px;\">{text}</span>",
+
   "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>&nbsp;&nbsp;<i style=\"font-size:14px;\">{date}</i>{text}</div>",
-  "no-announcement": "<p style=\"font-size: 24px;\">There are no announcements today!</p>",
+  "no-announcement": "<p style=\"font-size: 24px; margin-left: 20px\">No announcements today!</p>",
+
   "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p>",
   "menuitem": "<span class=\"{veg}menuitem\">{name}</span>",
+  "no-food": "<span style=\"font-size: 24px; text-align: left\">There is no food.</span>",
+
   "maamad-tab": "<div class=\"maamad-tab\"><span class=\"maamad-title\">{weekday} {dayord}: {title}</span><span class=\"maamad-desc\">{desc}</span></div>",
+  "no-maamad": "<span style=\"font-size: 20px; text-align: left;\">There is no Ma'amad data for this week.</span>",
+
+  "no-assignments": "<span style=\"font-size: 20px; text-align: left\">There are no assignments from any class this week.</span>",
   "assignment": "<li>–<span class=\"assignment-title\">{title}</span><div class=\"sub-li\"><p>Due {due}{s12}(Assigned {assnd})</p><p class=\"desc\">{desc}</p></div></li>",
+
+  "next-class-info-1": "Your next period is <span class=\"important\">{period}</span> at {startp}",
+  "next-class-info-2": "<span id=\"classname\">{name}</span><span id=\"start-end\">{start} - {end}</span>\n<span id=\"teacher\">{teacher}</span>\n<span id=\"teacher-email\">{email}</span>",
+
+
+  "red-border": "border: 1px solid #f00; box-shadow: 0 0 20px #400;",
   "css-noselect": "user-select: none; -moz-user-select: -moz-none; -khtml-user-select: none; -webkit-user-select: none; -o-user-select: none;"
 }

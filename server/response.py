@@ -185,7 +185,7 @@ class Response:
     def render(byte, render_opts):
         f = byte
 
-        defrender = re.findall(b'#(?:define|DEFINE) "?([^"]*)"? "?([^"]*)"?;', f)
+        defrender = re.findall(b'#(?:[dD][eE][fF][iI][nN][eE]) ([^ ]*)? (.*)+(?:[;\n])', f)
         if defrender:
             for df in defrender:
                 f.replace(df[0], df[1])

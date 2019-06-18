@@ -117,7 +117,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             'That\'s not what I thought would happen...',
             'Oh frick.'
             ]
-        print('='*100+'\nA fatal error was caught in handler:\n' + format_exc()+'\n'+'='*100)
+        print('='*100+'\nA fatal error was caught in handler:\n' + format_exc() + '='*100)
         self.send_error(500, (random.choice(responses) + ' {}: {}'.format(e.__class__.__name__, (str(e)[0].upper() + str(e)[1:]))))
         return 0
 

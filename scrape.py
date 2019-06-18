@@ -6,6 +6,7 @@ from time import time, sleep
 from bs4 import BeautifulSoup
 import calendar
 from html import escape, unescape
+from server.threadpool import Minisafe
 
 def html(s):
     return BeautifulSoup(s, 'html.parser')
@@ -48,6 +49,7 @@ def firstlast_of_month(deltaMonth=0):
     n = datetime.datetime.now()
     n = n.replace(month=n.month+deltaMonth)
     return n.replace(day=1), n.replace(day=calendar.monthrange(n.year, n.month)[1])
+flmsf = lambda i, dm=0: Minisafe(lambda f: f(dm)[i], firstlast_of_month)
 
 def prettify(jsonobj, indent=4):
     return json.dumps(jsonobj, indent=indent)
@@ -214,11 +216,11 @@ class BlackbaudScraper(Scraper):
         self.cookies.update(cookies)
         return cookies
 
-    def calendar_filters(self, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
+    def calendar_filters(self, start_date=flmsf(0), end_date=flmsf(1), **headers):
         #https://emeryweiner.myschoolapp.com/api/mycalendar/list/?startDate=03%2F30%2F2019&endDate=05%2F04%2F2019&settingsTypeId=1&calendarSetId=1
         params = {
-            'startDate': start_date.strftime('%m/%d/%Y'),
-            'endDate': end_date.strftime('%m/%d/%Y'),
+            'startDate': Minisafe.test(start_date).strftime('%m/%d/%Y'),
+            'endDate': Minisafe.test(end_date).strftime('%m/%d/%Y'),
             'settingsTypeId': 1,
             'calendarSetId': 1
         }
@@ -233,10 +235,10 @@ class BlackbaudScraper(Scraper):
 
         return filters
 
-    def sports_calendar(self, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
+    def sports_calendar(self, start_date=flmsf(0), end_date=flmsf(1), **headers):
         params = {
-            'startDate': start_date.strftime('%m/%d/%Y'),
-            'endDate': end_date.strftime('%m/%d/%Y'),
+            'startDate': Minisafe.test(start_date).strftime('%m/%d/%Y'),
+            'endDate': Minisafe.test(start_date).strftime('%m/%d/%Y'),
             'filterString': ','.join(self.calendar_filters(start_date, end_date)['School Athletics'].values()),
             'showPractice': False
         }
@@ -389,9 +391,9 @@ class BlackbaudScraper(Scraper):
 
         return details
 
-    def schedule(self, date=todaystr(), **headers):
+    def schedule(self, datestr=Minisafe(todaystr), **headers):
         params = {
-            'scheduleDate': date,
+            'scheduleDate': Minisafe.test(datestr),
             'personaId': 2,
         }
         headers.update(self.default_headers)
@@ -412,15 +414,15 @@ class BlackbaudScraper(Scraper):
 
         return schedule
 
-    def schedule_span(self, uid, start_date=firstlast_of_month()[0], end_date=firstlast_of_month()[1], **headers):
+    def schedule_span(self, uid, start_date=flmsf(0), end_date=flmsf(1), **headers):
         #https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/?format=json&viewerId=3510119&personaId=2&viewerPersonaId=2&start=1558846800&end=1562475600&_=1559936166683
         params = {
             'format': 'json',
             'viewerId': uid,
             'personaId': 2,
             'viewerPersonaId': 2,
-            'start': start_date.timestamp(),
-            'end': end_date.timestamp(),
+            'start': Minisafe.test(start_date).timestamp(),
+            'end': Minisafe.test(end_date).timestamp(),
         }
         headers.update(self.default_headers)
 
@@ -446,7 +448,7 @@ class BlackbaudScraper(Scraper):
                 real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
                 continue
             elif period_from_name(t) == 'US':
-                real[date]['SPECIAL'].append(format_class_name(t))
+                real[date]['SPECIAL'].append(t)
                 continue
 
             real[date][period_from_name(t)] = data
@@ -525,13 +527,13 @@ class BlackbaudScraper(Scraper):
 
         return grades
 
-    def assignments(self, start_date=last_sunday(), end_date=next_saturday(), **headers):
+    def assignments(self, start_date=Minisafe(last_sunday), end_date=Minisafe(next_saturday), **headers):
         # https://emeryweiner.myschoolapp.com/api/DataDirect/AssignmentCenterAssignments/?format=json&filter=1&dateStart=5%2F12%2F2019&dateEnd=5%2F19%2F2019&persona=2&statusList=&sectionList=
         params = {
             'format': 'json',
             'filter': 1,
-            'dateStart': start_date.strftime('%m/%d/%Y'),
-            'dateEnd': end_date.strftime('%m/%d/%Y'),
+            'dateStart': Minisafe.test(start_date).strftime('%m/%d/%Y'),
+            'dateEnd': Minisafe.test(end_date).strftime('%m/%d/%Y'),
             'persona': 2,
             'statusList': None,
             'sectionList': None,

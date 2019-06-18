@@ -13,9 +13,9 @@ import mods.modding as modding
 navbar = get_config('navbar')
 from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
-info.create_announcement('Test', 'This is an announcement.', time()+100000)
-info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
-m = info.create_maamad_week('05/20/2019')
+# info.create_announcement('Test', 'This is an announcement.', time()+100000)
+# info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
+m = info.MaamadWeek(datetime.strptime('05/20/2019', '%m/%d/%Y'))
 m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
 m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 10th Grade: Flex Time
@@ -280,7 +280,7 @@ class HandlerBBInfo(RequestHandler):
             return
 
         TESTTIME = '12:30 pm'
-        TESTDATE = '05/21/2019'
+        TESTDATE = '05/24/2019'#'05/21/2019'
         TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 
         if 'schedule' not in self.account.updaters:
@@ -315,7 +315,7 @@ class HandlerBBInfo(RequestHandler):
 
         schedule = self.account.updaters['schedule'].wait()
         #print(scrape.prettify(schedule))
-        schedule = schedule[TESTDATE]
+        schedule = schedule.get(TESTDATE, {})
 
         # Spawn some class updaters to fill gaps; these won't matter for this page but we should spawn them for when they're needed
         scp = self.account.personal_scraper
@@ -352,7 +352,8 @@ class HandlerBBInfo(RequestHandler):
         prf = self.account.updaters['profile'].wait()
 
         periods = []
-        classday = 'Day {}'.format(schedule['DAY'])
+        spec = ' / '.join(schedule.get('SPECIAL')).lower()
+        classday = 'Day {}'.format(scrape.get(schedule, 'DAY', 'of No Class')) + (' (Half Day)' if 'dismissal' in spec else '')
         start = None
         end = None
         nextclass = None
@@ -373,19 +374,20 @@ class HandlerBBInfo(RequestHandler):
             else:
                 periods.append(snippet('nullclass', name=period))
 
-        menulist = updates.SAGEMENU.get(TESTDATE, ('There is no food.',))
+        menulist = updates.SAGEMENU.get(TESTDATE, ())
         avd = scrape.SageScraper.AVOID
         menu = []
-        for item in menulist:
-            di = updates.SAGEMENUINFO.get(item, [])
-            veg = 'vegitem ' if avd['611'] not in di or avd['601'] not in di[1] else ''
-            menu.append(snippet('menuitem', name=item, veg=veg))
+        if menulist:
+            for item in menulist:
+                di = updates.SAGEMENUINFO.get(item, [])
+                veg = 'vegitem ' if avd['611'] not in di or avd['601'] not in di[1] else ''
+                menu.append(snippet('menuitem', name=item, veg=veg))
 
         allergen_0 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 0})  # Contains
         allergen_1 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 1})  # May contain
         allergen_2 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 2})  # Cross contamination warning
-        contains = ', '.join(allergen_0[:-1]) + ', and ' + allergen_0[-1]
-        may_contain = ', '.join(allergen_1[:-1]) + ', and ' + allergen_1[-1]
+        contains = (', '.join(allergen_0[:-1]) + ', and ' + allergen_0[-1]) if allergen_0 else 'nothing'
+        may_contain = (', '.join(allergen_1[:-1]) + ', and ' + allergen_1[-1]) if allergen_1 else 'nothing'
         cross = 'Some food is subject to cross-contamination in oil.' if allergen_2 else ''
 
         announcements = [snippet('announcement',
@@ -419,22 +421,27 @@ class HandlerBBInfo(RequestHandler):
                                            dayord=ordinal(dt.day)))
                 break
 
+        noschool = not periods or 'cancel' in spec or 'close' in spec or 'field day' in spec
+
         self.response.attach_file('/accounts/bb_test.html', cache=False,
                                   classday=classday,
-                                  start=start,
-                                  end=end,
-                                  startp=scrape.striptimezeros(nextclass[1]['start']).lower(),
-                                  next_period=nextclass[0],
-                                  next_name=nextclass[1]['title'],
-                                  next_teacher=grades[nextclass[1]['id']]['teacher'],
-                                  next_teacher_email=grades[nextclass[1]['id']]['teacher-email'],
-                                  periods='\n'.join(periods),
+                                  next_class_info=snippet('next-class-info-1',
+                                                          period=nextclass[0],
+                                                          startp=scrape.striptimezeros(nextclass[1]['start']).lower()) if nextclass else 'No school today.' if noschool else 'No more classes today.',
+                                  next_class_meta=snippet('next-class-info-2',
+                                                           name=nextclass[1]['title'],
+                                                           teacher=grades[nextclass[1]['id']]['teacher'],
+                                                           email=grades[nextclass[1]['id']]['teacher-email'],
+                                                           start=start,
+                                                           end=end) if nextclass else 'Have a lovely day!',
+                                  periods='\n'.join(periods) if periods and not noschool else snippet('no-periods', text=('No Classes Today' if not schedule.get('SPECIAL') else '<br>'.join(map(scrape.format_class_name, schedule['SPECIAL'])))),
+                                  no_school=snippet('red-border') if noschool else '',
                                   announcements='\n'.join(announcements),
                                   allergens=snippet('allergens', contains, may_contain, cross),
                                   prefix=prf['prefix'],
-                                  assignments='\n'.join(assignmentlist) if assignmentlist else "There are no assignments from any class this week.",
-                                  maamads='\n'.join(maamads),
-                                  menu='\n'.join(menu))
+                                  assignments='\n'.join(assignmentlist) if assignmentlist else snippet('no-assignments'),
+                                  maamads='\n'.join(maamads) if maamads else snippet('no-maamad'),
+                                  menu='\n'.join(menu) if menu else snippet('no-food'))
 
 
 GET = {

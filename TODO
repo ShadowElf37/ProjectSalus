@@ -1,9 +1,8 @@
 
 - Navbar CSS
-- Sensitize schedule to weekends and days off
-- Rework general.css
-- Landing page JS, poll rendering, schedule rendering
+- Rework general.css with relation to darkbb.css
 - Scalability improvements
+- Landing page JS, poll rendering, schedule rendering
 
 - Admin control board
 - SGA feedback form & email forwarding system
@@ -33,6 +32,7 @@
 - Check dates of recently graded assignments
 - Abstractify everything into configs so we only have to reboot in emergencies
 - Club integration
+- Randomized nice messages everywhere we normally see one (cf HandlerBBInfo "Have a lovely day!" etc.)
 
 Check for:
     - Bugs

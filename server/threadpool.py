@@ -11,7 +11,7 @@ class Minisafe:
         self.kwargs = kwargs
 
     @staticmethod
-    def find_minisafes(args):
+    def find_minisafes_in(args):
         nargs = []
         for arg in args:
             if isinstance(arg, Minisafe):
@@ -29,6 +29,12 @@ class Minisafe:
             else:
                 nkwargs[k] = v
         return nkwargs
+
+    @staticmethod
+    def test(obj):
+        if isinstance(obj, Minisafe):
+            return obj.call()
+        return obj
 
     def call(self):
         return self.f(*self.args, **self.kwargs)
@@ -60,11 +66,11 @@ class Poolsafe:
 
     def call(self):
         with self.cond:
-            args = Minisafe.find_minisafes(self.args)
+            args = Minisafe.find_minisafes_in(self.args)
             kwargs = Minisafe.find_minisafes_kw(self.kwargs)
             self.r = self.f(*args, **kwargs)
             for f, args, kwargs in self.after:
-                a = Minisafe.find_minisafes(self.args)
+                a = Minisafe.find_minisafes_in(self.args)
                 k = Minisafe.find_minisafes_kw(self.kwargs)
                 f(*a, **k)
             self.cond.notify_all()

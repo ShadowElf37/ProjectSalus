@@ -1,6 +1,6 @@
 import sched
 import time
-from .threadpool import Poolsafe
+from .threadpool import Poolsafe, Pool, Minisafe
 import datetime
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(0, 7)
@@ -35,24 +35,26 @@ class Chronos:
         self.scheduler.cancel(obj)
 
     def start(self):
-        self.scheduler.run()
+        self.scheduler.run(blocking=True)
     arkhomai = start
 
     @staticmethod
-    def repeatwrap(f, chroner, *cargs, **ckwargs):
+    def repeatwrap(f, chronf, *cargs, **ckwargs):
         def wrapped(*args, **kwargs):
             # Should be a method of Chronicler to reschedule the function
-            chroner(*cargs, **ckwargs)
-            return f(*args, **kwargs)
+            entry = chronf(*cargs, **ckwargs)
+            v = f(*args, **kwargs)
+            return v
         return wrapped
 
-    def delta(self, delta, ps: Poolsafe, delta_from=datetime.datetime.now(), priority=0, now=False):
+    def delta(self, delta, ps: Poolsafe, delta_from=Minisafe(datetime.datetime.now), priority=0, now=False):
         if now: self.push(ps)
+        delta_from = Minisafe.test(delta_from)
         pushrepeater = self.repeatwrap(self.push, self.delta, delta, ps, priority=priority)
-
-        t = delta_from + datetime.timedelta(seconds=delta*60)
-        return self.scheduler.enter(t.timestamp(),
+        t = delta_from.timestamp() + delta*60
+        entry = self.scheduler.enterabs(t,
                                     priority=priority, action=pushrepeater, argument=(ps,))
+        return entry
 
     def daily(self, _time: datetime.time, ps: Poolsafe, priority=0, now=True):
         if now: self.push(ps)
@@ -113,4 +115,4 @@ class Chronos:
 
 
 if __name__ == '__main__':
-    ...
+    pass

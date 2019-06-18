@@ -1,3 +1,12 @@
+v0.5.4 (6/18/19)
+- Put Minisafes on default kwarg values for scrape.py and chronos.py involving dynamic date fetching after a revelation that those are actually loaded at runtime and not dynamically
+- Fixed chronos.py issue where delta() would run in the year 2069
+- Modified #define syntax to be more tolerant
+- Structured modding satisfactorily; added load_plugin() to server and two handlers to handlers.py for rebootless modding after a git pull; can be used to add RequestHandlers etc. without reloading handlers.py during a run
+- Moved a bunch of html to snippets.json
+- Gave bb_test.html defaults for everything except the poll (which is to be impl)
+- Added a bunch of indicators and logic to signal half days and days of no school
+
 v0.5.3 (6/17/19)
 - Fixed more bugs; made all the scrapes use Persistent
 - Added modding framework; needs further research into functionality
