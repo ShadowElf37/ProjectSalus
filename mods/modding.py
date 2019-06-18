@@ -27,12 +27,14 @@ class Plugins:
             setattr(into_scope, _as if _as else modulename, i)
         __class__._modding_table.append(i)
 
-        if concede_scope is not None and defines(i, 'main'):
+        if concede_scope is not None and defines(i, '__main__'):
             if concede_scope is True:
                 concede_scope = AttrDict(__class__)
             elif type(concede_scope) is not dict:
                 concede_scope = concede_scope.__dict__
-            i.main(concede_scope)
+            i.__main__(concede_scope)
+
+        print('Mod %s installed as %s. __main__ found: %s. ' % (modulename, _as, bool(concede_scope)))
         return i
 
     @staticmethod

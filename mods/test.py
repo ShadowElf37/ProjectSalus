@@ -1,5 +1,5 @@
 x = 5
 y = 2
 
-def main(scope):
-    return
+def __main__(namespace):
+    return namespace['__name__']

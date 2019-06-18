@@ -72,7 +72,7 @@ class Server(HTTPServer):
         self.cache.reload()
 
     def load_plugin(self, name):
-        return mods.modding.Plugins.load(name, scope=globals())
+        return mods.modding.Plugins.load(name, into_scope=globals(), concede_scope=globals())
 
     def update(self):
         here = os.path.dirname(os.path.abspath(__file__))

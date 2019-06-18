@@ -8,7 +8,7 @@ from time import time
 import updates
 import scrape
 import info
-import mods.modding
+import mods.modding as modding
 
 navbar = get_config('navbar')
 from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
@@ -117,9 +117,13 @@ class HandlerFavicon(RequestHandler):
         self.response.redirect('http://bbk12e1-cdn.myschoolcdn.com/ftpimages/813/logo/EWS-Circular-Logo--WHITEBG.png')
         # self.response.attach_file('favicon.ico')
 
-class HandlerModding(RequestHandler):
+class HandlerMod(RequestHandler):
     def call(self):
-        ...
+        modname = self.request.get_post('mod')
+        modding.Plugins.load(modname, into_scope=globals(), concede_scope=globals())
+class HandlerModServer(RequestHandler):
+    def call(self):
+        self.server.load_plugin(self.request.get_post('mod'))
 
 class HandlerControlWords(RequestHandler):
     def call(self):
@@ -451,6 +455,8 @@ POST = {
     '/signup': HandlerSignup,
     '/login': HandlerLogin,
     '/ctrl-words': HandlerControlWords,
+    '/mod-h': HandlerMod,
+    '/mod-s': HandlerModServer,
     '/bb_post': HandlerBBLogin
 }
 
