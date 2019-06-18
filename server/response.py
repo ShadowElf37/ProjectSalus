@@ -43,6 +43,7 @@ class Request:
         q = self.path.split('?')
         if len(q) > 1:
             self.get_query = parse_qs(q[1])
+        self.path = q[0]
 
         # Generate POST vals
         self.post_vals = None
@@ -185,7 +186,7 @@ class Response:
     def render(byte, render_opts):
         f = byte
 
-        defrender = re.findall(b'#(?:[dD][eE][fF][iI][nN][eE]) ([^ ]*)? (.*)+(?:[;\n])', f)
+        defrender = re.findall(b'(#(?:[dD][eE][fF][iI][nN][eE]) ([^ ]*)? (.*)+(?:[;\n]))', f)
         if defrender:
             for df in defrender:
                 f.replace(df[0], df[1])
@@ -197,7 +198,7 @@ class Response:
             for df in defrender:
                 f.replace(df[0], df[1])
 
-        kwrender = set(re.findall(b'{{(.[^}]*)}}', f))
+        kwrender = set(re.findall(b'{{(.[^\}]*)}}', f))
         for kw in kwrender:
             try:
                 r = eval(kw)
@@ -212,6 +213,7 @@ class Response:
         if defrender:
             for df in defrender:
                 f.replace(df[0], df[1])
+                f.replace(df[2], '')
 
         return f
 

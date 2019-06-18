@@ -9,13 +9,20 @@ import updates
 import scrape
 import info
 import mods.modding as modding
+import json
+
+TEST = 'Hello World'
+TESTTIME = '12:30 pm'
+TESTDATE = '05/21/2019'
+TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 
 navbar = get_config('navbar')
 from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
-# info.create_announcement('Test', 'This is an announcement.', time()+100000)
-# info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
-m = info.MaamadWeek(datetime.strptime('05/20/2019', '%m/%d/%Y'))
+"""
+info.create_announcement('Test', 'This is an announcement.', time()+100000)
+info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
+m = info.create_maamad_week(datetime.strptime('05/20/2019', '%m/%d/%Y'))
 m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
 m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 10th Grade: Flex Time
@@ -23,6 +30,7 @@ m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 m.set_day(2, 'Ma\'amad', 'Meet with Maccabiah teams (meeting locations will be emailed out)')
 m.set_day(3, 'Chavaya', 'Flex Time for all grades')
 m.set_day(4, 'Maccabiah', '')
+"""
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -124,6 +132,19 @@ class HandlerMod(RequestHandler):
 class HandlerModServer(RequestHandler):
     def call(self):
         self.server.load_plugin(self.request.get_post('mod'))
+
+class HandlerDataRequests(RequestHandler):
+    def call(self):
+        schedule = self.account.updaters['schedule'].wait()
+        WEEK = [d.strftime('%m/%d/%Y') for d in scrape.week_of(TESTDT)]
+        WEEKSCHEDULE = {d:schedule.get(d) for d in WEEK}
+        WEEKMENU = {d:updates.SAGEMENU.get(d) for d in WEEK}
+        try:
+            # TESTING ONLY - replace eval() with something safe
+            self.response.set_body(json.dumps(eval(self.request.get_query['name'][0])))
+        except Exception as e:
+            print(e)
+            self.response.set_body('null')
 
 class HandlerControlWords(RequestHandler):
     def call(self):
@@ -279,10 +300,6 @@ class HandlerBBInfo(RequestHandler):
             self.response.refuse('Sign in please.')
             return
 
-        TESTTIME = '12:30 pm'
-        TESTDATE = '05/24/2019'#'05/21/2019'
-        TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
-
         if 'schedule' not in self.account.updaters:
             if self.account.personal_scraper is None:
                 self.response.refuse('You must use your Blackbaud password to sign in first.')
@@ -434,7 +451,14 @@ class HandlerBBInfo(RequestHandler):
                                                            email=grades[nextclass[1]['id']]['teacher-email'],
                                                            start=start,
                                                            end=end) if nextclass else 'Have a lovely day!',
-                                  periods='\n'.join(periods) if periods and not noschool else snippet('no-periods', text=('No Classes Today' if not schedule.get('SPECIAL') else '<br>'.join(map(scrape.format_class_name, schedule['SPECIAL'])))),
+                                  periods='\n'.join(periods) if periods and not noschool else snippet('no-periods',
+                                                                                                      text=(
+                                                                                                          'No Classes Today' if not schedule.get('SPECIAL')
+                                                                                                              else '<br>'.join(
+                                                                                                                  set(map(scrape.format_class_name, schedule['SPECIAL']))
+                                                                                                              )
+                                                                                                          )
+                                                                                                      ),
                                   no_school=snippet('red-border') if noschool else '',
                                   announcements='\n'.join(announcements),
                                   allergens=snippet('allergens', contains, may_contain, cross),
@@ -456,6 +480,7 @@ GET = {
     '/logfile': HandlerLog,
     '/bb_login': HandlerBBPage,
     '/bb': HandlerBBInfo,
+    '/data': HandlerDataRequests,
 }
 
 POST = {

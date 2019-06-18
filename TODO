@@ -1,12 +1,12 @@
 
-- Navbar CSS
-- Rework general.css with relation to darkbb.css
+- Redo navbar CSS
 - Scalability improvements
 - Landing page JS, poll rendering, schedule rendering
-
 - Admin control board
+
 - SGA feedback form & email forwarding system
 - Snack polls
+- Cache BB login
 - Referendums / Surveys
 - Announcements, Ma'amad info
 - Public calendar with meetings & events
@@ -34,10 +34,11 @@
 - Club integration
 - Randomized nice messages everywhere we normally see one (cf HandlerBBInfo "Have a lovely day!" etc.)
 
+
 Check for:
     - Bugs
     - Everything is html escaped
-    - Replace TESTDATEs
+    - Remove TESTDATEs
 
 Post-deployment wishlist:
     - Minimalist text editor

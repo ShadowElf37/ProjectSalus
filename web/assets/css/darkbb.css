@@ -1,3 +1,112 @@
+.navbar{
+    position: fixed;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border-bottom: 1px solid #333;
+    z-index: 1000;
+    top: 0;
+    background-color: #111;
+}
+.navbar *{
+    color: #fff;
+    text-decoration: none;
+    font-family: arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+    -moz-user-select: none;
+    background-color: #111;
+    border: 0;
+}
+
+.navbar-items{
+    list-style: none;
+    font-size: 24px;
+    float: right;
+    margin: 0;
+    padding: 0;
+    height: 70px;
+}
+.navbar-items li{
+    text-align: center;
+    padding: 21px 0px;
+    width: 120px;
+    height: 100%;
+    display: inline;
+    float: left;
+    letter-spacing: 0px;
+}
+.navbar-items a{
+    display: block;
+    height: 100%;
+    width: 100%;
+    color: #ddd !important;
+}
+.navbar-items li:hover, .navbar-items li:hover a, .active{
+    background-color: #222;
+}
+
+.navbar-header{
+    font-size: 40px;
+    font-weight: bold;
+    float: left;
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+.reboot-controls{
+    display: inline-block;
+    padding: 0;
+    margin: 10px 0px 0px 50px;
+}
+.ctrl-button{
+    color: white;
+    background-color: #222;
+    margin: 0;
+    padding: 0;
+    width: 100px;
+    min-height: 40px;
+    display: inline;
+    text-decoration: none;
+    line-height: default;
+    font-size: 16px;
+    outline: none;
+    border: 3px solid #000;
+}
+.ctrl-button:hover{
+    cursor: pointer;
+    background-color: #333;
+}
+.ctrl-button:active{
+    border: 1px solid #222;
+}
+
+.disabled, .disabled a{
+    background-color: #333 !important;
+}
+
+.page-container{
+    background-color: white;
+    height: auto;
+    min-height: 1000px;
+    width: 85%;
+    left: 0;
+    right: 0;
+    top: 220px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 150px;
+    position: absolute;
+    padding: 20px;
+    background-color: #111;
+    color: #eee;
+    margin-top: -100px;
+    padding-bottom: 100px;
+}
+
+
+
 *::selection{
     background-color: #aaa;
 }
@@ -19,6 +128,14 @@
 
 html{
     font-size: 0.81vw;
+}
+
+body{
+    background-color: #010101;
+    font-family: calibri, sans-serif;
+    padding: 0;
+    overflow-x: hidden;
+    margin: 0;
 }
 
 a{
@@ -262,6 +379,9 @@ hr{
     display: inline-block;
     color: white;
     z-index: 3;
+}
+#schedule-container .class-tab:nth-last-of-type(2){
+    margin-bottom: 50px;
 }
 .class-tab:hover{
     box-shadow: 0 0 10px #430;

@@ -430,7 +430,7 @@ class BlackbaudScraper(Scraper):
                                            params=params, headers=headers, cookies=self.cookies)).json()
 
         real = {}
-        for period in schedule:
+        for i, period in enumerate(schedule):
             t = period['title']
             dt = bbdt(period['start'])
             date = dt.strftime('%m/%d/%Y')
@@ -439,7 +439,8 @@ class BlackbaudScraper(Scraper):
                 'end': bbdt(period['end']).strftime('%I:%M %p'),
                 'id': period['SectionId'],
                 'title': format_class_name(t),
-                'real': period_from_name(t) in tuple('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+                'real': period_from_name(t) in tuple('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'ord': i,
             }
 
             if date not in real:

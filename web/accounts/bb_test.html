@@ -2,27 +2,9 @@
 <html>
     <head>
         <title>Home</title>
-        {{css('general.css')}}
         {{css('darkbb.css')}}
         {{js('asyncpost.js')}}
-
-        <!--Override old dumb style for now, ignore-->
-        <style>
-            body{
-                background-color: #010101;
-            }
-            .page-container{
-                background-color: #111;
-                color: #eee;
-                box-shadow: 0 0 0px #f206;
-                margin-top: -100px;
-                padding-bottom: 100px;
-            }
-            .navbar, .navbar *{
-                background-color: #111 !important;
-                border: 0;
-            }
-        </style>
+        {{js('data.js')}}
     </head>
     <body>
         <div class="navbar">
@@ -71,7 +53,7 @@
                     <div style="width: 100%; bottom: 5px; position: absolute;">
                         <center>
                             <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 2%">
-                            <span class="sdatemarker">05/22/2019</span>
+                            <span class="sdatemarker">05/21/2019</span>
                             <input type="button" value="⇒" class="movement-arrow yellow-border" style="margin-left: 2%">
                         </center>
                     </div>
