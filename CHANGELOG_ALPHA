@@ -1,3 +1,6 @@
+v0.5.5 (6/18/19)
+- 
+
 v0.5.4 (6/18/19)
 - Put Minisafes on default kwarg values for scrape.py and chronos.py involving dynamic date fetching after a revelation that those are actually loaded at runtime and not dynamically
 - Fixed chronos.py issue where delta() would run in the year 2069

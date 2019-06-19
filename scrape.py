@@ -430,9 +430,11 @@ class BlackbaudScraper(Scraper):
                                            params=params, headers=headers, cookies=self.cookies)).json()
 
         real = {}
+        minday = datetime.datetime.max
         for i, period in enumerate(schedule):
             t = period['title']
             dt = bbdt(period['start'])
+            if dt < minday: minday = dt
             date = dt.strftime('%m/%d/%Y')
             data = {
                 'start': dt.strftime('%I:%M %p'),
@@ -444,14 +446,16 @@ class BlackbaudScraper(Scraper):
             }
 
             if date not in real:
-                real[date] = {'SPECIAL': [], 'DAY': None}
+                real[date] = {'SPECIAL': [], 'SPECIALFMT':[], 'DAY': None}
             if 'Day ' == t[:4] and t[4].isnumeric() and data['id'] is None:
                 real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
                 continue
             elif period_from_name(t) == 'US':
                 real[date]['SPECIAL'].append(t)
+                real[date]['SPECIALFMT'].append(format_class_name(t))
                 continue
 
+            real[date]['ORD'] = [(dt - minday).days]
             real[date][period_from_name(t)] = data
 
         return real

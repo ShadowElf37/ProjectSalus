@@ -455,7 +455,7 @@ class HandlerBBInfo(RequestHandler):
                                                                                                       text=(
                                                                                                           'No Classes Today' if not schedule.get('SPECIAL')
                                                                                                               else '<br>'.join(
-                                                                                                                  set(map(scrape.format_class_name, schedule['SPECIAL']))
+                                                                                                                  set(schedule['SPECIALFMT'])
                                                                                                               )
                                                                                                           )
                                                                                                       ),

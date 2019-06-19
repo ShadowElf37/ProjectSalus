@@ -322,7 +322,7 @@ hr{
 #schedule-container{
     width: 250px;
     background-color: #222;
-    min-height: 500px;
+    min-height: 700px;
     position: relative;
     margin: 20px;
     margin-top: 1%;
@@ -347,7 +347,7 @@ hr{
     margin-bottom: 12px;
 }
 
-.sdaymarker{
+#sdaymarker{
     font-size: 18px;
     display: block;
     margin-top: -12px;
@@ -357,7 +357,7 @@ hr{
     padding: 0;
     width: 80%;
 }
-.sdatemarker{
+#sdatemarker{
     font-size: 18px;
     line-height: 0;
     margin: 0;
@@ -379,8 +379,9 @@ hr{
     display: inline-block;
     color: white;
     z-index: 3;
+    overflow: hidden;
 }
-#schedule-container .class-tab:nth-last-of-type(2){
+#schedule-container .class-tab:last-of-type{
     margin-bottom: 50px;
 }
 .class-tab:hover{
@@ -404,6 +405,8 @@ hr{
     margin: 0;
     padding: 0;
     font-size: 12px;
+    margin-left: -10%;
+    width: 120%;
 }
 
 .dropdown{

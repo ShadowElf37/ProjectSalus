@@ -1,16 +1,26 @@
-var requestData = (function(name, into) {
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.onreadystatechange = function() {
-	    if (this.readyState == 4 && this.status == 200) {
-	       // Typical action to be performed when the document is ready:
-	       window[into] = this.response;
-	    }
-	};
-    xhr.open('GET', '/data?name='+name);
-    xhr.send();
-    // return test;
-});
+class Notifier{
+	constructor(oncomplete=function(){}){
+		this.oncomplete = oncomplete;
+		this.value = false;
+	}
+	complete() {
+		this.value = true;
+		return this.oncomplete();
+	}
+}
 
-requestData('WEEKSCHEDULE', 'schedule');
-requestData('WEEKMENU', 'menu');
+function putting(name, notifier=new Notifier()) {
+	return function(data){
+		window[name] = data;
+		notifier.complete()
+	};
+}
+
+
+scheduleLoaded = new Notifier(function(){console.log('Schedule loaded')});
+menuLoaded = new Notifier();
+
+requestData('WEEKSCHEDULE', putting('schedule', scheduleLoaded));
+requestData('WEEKMENU', putting('menu', menuLoaded));
+requestData('WEEK', putting('timespan'));
+

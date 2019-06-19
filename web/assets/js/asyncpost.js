@@ -11,10 +11,14 @@ var sendControlKey = (function() {
     };
 })();
 
-var requestData = (function() {
+var requestData = (function(name, dowith) {
     var xhr = new XMLHttpRequest();
-    return function(varname) {
-        xhr.open('GET', '/data?name='+varname);
-        xhr.send();
-        return xhr.response;
-    }()});
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	       return dowith(this.response);
+	    };
+	};
+    xhr.open('GET', '/data?name='+name);
+    xhr.send();
+});
