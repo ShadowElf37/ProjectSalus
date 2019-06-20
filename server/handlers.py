@@ -17,13 +17,20 @@ TESTTIME = '12:30 pm'
 TESTDATE = '05/21/2019'
 TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 
+SCHEDULE_RANGE = (-1, 1)  # Month deltas from current for fetching user schedule span
+
 navbar = get_config('navbar')
 from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
 # Demo
 
-#info.create_announcement('Test', 'This is an announcement.', time()+100000)
-#info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
+p = info.create_poll('Snack Poll', 'Weekly snack poll.')
+p.add_question('Monday', 'Churros', 'Fruit Roll Ups', 'Cereal')
+p.add_question('Tuesday', 'Churros1', 'Fruit Roll Ups1', 'Cereal1')
+p.add_question('Wednesday', 'Churrosa', 'Fruit Roll Upsa', 'Cereala')
+
+#info.create_announcement('Test', 'This is an announcement.', time()+1000000)
+#info.create_announcement('Test 2', 'This is a more recent announcement', time()+1000000)
 m = info.create_maamad_week('05/20/2019')
 m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
 m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
@@ -139,10 +146,15 @@ class HandlerDataRequests(RequestHandler):
     def call(self):
         schedule = self.account.updaters['schedule'].wait()
         grades = self.account.updaters['grades'].wait()
-        sk = list(schedule.keys())
-        timespan = sk[0], sk[-1]
-        menu = {d:updates.SAGEMENU.get(d) for d in sk}
+        timespan = [scrape.firstlast_of_month(delta)[i].strftime('%m/%d/%Y') for i,delta in enumerate(SCHEDULE_RANGE)]
+        menu = {d:updates.SAGEMENU.get(d) for d in schedule.keys()}
         allergens = updates.SAGEMENUINFO
+        if self.account.optimal_poll is None:
+            poll = None
+        else:
+            p = info.POLLS[self.account.optimal_poll]
+            poll = p.title, p.desc, p.questions
+
         try:
             self.response.set_body(json.dumps(locals()[self.request.get_query['name'][0]]))
         except Exception as e:
@@ -206,7 +218,6 @@ class HandlerSignup(RequestHandler):
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
         a.dir = updates.DIRECTORY[a.name]
         a.bb_id = a.dir['id']
-        # print('$$$', self.response.cookie['user_token'])
         self.response.redirect('/home/index.html')
 
 class HandlerLogin(RequestHandler):
@@ -303,6 +314,8 @@ class HandlerBBInfo(RequestHandler):
             self.response.refuse('Sign in please.')
             return
 
+        self.account.optimal_poll = next(filter(lambda p: not p.user_has_responded(self.account), sorted(info.POLLS.values())), type('',(),{'id':None})()).id
+
         if 'schedule' not in self.account.updaters:
             if self.account.personal_scraper is None:
                 self.response.refuse('You must use your Blackbaud password to sign in first.')
@@ -312,7 +325,7 @@ class HandlerBBInfo(RequestHandler):
             auth = self.account.bb_auth
             login_safe = updates.bb_login_safe
 
-            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(-1)[0])
+            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(SCHEDULE_RANGE[0])[0], end_date=scrape.firstlast_of_month(SCHEDULE_RANGE[1])[1])
             us = updates.chronomancer.metakhronos(120, schedule_ps, now=True)
             self.account.updaters['schedule'] = schedule_ps
             self.account.scheduled['schedule'] = us

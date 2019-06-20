@@ -26,6 +26,16 @@ function clear(elem){
         elem.removeChild(elem.firstChild);
     };
 }
+function hideInputs(elem){
+    array(elem.childNodes).forEach(function(input, i, arr){
+        if (input.type != "hidden") {input.type = "hidden"};
+    });
+}
+
+
+function array(arrayLikeObj){
+    return Array.prototype.slice.call(arrayLikeObj);
+}
 
 function stripTimeZeroes(timeStr){
     if (timeStr.charAt(0) == 0){

@@ -47,9 +47,16 @@ def week_of(dt: datetime.datetime):
 
 def firstlast_of_month(deltaMonth=0):
     n = datetime.datetime.now()
-    n = n.replace(month=n.month+deltaMonth)
+    n = delta_months(n, deltaMonth)
     return n.replace(day=1), n.replace(day=calendar.monthrange(n.year, n.month)[1])
 flmsf = lambda i, dm=0: Minisafe(lambda f: f(dm)[i], firstlast_of_month)
+
+def delta_months(dt: datetime.datetime, n=0):
+    y, m = divmod(dt.month + n, 12)
+    if m == 0: m = 12
+    y += dt.year
+    d = min(calendar.monthrange(y, m)[1], dt.day)
+    return dt.replace(year=y, month=m, day=d)
 
 def split_date_range_into_months(startdt, enddt):
     months = []

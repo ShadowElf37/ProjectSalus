@@ -32,19 +32,19 @@
                     [[announcements]]
                 </div>
                 <div id="snack-poll" class="widget">
-                    <h1>Snack Poll</h1>
+                    <h1 id="snack-poll-title">Snack Poll</h1>
                     <hr><!--action="submit-poll" method="POST"-->
                     <form class="snack-poll">
-                        <div class="poll-options">
+                        <div class="poll-options" id="poll-options">
                             <input type="radio" name="monday" value="op1" id="op1"><label for="op1">Churros</label><br>
                             <input type="radio" name="monday" value="op2" id="op2"><label for="op2">Fruit Roll Ups</label><br>
                             <input type="radio" name="monday" value="op3" id="op3"><label for="op3">Cereal</label><br>
                         </div>
-                        <div class="day-label-container"><div class="snack-poll-day-label">Monday</div></div>
+                        <div class="day-label-container"><div class="snack-poll-day-label" id="question-container">Monday</div></div>
                         <div class="button-wrapper">
-                            <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 5%" disabled>
-                            <input type="submit" value="Submit" class="submit yellow-border">
-                            <input type="button" value="⇒" class="movement-arrow yellow-border"  style="margin-left: 5%">
+                            <input id="poll-back-button" type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 5%" disabled onclick="pollLastQuestion()">
+                            <input id="poll-submit-button" type="submit" value="Submit" class="submit yellow-border" disabled>
+                            <input id="poll-next-button" type="button" value="⇒" class="movement-arrow yellow-border"  style="margin-left: 5%" disabled onclick="pollNextQuestion()">
                         </div>
                     </form>
                 </div>
@@ -132,6 +132,13 @@
             let nextClassDefault = [classInfoName.innerHTML, classInfoTime.innerHTML, classInfoTeacher.innerHTML, classInfoEmail.innerHTML];
         
             let allergensDefault = allergenElems.map(function(p){return p.innerHTML});
+
+            let pollTitleElem = document.getElementById("snack-poll-title");
+            let pollOptionsElem = document.getElementById("poll-options");
+            let pollNextButton = document.getElementById("poll-next-button");
+            let pollSubmitButton = document.getElementById("poll-submit-button");
+            let pollBackButton = document.getElementById("poll-back-button");
+            let pollQuestionElem = document.getElementById("question-container");
 
             function nextClassDefaultClick(){
                 classInfoName.innerHTML = nextClassDefault[0];

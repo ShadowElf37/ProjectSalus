@@ -21,6 +21,7 @@ class Account(RWLockMixin):
         self.personal_scraper = None
         if not getattr(self, 'password', False):
             self.password = ''
+        self.optimal_poll = None
 
     def __init__(self, name, password, key, email=""):
         self.ips = []
@@ -39,6 +40,7 @@ class Account(RWLockMixin):
         self.inbox = None
         self.phone = ''
         self.service_provider = ''
+        self.optimal_poll = None
 
     def register(self, key):
         self.key = key
@@ -72,6 +74,7 @@ class ShellAccount:
         self.scheduled = {}
         self.dir = {}
         self.personal_scraper = None
+        self.optimal_poll = None
 
     def new_key(self):
         return

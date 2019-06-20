@@ -242,3 +242,71 @@ var revertStyle = function(...elems) {
         elem.style = styleCache[elem];
     });
 };
+
+
+var updatePoll = function(title, desc, questions) {
+	let i = currentPollIndex;
+	pollTitleElem.innerText = title;
+	let q = questions[i];
+	pollQuestionElem.innerText = q[0];
+
+	hideInputs(pollOptionsElem);
+	array(pollOptionsElem.getElementsByTagName('label')).forEach(function(label, i, arr){
+		label.style.display = "none";
+	});
+	array(pollOptionsElem.getElementsByTagName('br')).forEach(function(br, i, arr){
+		br.style.display = "none";
+	});
+
+	newQuestionInputs = array(pollOptionsElem.querySelectorAll('input[name="'+q[0]+'"]'));
+	if (newQuestionInputs.length != 0){
+		newQuestionInputs.forEach(function(input, i, arr){
+			input.type = "radio";
+			console.log(array(pollOptionsElem.getElementsByClassName('br-'+input.id)));
+			pollOptionsElem.querySelector('label[for="'+input.id+'"]').style.display = "inline-block";
+			array(pollOptionsElem.getElementsByClassName('br-'+input.id))[0].style.display = "initial";
+		});
+	} else {
+		q[1].forEach(function(answer, j, arr){
+			let newInput = document.createElement('input');
+			newInput.type = "radio";
+			newInput.name = q[0];
+			newInput.value = answer;
+			newInput.id = q[0]+'-'+answer.split(' ').join('-');
+
+			let newLabel = document.createElement('label');
+			newLabel.htmlFor = q[0]+'-'+answer.split(' ').join('-');
+			newLabel.innerText = answer;
+
+			let br = document.createElement('br');
+			br.className = 'br-'+q[0]+'-'+answer.split(' ').join('-');
+
+			pollOptionsElem.appendChild(newInput);
+			pollOptionsElem.appendChild(newLabel);
+			pollOptionsElem.appendChild(br);
+		});
+	};
+
+	if (i == questions.length-1){
+		pollNextButton.disabled = true;
+		pollSubmitButton.disabled = false;
+		pollBackButton.disabled = false;
+	} else if (i == 0) {
+		pollBackButton.disabled = true;
+		pollSubmitButton.disabled = true;
+		pollNextButton.disabled = false;
+	} else {
+		pollNextButton.disabled = false;
+		pollBackButton.disabled = false;
+		pollSubmitButton.disabled = true;
+	};
+}
+
+var pollNextQuestion = function(){
+	currentPollIndex++;
+	updatePoll(pollTitle, pollDesc, pollQuestions);
+}
+var pollLastQuestion = function(){
+	currentPollIndex--;
+	updatePoll(pollTitle, pollDesc, pollQuestions);
+}

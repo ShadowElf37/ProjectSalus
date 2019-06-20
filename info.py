@@ -81,10 +81,19 @@ class Poll:
     def __ne__(self, o):
         return self.priority != o.priority
 
+    @staticmethod
+    def image_choice(name, imgpath):
+        return name, imgpath
+
     def get_responses(self, qnum):
         return self.responses[self.questions[qnum][0]]
     def get_responses_bytext(self, qtext):
         return self.responses[qtext]
+    def user_has_responded(self, user):
+        for r in self.responses.values():
+            if user in r:
+                return True
+        return False
 
     def add_response(self, qnum, choice, user=None):
         question = self.questions[qnum][0]
@@ -95,11 +104,8 @@ class Poll:
         self.questions.insert(number, (qtext, (choices if not freeresponse else None)))
         self.responses[qtext] = []
 
-    def image_choice(self, name, imgpath):
-        return (name, imgpath)
-
     def remove_question(self, idx):
-        self.questions.pop(idx)
+        del self.questions[idx]
 
 @AccountsSerializer.serialized(title='', text='', timestamp=0, _display_until=0, _forceon=False, _forceoff=False)
 class Announcement:
