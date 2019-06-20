@@ -157,16 +157,45 @@ class SageScraper(Scraper):
         menu_dict = {}
         daycount = 0
 
+
+
         menu_info_dict = {}
         for week in menu['menu']['menu']['items']:
             for day in week:
                 if type(day) is list:  # "Daily Offerings" is stored at the very end in a dict - we don't care about that
                     soups, salads, sandwiches, entrees, *_ = day[1]
-                    menu_dict[(start_date + datetime.timedelta(days=daycount)).strftime('%m/%d/%Y')] = [(dish['a']) for dish
-                                                                                                        in entrees]
+                    newdate = (start_date + datetime.timedelta(days=daycount)).strftime('%m/%d/%Y')
+
+                    # Get food items
+                    menu_dict[newdate] = [dish['a'] for dish in entrees]
+
+                    # Get allergen info
                     for dish in entrees:
                         if dish['a'] not in menu_info_dict:
                             menu_info_dict[dish['a']] = tuple({self.AVOID.get(al) for al in dish['al'] if self.AVOID.get(al)})
+
+                    # Render ready-made general allergen strings for the client to enjoy
+                    allergen_0 = sorted(
+                        {al[1] for item in menu_dict[newdate] for al in menu_info_dict.get(item, []) if
+                         al[0] == 0})  # Contains
+                    allergen_1 = sorted(
+                        {al[1] for item in menu_dict[newdate] for al in menu_info_dict.get(item, []) if
+                         al[0] == 1})  # May contain
+                    allergen_2 = sorted(
+                        {al[1] for item in menu_dict[newdate] for al in menu_info_dict.get(item, []) if
+                         al[0] == 2})  # Cross contamination warning
+
+                    contains = (', '.join(allergen_0[:-1]) + ', and ' + allergen_0[-1]) if len(allergen_0) > 2 \
+                        else ' and '.join(allergen_0) if len(allergen_0) == 2 \
+                        else allergen_0[0] if len(allergen_0) == 1 \
+                        else 'nothing'
+                    may_contain = (', '.join(allergen_1[:-1]) + ', and ' + allergen_1[-1]) if len(allergen_1) > 2 \
+                        else ' and '.join(allergen_1) if len(allergen_1) == 2 \
+                        else allergen_1[0] if len(allergen_1) == 1 \
+                        else 'nothing'
+                    cross = 'Some food is subject to cross-contamination in oil.' if allergen_2 else ''
+
+                    menu_info_dict[newdate] = [contains, may_contain, cross]
 
                     daycount += 1
 

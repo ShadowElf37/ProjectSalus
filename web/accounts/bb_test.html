@@ -5,7 +5,6 @@
         {{css('darkbb.css')}}
         {{js('lib.js')}}
         {{js('asyncpost.js')}}
-        {{js('data.js')}}
         {{js('dynamicbb.js')}}
     </head>
     <body>
@@ -51,8 +50,10 @@
                 </div>
                 <div id="schedule-container" class="widget" style="[[no_school]]">
                     <center><span id="sdaymarker">[[classday]]</span></center>
-                    <div id="periods">[[periods]]</div>
-                    <div style="width: 100%; bottom: 5px; position: absolute;">
+                    <div id="periods">
+                        [[periods]]
+                    </div>
+                    <div style="width: 100%; bottom: 20px; position: absolute;">
                         <center>
                             <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 2%" id="slast" onclick="lastScheduleDay()">
                             <span id="sdatemarker">05/21/2019</span>
@@ -61,14 +62,14 @@
                     </div>
                 </div>
                 <div id="class-info" class="widget" style="[[no_school]]">
-                    <h2>[[next_class_info]]</h2>
+                    <h2 onclick="nextClassDefaultClick()">[[next_class_info]]</h2>
                     <hr>
                     <div id="info">
-                        <div id="meta-container">
+                        <div id="meta-container" onclick="nextClassDefaultClick()">
                             [[next_class_meta]]
                         </div>
                         <div id="assignments">
-                            <h3>Assignments Due This Week</h3>
+                            <h3 onclick="nextClassDefaultClick()">Assignments Due This Week</h3>
                             <ul>
                                 [[assignments]]
                             </ul>
@@ -81,15 +82,14 @@
                     <div id="menuitems">
                         [[menu]]
                     </div>
-                    
-                        <div style="position: absolute; bottom: 0; width: 100%; margin: 0; margin-left: -10px; padding: 0">
-                            <center>
-                                <div id="allergens">
-                                    <h4>Dietary Information</h4>
-                                    [[allergens]]
-                                </div>
-                            </center>
-                        </div>
+                    <div style="position: absolute; bottom: 0; width: 100%; margin: 0; margin-left: -10px; padding: 0">
+                        <center>
+                            <div id="allergens">
+                                <h4>Dietary Information</h4>
+                                [[allergens]]
+                            </div>
+                        </center>
+                    </div>
 
                 </div>
                 <div id="maamad-info" class="widget" style="[[no_school]]">
@@ -119,8 +119,32 @@
             let periodsDiv = document.getElementById('periods');
             let scheduleDiv = document.getElementById('schedule-container');
             let menuDiv = document.getElementById('sagemenu');
+            let menuItemsDiv = document.getElementById('menuitems');
+            let allergenDiv = document.getElementById('allergens');
+            let allergenElems = Array.prototype.slice.call(allergenDiv.getElementsByTagName('p'));
             let maamadDiv = document.getElementById('maamad-info');
             let classInfoDiv = document.getElementById('class-info');
+
+            let classInfoName = document.getElementById('classname');
+            let classInfoTime = document.getElementById('start-end');
+            let classInfoTeacher = document.getElementById('teacher');
+            let classInfoEmail = document.getElementById('teacher-email');
+            let nextClassDefault = [classInfoName.innerHTML, classInfoTime.innerHTML, classInfoTeacher.innerHTML, classInfoEmail.innerHTML];
+        
+            let allergensDefault = allergenElems.map(p => p.innerHTML);
+
+            function nextClassDefaultClick(){
+                classInfoName.innerHTML = nextClassDefault[0];
+                classInfoTime.innerHTML = nextClassDefault[1];
+                classInfoTeacher.innerHTML = nextClassDefault[2];
+                classInfoEmail.innerHTML = nextClassDefault[3];
+                revertStyle(greened);
+            };
+
+            function allergensDefaultHover(){
+                allergenElems.forEach(function(p, i, arr){p.innerHTML = allergensDefault[i]}); //"<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p>"
+            }
         </script>
+        {{js('data.js')}}
     </body>
 </html>

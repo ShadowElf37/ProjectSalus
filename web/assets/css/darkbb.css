@@ -102,7 +102,7 @@
     background-color: #111;
     color: #eee;
     margin-top: -100px;
-    padding-bottom: 100px;
+    padding-bottom: 150px;
 }
 
 
@@ -136,7 +136,8 @@ body{
     padding: 0;
     overflow-x: hidden;
     margin: 0;
-}
+    /*background-image: url("https://www.pcgamesn.com/wp-content/uploads/2019/06/cyberpunk-2077-keanu-reeves-580x334.jpg");
+*/}
 
 a{
     text-decoration: none;
@@ -216,6 +217,7 @@ hr{
     margin-right: 0;
     text-align: left;
     padding: 10px 20px;
+    white-space: normal;
 }
 
 #class-info h2{
@@ -237,6 +239,8 @@ hr{
 #info{
     font-size: 20px;
     margin-top: 10px;
+    position: relative;
+    overflow-x: hidden;
 }
 #info *{
     display: block;
@@ -249,17 +253,20 @@ hr{
     padding-left: 10px;
     padding-bottom: 10px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 #info #classname{
     font-size: 24px;
     margin-left: 0;
     display: inline-block;
+    width: auto;
+    overflow-x: hidden;
 }
 #info #start-end{
+    right: 15px;
+    top: 35px;
     float: right;
-    display: inline-block;
-    margin-top: 10px;
-    margin-right: 15px;
+    position: absolute;
 }
 #info #assignments{
     width: 100%;
@@ -327,6 +334,7 @@ hr{
     margin: 20px;
     margin-top: 1%;
     padding: 15px 0;
+    padding-bottom: 62px;
     float: left;
     z-index: 2;
     text-align: center;
@@ -380,9 +388,7 @@ hr{
     color: white;
     z-index: 3;
     overflow: hidden;
-}
-#schedule-container .class-tab:last-of-type{
-    margin-bottom: 50px;
+    cursor: pointer;
 }
 .class-tab:hover{
     box-shadow: 0 0 10px #430;
@@ -436,6 +442,7 @@ hr{
     width: 65%;
     height: 300px;
     overflow-y: hidden;
+    left: 9px;
 }
 #announcements hr{
     float: left;
@@ -474,7 +481,8 @@ hr{
     height: 500px;
     width: 19.3%;
     margin-right: 40px;
-    left: 30px;
+    padding: 10px 0;
+    left: 1.4%;
 }
 .maamad-tab{
     background-color: #333;
@@ -485,6 +493,20 @@ hr{
     width: 90%;
     overflow-y: hidden;
     transition: height 0.3s ease;
+}
+.smaller-maamad-tab{
+    background-color: #333;
+    display: inline-block;
+    margin-bottom: 0;
+    margin-left: 10px;
+    margin-right: 0;
+    border-radius: 3px;
+    width: 18.5%;
+    padding: 0;
+    float: left;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    height: 120px;
 }
 .maamad-tab:hover{
     height: 150px;
@@ -529,13 +551,17 @@ hr{
     border-left: 1px solid #0c0;
     box-shadow: -4px 0 4px -3px #040;
 }
+.menuitem:hover{
+    box-shadow: -4px 0  4px -3px #430;
+    border-left: 1px solid #cb2;
+}
 #allergens{
     border-radius: 3px;
     border: 1px solid #FA3;
     box-shadow: 0 0 6px #f206;
     background-color: #333;
     width: 80%;
-    min-height: 10vh;
+    min-height: 12vh;
     margin: 0;
     margin-top: 20px;
     margin-bottom: 5vh;
@@ -546,7 +572,7 @@ hr{
 }
 #allergens p{
     margin: 0px 5px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     text-align: left;
     font-style: italic;
 }

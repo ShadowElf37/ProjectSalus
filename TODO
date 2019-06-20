@@ -1,18 +1,23 @@
+Known Bugs:
+- Schedule span scraper cannot exceed one month per request - split requests into multiple
 
 - Redo navbar CSS
-- Scalability improvements
-- Landing page JS, poll rendering, schedule rendering
+
+- Polls and poll functionality
+- Give JS newScheduleDay() something to do when the current date isn't in the schedule; weekends aren't included right now
+- Keybind JS
+- Rename bb_test.html
+
 - Admin control board
+- Rework BB login flow
 
 - SGA feedback form & email forwarding system
 - Snack polls
-- Cache BB login
 - Referendums / Surveys
-- Announcements, Ma'amad info
+- Announcements, Ma'amad info editors
 - Public calendar with meetings & events
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
-- Fancy home page
 - User-friendly ways to edit all these
 - Simple mass-email interface
 - Remote access console and maintenance-in-progress backup system
@@ -20,7 +25,6 @@
 - Student life board?
 - SMS with periods etc.
 - Student directory
-- Sage menu
 - Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
 - IMAP/SMTP replacement for Outlook
 - Click on email address to open small window for composing emails
@@ -33,6 +37,7 @@
 - Abstractify everything into configs so we only have to reboot in emergencies
 - Club integration
 - Randomized nice messages everywhere we normally see one (cf HandlerBBInfo "Have a lovely day!" etc.)
+- Landing page JS for assignments (update with classinfo)
 
 
 Check for:

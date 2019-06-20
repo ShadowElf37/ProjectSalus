@@ -6,7 +6,7 @@
   "announcement": "<div class=\"announcement\"><strong style=\"font-size:26px;\">{title}</strong>&nbsp;&nbsp;<i style=\"font-size:14px;\">{date}</i>{text}</div>",
   "no-announcement": "<p style=\"font-size: 24px; margin-left: 20px\">No announcements today!</p>",
 
-  "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p>",
+  "allergens": "<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p><p></p>",
   "menuitem": "<span class=\"{veg}menuitem\">{name}</span>",
   "no-food": "<span style=\"font-size: 24px; text-align: left\">There is no food.</span>",
 
@@ -18,6 +18,7 @@
 
   "next-class-info-1": "Your next period is <span class=\"important\">{period}</span> at {startp}",
   "next-class-info-2": "<span id=\"classname\">{name}</span><span id=\"start-end\">{start} - {end}</span>\n<span id=\"teacher\">{teacher}</span>\n<span id=\"teacher-email\">{email}</span>",
+  "next-class-info-e": "{msg}<span id=\"classname\"></span><span id=\"start-end\"></span>\n<span id=\"teacher\"></span>\n<span id=\"teacher-email\"></span>",
 
 
   "red-border": "border: 1px solid #f00; box-shadow: 0 0 20px #400;",

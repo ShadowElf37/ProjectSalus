@@ -11,6 +11,7 @@ import info
 import mods.modding as modding
 import json
 
+# REPLACE
 TEST = 'Hello World'
 TESTTIME = '12:30 pm'
 TESTDATE = '05/21/2019'
@@ -19,10 +20,11 @@ TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 navbar = get_config('navbar')
 from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
-"""
-info.create_announcement('Test', 'This is an announcement.', time()+100000)
-info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
-m = info.create_maamad_week(datetime.strptime('05/20/2019', '%m/%d/%Y'))
+# Demo
+
+#info.create_announcement('Test', 'This is an announcement.', time()+100000)
+#info.create_announcement('Test 2', 'This is a more recent announcement', time()+100000)
+m = info.create_maamad_week('05/20/2019')
 m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
 m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 10th Grade: Flex Time
@@ -30,7 +32,7 @@ m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 m.set_day(2, 'Ma\'amad', 'Meet with Maccabiah teams (meeting locations will be emailed out)')
 m.set_day(3, 'Chavaya', 'Flex Time for all grades')
 m.set_day(4, 'Maccabiah', '')
-"""
+
 
 class RequestHandler:
     def __init__(self, request: Request, response: Response):
@@ -136,12 +138,12 @@ class HandlerModServer(RequestHandler):
 class HandlerDataRequests(RequestHandler):
     def call(self):
         schedule = self.account.updaters['schedule'].wait()
-        WEEK = [d.strftime('%m/%d/%Y') for d in scrape.week_of(TESTDT)]
-        WEEKSCHEDULE = {d:schedule.get(d) for d in WEEK}
-        WEEKMENU = {d:updates.SAGEMENU.get(d) for d in WEEK}
+        grades = self.account.updaters['grades'].wait()
+        timespan = list(schedule.keys())
+        menu = {d:updates.SAGEMENU.get(d) for d in timespan}
+        allergens = updates.SAGEMENUINFO
         try:
-            # TESTING ONLY - replace eval() with something safe
-            self.response.set_body(json.dumps(eval(self.request.get_query['name'][0])))
+            self.response.set_body(json.dumps(locals()[self.request.get_query['name'][0]]))
         except Exception as e:
             print(e)
             self.response.set_body('null')
@@ -369,7 +371,7 @@ class HandlerBBInfo(RequestHandler):
         prf = self.account.updaters['profile'].wait()
 
         periods = []
-        spec = ' / '.join(schedule.get('SPECIAL')).lower()
+        spec = ' / '.join(schedule.get('SPECIAL', [])).lower()
         classday = 'Day {}'.format(scrape.get(schedule, 'DAY', 'of No Class')) + (' (Half Day)' if 'dismissal' in spec else '')
         start = None
         end = None
@@ -392,20 +394,14 @@ class HandlerBBInfo(RequestHandler):
                 periods.append(snippet('nullclass', name=period))
 
         menulist = updates.SAGEMENU.get(TESTDATE, ())
-        avd = scrape.SageScraper.AVOID
         menu = []
         if menulist:
             for item in menulist:
                 di = updates.SAGEMENUINFO.get(item, [])
-                veg = 'vegitem ' if avd['611'] not in di or avd['601'] not in di[1] else ''
+                veg = 'vegitem ' if not any(map(lambda d: d[1] == "Vegetarian", di)) else ''
                 menu.append(snippet('menuitem', name=item, veg=veg))
 
-        allergen_0 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 0})  # Contains
-        allergen_1 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 1})  # May contain
-        allergen_2 = sorted({al[1] for item in menulist for al in updates.SAGEMENUINFO.get(item, []) if al[0] == 2})  # Cross contamination warning
-        contains = (', '.join(allergen_0[:-1]) + ', and ' + allergen_0[-1]) if allergen_0 else 'nothing'
-        may_contain = (', '.join(allergen_1[:-1]) + ', and ' + allergen_1[-1]) if allergen_1 else 'nothing'
-        cross = 'Some food is subject to cross-contamination in oil.' if allergen_2 else ''
+        contains, may_contain, cross = updates.SAGEMENUINFO.get(TESTDATE, ('nothing', 'nothing', ''))
 
         announcements = [snippet('announcement',
             title=ann.title,
@@ -434,7 +430,7 @@ class HandlerBBInfo(RequestHandler):
                     maamads.append(snippet('maamad-tab',
                                            title=activity,
                                            desc=desc.replace('\n', '<br>'),
-                                           weekday=ISOWEEKDAYNAMES[dt.isoweekday()],
+                                           weekday=ISOWEEKDAYNAMES[dt.isoweekday()][:3]+'.',
                                            dayord=ordinal(dt.day)))
                 break
 
@@ -450,7 +446,7 @@ class HandlerBBInfo(RequestHandler):
                                                            teacher=grades[nextclass[1]['id']]['teacher'],
                                                            email=grades[nextclass[1]['id']]['teacher-email'],
                                                            start=start,
-                                                           end=end) if nextclass else 'Have a lovely day!',
+                                                           end=end) if nextclass else snippet('next-class-info-e', msg='Have a lovely day!'),
                                   periods='\n'.join(periods) if periods and not noschool else snippet('no-periods',
                                                                                                       text=(
                                                                                                           'No Classes Today' if not schedule.get('SPECIAL')

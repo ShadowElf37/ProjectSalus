@@ -1,5 +1,13 @@
 v0.5.5 (6/18/19)
-- 
++ Added data.js, dynamicbb.js, lib.js
++ Added method to async fetch data from server
+- Schedule and menu now change with the day
+- Fixed meat-containing foods not being labeled properly
+- Schedule changing buttons now work
+- Click on a class to view additional information about it
+- Hover over a menu item to view allergy information
+- Readable information strings added to SAGEMENUINFO scrape to help JS and Handler avoid processing
+- Fixed a million billion bugs
 
 v0.5.4 (6/18/19)
 - Put Minisafes on default kwarg values for scrape.py and chronos.py involving dynamic date fetching after a revelation that those are actually loaded at runtime and not dynamically
