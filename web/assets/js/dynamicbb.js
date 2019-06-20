@@ -1,12 +1,8 @@
 // Fix the Ma'amad schedule because it sucks ass when scaled down
 window.onload = function(){
 	let screenWidth = document.documentElement.clientWidth;
-
 	if (screenWidth < 1827) {
-		maamadDiv.style.width = "832px";
-		maamadDiv.style.height = "185px";
-		maamadDiv.style.marginLeft = "-0.4%";
-		maamadDiv.style.marginRight = "0";
+		maamadDiv.id = "smaller-maamad-info";
 
 		let helperCenter = document.createElement('center');
 		maamadDiv.appendChild(helperCenter);
@@ -19,7 +15,16 @@ window.onload = function(){
 		});
 	}
 };
-window.onresize = window.onload;
+// window.onresize = window.onload;
+
+// Key bindings!
+document.onkeydown = function(e) {
+	if (e.key == "ArrowRight" && !arrowNext.disabled) {
+		nextScheduleDay();
+	} else if (e.key == "ArrowLeft" && !arrowBack.disabled) {
+    	lastScheduleDay();
+    }
+};
 
 // To help clear classes on days with schedule items but no school
 var overrideClasses = false;
@@ -27,23 +32,19 @@ var overrideClasses = false;
 // Go forward one schedule day
 var nextScheduleDay = function(){
 	let currentDay = currentDayElem.innerHTML;
-	let newIndex = timespan.indexOf(currentDay) + 1;
+	let newDate = new Date(currentDay).addDays(1).dateString()
 	arrowBack.disabled = false;
-	if (newIndex==timespan.length-1){
-		arrowNext.disabled = true;
-	} else{ arrowNext.disabled = false; };
-	return newScheduleDay(timespan[newIndex]);
+	arrowNext.disabled = newDate==lastDay ? true : false;
+	return newScheduleDay(newDate);
 }
 
 // Go backwards one schedule day
 var lastScheduleDay = function(){
 	let currentDay = currentDayElem.innerHTML;
-	let newIndex = timespan.indexOf(currentDay) - 1;
+	let newDate = new Date(currentDay).addDays(-1).dateString()
 	arrowNext.disabled = false;
-	if (newIndex==0){
-		arrowBack.disabled = true;
-	} else{ arrowBack.disabled = false; };
-	return newScheduleDay(timespan[newIndex]);
+	arrowBack.disabled = newDate==firstDay ? true : false;
+	return newScheduleDay(newDate);
 }
 
 // Set the schedule day, and update the menu and schedule accordingly
@@ -63,11 +64,7 @@ var newScheduleDay = function(newDay) {
 	clear(periodsDiv);
 	clear(menuItemsDiv);
 
-	// Update general allergens
-	allergensDefault = allergenElems.map(p => p.innerHTML);
-	allergenElems[0].innerText = 'Food will contain ' + allergenInfo[newDay][0] + '.';
-	allergenElems[1].innerText = 'Food may also contain ' + allergenInfo[newDay][1] + '.';
-	allergenElems[2].innerText = allergenInfo[newDay][2];
+	let defaultAllergenStr = ['nothing', 'nothing', ''];
 
 	// No classes for day
 	if (newScheduleKeys.length === 0) {
@@ -83,9 +80,20 @@ var newScheduleDay = function(newDay) {
 		noFood.innerText = "There is no food.";
 		menuItemsDiv.appendChild(noFood);
 
+		allergenElems[0].innerText = 'Food will contain ' + defaultAllergenStr[0] + '.';
+		allergenElems[1].innerText = 'Food may also contain ' + defaultAllergenStr[1] + '.';
+		allergenElems[2].innerText = defaultAllergenStr[2];
+		allergenElems[3].innerText = '';
+
 		noClassesRedBorder(scheduleDiv, menuDiv, maamadDiv, classInfoDiv);
 		return;
 	}
+
+	// Update general allergens
+	allergensDefault = allergenElems.map(p => p.innerHTML);
+	allergenElems[0].innerText = 'Food will contain ' + (allergenInfo[newDay] || defaultAllergenStr)[0] + '.';
+	allergenElems[1].innerText = 'Food may also contain ' + (allergenInfo[newDay] || defaultAllergenStr)[1] + '.';
+	allergenElems[2].innerText = (allergenInfo[newDay] || defaultAllergenStr)[2];
 
 	// Update whole menu
 	newMenu.forEach(function(foodstuff, i, arr){

@@ -131,7 +131,7 @@
             let classInfoEmail = document.getElementById('teacher-email');
             let nextClassDefault = [classInfoName.innerHTML, classInfoTime.innerHTML, classInfoTeacher.innerHTML, classInfoEmail.innerHTML];
         
-            let allergensDefault = allergenElems.map(p => p.innerHTML);
+            let allergensDefault = allergenElems.map(function(p){return p.innerHTML});
 
             function nextClassDefaultClick(){
                 classInfoName.innerHTML = nextClassDefault[0];

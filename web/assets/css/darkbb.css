@@ -484,6 +484,15 @@ hr{
     padding: 10px 0;
     left: 1.4%;
 }
+#smaller-maamad-info{
+    float: left;
+    height: 185px;
+    width: 766px;
+    margin-right: 0;
+    padding: 10px 0;
+    left: 1.4%;
+    margin-left: -0.4%;
+}
 .maamad-tab{
     background-color: #333;
     display: block;
@@ -547,6 +556,9 @@ hr{
     border-left: 1px solid #FA3;
     box-shadow: -4px 0 4px -3px #f206;
 }
+.menuitem:last-of-type{
+    margin-bottom: 180px;
+}
 .vegitem{
     border-left: 1px solid #0c0;
     box-shadow: -4px 0 4px -3px #040;
@@ -563,8 +575,7 @@ hr{
     width: 80%;
     min-height: 12vh;
     margin: 0;
-    margin-top: 20px;
-    margin-bottom: 5vh;
+    margin-bottom: 3vh;
     padding: 3px;
 }
 #allergens h4{

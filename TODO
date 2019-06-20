@@ -1,11 +1,9 @@
 Known Bugs:
-- Schedule span scraper cannot exceed one month per request - split requests into multiple
+- No known bugs
 
-- Redo navbar CSS
+- Redo CSS
 
 - Polls and poll functionality
-- Give JS newScheduleDay() something to do when the current date isn't in the schedule; weekends aren't included right now
-- Keybind JS
 - Rename bb_test.html
 
 - Admin control board

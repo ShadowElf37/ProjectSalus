@@ -19,8 +19,11 @@ function putting(name, notifier=new Notifier()) {
 	};
 }
 
+var firstDay, lastDay, schedule, menu, allergenInfo, timespan, grades;
 
 dataLoaded = new Notifier(function(){
+	firstDay = timespan[0];
+	lastDay = timespan[1];
 	newScheduleDay("05/21/2019"); //{{getDate()}}
 }, 5);
 

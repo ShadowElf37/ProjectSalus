@@ -139,8 +139,9 @@ class HandlerDataRequests(RequestHandler):
     def call(self):
         schedule = self.account.updaters['schedule'].wait()
         grades = self.account.updaters['grades'].wait()
-        timespan = list(schedule.keys())
-        menu = {d:updates.SAGEMENU.get(d) for d in timespan}
+        sk = list(schedule.keys())
+        timespan = sk[0], sk[-1]
+        menu = {d:updates.SAGEMENU.get(d) for d in sk}
         allergens = updates.SAGEMENUINFO
         try:
             self.response.set_body(json.dumps(locals()[self.request.get_query['name'][0]]))

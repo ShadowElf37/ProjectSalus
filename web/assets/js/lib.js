@@ -1,4 +1,5 @@
-const screenWidth = document.documentElement.clientWidth;
+const SCREENWIDTH = document.documentElement.clientWidth;
+const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 function format(str) {
     if(arguments.length > 1) {
@@ -33,4 +34,18 @@ function stripTimeZeroes(timeStr){
 }
 function stripAmPm(timeStr){
     return timeStr.toLowerCase().replace('pm', '').replace('am', '').trim();
+}
+
+
+Date.prototype.dateString = function() {
+  var m = this.getMonth() + 1;
+  var d = this.getDate();
+  return [(m>9 ? '' : '0') + m,
+          (d>9 ? '' : '0') + d,
+          this.getFullYear()].join('/');
+};
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
 }

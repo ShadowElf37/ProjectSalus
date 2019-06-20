@@ -51,6 +51,21 @@ def firstlast_of_month(deltaMonth=0):
     return n.replace(day=1), n.replace(day=calendar.monthrange(n.year, n.month)[1])
 flmsf = lambda i, dm=0: Minisafe(lambda f: f(dm)[i], firstlast_of_month)
 
+def split_date_range_into_months(startdt, enddt):
+    months = []
+    y = m = 0
+    i = startdt.month
+    while m != enddt.month or y != enddt.year:
+        y, m = divmod(i, 12)
+        y += startdt.year
+        m = 12 if m is 0 else m
+        months.append((
+            datetime.datetime(month=m, year=y, day=1),
+            datetime.datetime(month=m, year=y, day=calendar.monthrange(y, m)[1])
+        ))
+        i += 1
+    return months
+
 def prettify(jsonobj, indent=4):
     return json.dumps(jsonobj, indent=indent)
 
@@ -445,18 +460,29 @@ class BlackbaudScraper(Scraper):
 
     def schedule_span(self, uid, start_date=flmsf(0), end_date=flmsf(1), **headers):
         #https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/?format=json&viewerId=3510119&personaId=2&viewerPersonaId=2&start=1558846800&end=1562475600&_=1559936166683
+        start_date = Minisafe.test(start_date)
+        end_date = Minisafe.test(end_date)
         params = {
             'format': 'json',
             'viewerId': uid,
             'personaId': 2,
             'viewerPersonaId': 2,
-            'start': Minisafe.test(start_date).timestamp(),
-            'end': Minisafe.test(end_date).timestamp(),
+            'start': int(start_date.timestamp()),
+            'end': int(end_date.timestamp())
         }
         headers.update(self.default_headers)
-
+        """
+        schedule = []
+        for start,end in split_date_range_into_months(start_date, end_date):
+            params['start'] = int(start.timestamp())
+            params['end'] = int(end.timestamp())
+            print(start, end)
+            new = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
+                                               params=params, headers=headers, cookies=self.cookies)).json()
+            print(new)
+            schedule += new"""
         schedule = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/DataDirect/ScheduleList/',
-                                           params=params, headers=headers, cookies=self.cookies)).json()
+                                          params=params, headers=headers, cookies=self.cookies)).json()
 
         real = {}
         minday = datetime.datetime.max
@@ -471,7 +497,7 @@ class BlackbaudScraper(Scraper):
                 'id': period['SectionId'],
                 'title': format_class_name(t),
                 'real': period_from_name(t) in tuple('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                'ord': i,
+                'ORD': i,
             }
 
             if date not in real:
@@ -484,7 +510,7 @@ class BlackbaudScraper(Scraper):
                 real[date]['SPECIALFMT'].append(format_class_name(t))
                 continue
 
-            real[date]['ORD'] = [(dt - minday).days]
+            real[date]['ORD'] = (dt - minday).days
             real[date][period_from_name(t)] = data
 
         return real
@@ -612,14 +638,14 @@ if __name__ == '__main__':
     # schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
     # grades = Poolsafe(bb.get_graded_assignments, 89628484, 3510119)
-    # schedule = Poolsafe(bb.schedule_span, '3510119')
+    schedule = Poolsafe(bb.schedule_span, '3510119', start_date=firstlast_of_month(-2)[0], end_date=firstlast_of_month(0)[1])
     # assignments = Poolsafe(bb.assignments)
     # topics = Poolsafe(bb.topics, '89628484')
     # calendar = Poolsafe(bb.sports_calendar)
-    cinfo = Poolsafe(bb.get_class_info, 89628484)
+    # cinfo = Poolsafe(bb.get_class_info, 89628484)
     tp = Pool(8)
     tp.launch()
-    tp.pushps(cinfo)
+    tp.pushps(schedule)
 
-    r = cinfo.wait()
-    print(prettify(r))
+    r = schedule.wait()
+    # print(prettify(r))
