@@ -46,12 +46,12 @@ class BaseSerializer:
         return self.values
 
     def _serialize(self, obj):
-        for (pred, func) in self.__class__._serializes:
+        for (pred, func) in self._serializes:
             if pred(self, obj):
                 return func(self, obj)
         raise TypeError("Attempting to _serialize non-serializable thing {}".format(obj))
     def _deserialize(self, obj):
-        for (pred, func) in self.__class__._deserializes:
+        for (pred, func) in self._deserializes:
             if pred(self, obj):
                 return func(self, obj)
         raise TypeError("Unsupported deserialization for {}!".format(obj))
@@ -86,7 +86,7 @@ class PrimitiveSerializer(BaseSerializer):
 
     def _is_primitive(self, obj):
         """Checks primitivity-- direct serialization for these"""
-        return type(obj) in self.__class__.PRIMITIVE_TYPES
+        return type(obj) in self.PRIMITIVE_TYPES
 
     def _is_bytes(self, obj):
         return self.is_wrapped(obj) and obj["type"] == "bytes"
@@ -143,12 +143,12 @@ class RecursiveSerializer(FunctionSerializer):
         super().__init__()
 
     def _is_siterable(self, obj):
-        return type(obj) in self.__class__.ITERABLE_TYPES
+        return type(obj) in self.ITERABLE_TYPES
     def _serialize_iterable(self, obj):
         return {"type": type(obj).__name__, "data":
             [self._serialize(i) for i in obj]}
     def _is_diterable(self, obj):
-        return self.is_wrapped(obj) and obj["type"] in map(lambda x: x.__name__, self.__class__.ITERABLE_TYPES)
+        return self.is_wrapped(obj) and obj["type"] in map(lambda x: x.__name__, self.ITERABLE_TYPES)
     def _deserialize_iterable(self, obj):
         return __builtins__.get(obj["type"], None)(self._deserialize(i) for i in obj["data"])
 
@@ -207,7 +207,7 @@ class ClassSerializer(RecursiveSerializer):
             setattr(cls, var, property(lambda self: baseclass(self), _s_value))
             
             def point(self, v):
-                if type(v) not in self.__class__.__bases__:
+                if type(v) not in self.__bases__:
                     raise TypeError('Class %s cannot emulate uninherited type %s' % (type(self), type(v)))
                 type(v).__init__(self, v)
                 self.__dict__[var] = v
@@ -249,7 +249,7 @@ class ClassSerializer(RecursiveSerializer):
                 self.pool[obj._uuid] = obj
                 if self.pool_queue:
                     self.pool_queue.append(obj._uuid)
-        return self.__class__.RPF + obj._uuid
+        return self.RPF + obj._uuid
     
     def _pool_iterator(self):
         """Return an iterator over the pool"""
@@ -279,7 +279,7 @@ class ClassSerializer(RecursiveSerializer):
         return value
 
     def _is_dsclass(self, obj):
-        return type(obj) is str and obj.startswith(self.__class__.RPF)
+        return type(obj) is str and obj.startswith(self.RPF)
 
     def _lookup_class(self, module, name):
         """Turn a module and a name into a class object"""
@@ -287,7 +287,7 @@ class ClassSerializer(RecursiveSerializer):
 
     def _deserialize_class(self, ref):
         """Deserialize a class object"""
-        data = self.antipool[ref[len(self.__class__.RPF):]]
+        data = self.antipool[ref[len(self.RPF):]]
         uuid = data["data"]["_uuid"]
         if uuid in self.antiset:
             return self.pool[uuid]

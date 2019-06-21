@@ -34,23 +34,23 @@ class BasicWell:
         self.parent = parent
     
     def verbs(self):
-        return __class__.VERBS
+        return self.VERBS
     def invocations(self):
-        return __class__.INVOCATIONS
+        return self.INVOCATIONS
     def prompt(self, *args):
-        return __class__.PROMPT.format(*args)
+        return self.PROMPT.format(*args)
 
     def wish(self, wish):
         verb = wish.consume()
         if verb is None:
-            self.input(wish, __class__.PROMPT)
+            self.input(wish, self.PROMPT)
             return
-        if verb == __class__.LIST:
-            self.output(wish, __class__.LISTING.format(", ".join(self.verbs())))
+        if verb == self.LIST:
+            self.output(wish, self.LISTING.format(", ".join(self.verbs())))
             return
         value = self.act(verb, wish)
         if value:
-            self.output(wish, __class__.ERROR.format(value))
+            self.output(wish, self.ERROR.format(value))
         return value
     def act(self, verb, wish):
         return "No wish implemented"
