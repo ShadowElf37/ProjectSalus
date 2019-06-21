@@ -478,6 +478,10 @@ class HandlerBBInfo(RequestHandler):
                                   menu='\n'.join(menu) if menu else snippet('no-food'))
 
 
+class HandlerSubmitPoll(RequestHandler):
+    def call(self):
+        print(self.request.post_vals)
+
 GET = {
     '/': HandlerBlank,
     '/favicon.ico': HandlerFavicon,
@@ -499,7 +503,8 @@ POST = {
     '/ctrl-words': HandlerControlWords,
     '/mod-h': HandlerMod,
     '/mod-s': HandlerModServer,
-    '/bb_post': HandlerBBLogin
+    '/bb_post': HandlerBBLogin,
+    '/submit-poll': HandlerSubmitPoll,
 }
 
 INDEX = {}

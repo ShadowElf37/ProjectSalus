@@ -11,6 +11,15 @@ var sendControlKey = (function() {
     };
 })();
 
+var sendForm = (function() {
+	var xhr = new XMLHttpRequest;
+	return function(formElem) {
+        xhr.open('POST', '/submit-poll');
+        xhr.send(new FormData(formElem));
+        xhr.timeout = 1000;
+    };
+})();
+
 class Notifier{
 	constructor(oncomplete=function(){}, awaiting=1){
 		this.oncomplete = oncomplete;
