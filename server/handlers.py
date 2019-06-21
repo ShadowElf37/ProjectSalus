@@ -10,6 +10,7 @@ import scrape
 import info
 import mods.modding as modding
 import json
+import server.wish as wish
 
 # REPLACE
 TEST = 'Hello World'
@@ -482,6 +483,17 @@ class HandlerSubmitPoll(RequestHandler):
     def call(self):
         print(self.request.post_vals)
 
+class HandlerConsolePage(RequestHandler):
+    def call(self):
+        wish.SESSIONS[self.request.addr] = wish.TTYWell([wish.EchoWell])
+        self.response.attach_file('') # console html
+
+class HandlerConsoleCommand(RequestHandler):
+    def call(self):
+        cmd = self.request.get_post('command')
+        result = wish.SESSIONS[self.request.addr].wish(wish.Wish(cmd, None))
+        self.response.set_body(result)
+
 GET = {
     '/': HandlerBlank,
     '/favicon.ico': HandlerFavicon,
@@ -495,6 +507,7 @@ GET = {
     '/bb_login': HandlerBBPage,
     '/bb': HandlerBBInfo,
     '/data': HandlerDataRequests,
+    '/wish': HandlerConsolePage,
 }
 
 POST = {
@@ -505,6 +518,7 @@ POST = {
     '/mod-s': HandlerModServer,
     '/bb_post': HandlerBBLogin,
     '/submit-poll': HandlerSubmitPoll,
+    '/wish': HandlerConsoleCommand,
 }
 
 INDEX = {}

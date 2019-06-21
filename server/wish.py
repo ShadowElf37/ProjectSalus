@@ -2,6 +2,8 @@ from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
 
+SESSIONS = {}
+
 class Wish:
     def __init__(self, string, ident):
         self.tokens = split(string)
