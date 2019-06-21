@@ -485,14 +485,15 @@ class HandlerSubmitPoll(RequestHandler):
 
 class HandlerConsolePage(RequestHandler):
     def call(self):
-        wish.SESSIONS[self.request.addr] = wish.SocketWell([wish.EchoWell])
         self.response.attach_file('') # console html
 
 class HandlerConsoleCommand(RequestHandler):
+    def __init__(self):
+        self.well = wish.SocketWell([wish.EchoWell])
     def call(self):
         my_wish = self.request.get_post('command')
-        result = wish.SESSIONS[self.request.addr].take(my_wish, self.request.req.connection)
-        self.response.set_body(result)
+        result = self.well.wish(Wish(my_wish, self.request.req.connection))
+        #self.response.set_body(result)
 
 GET = {
     '/': HandlerBlank,

@@ -106,16 +106,11 @@ class TTYWell(RecursiveWell):
 class SocketWell(RecursiveWell):
     def __init__(self, children):
         super().__init__(self, children)
-        self.last = ""
     def output(self, wish, *args):
-        wish.ident.write(' '.join(args)+'\n')
+        wish.ident.write('OUT{}\n'.format(' '.join(args))
     def input(self, wish, prompt):
-        self.last = '##WISH:' + wish.string() + " "
-        wish.ident.write(prompt + " ")
-    def take(self, _input, connection):
-        last = self.last
-        self.last = ""
-        return Wish(last + _input, connection).string()
+        self.output(wish, prompt + " ")
+        wish.ident.write('INP{}\n'.format(wish.string() + ' '))
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell])
