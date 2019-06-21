@@ -249,6 +249,10 @@ var updatePoll = function(title, desc, questions) {
 	pollTitleElem.innerText = title;
 	let q = questions[i];
 	pollQuestionElem.innerText = q[0];
+	let pollTitleInput = document.createElement('input');
+	pollTitleInput.type = "hidden";
+	pollTitleInput.name = "id";
+	pollTitleInput.value = title;  // REPLACE WITH ID
 
 	hideInputs(pollOptionsElem);
 	array(pollOptionsElem.getElementsByTagName('label')).forEach(function(label, i, arr){
@@ -262,7 +266,6 @@ var updatePoll = function(title, desc, questions) {
 	if (newQuestionInputs.length != 0){
 		newQuestionInputs.forEach(function(input, i, arr){
 			input.type = "radio";
-			console.log(array(pollOptionsElem.getElementsByClassName('br-'+input.id)));
 			pollOptionsElem.querySelector('label[for="'+input.id+'"]').style.display = "inline-block";
 			array(pollOptionsElem.getElementsByClassName('br-'+input.id))[0].style.display = "initial";
 		});
@@ -310,11 +313,3 @@ var pollLastQuestion = function(){
 	currentPollIndex--;
 	updatePoll(pollTitle, pollDesc, pollQuestions);
 }
-
-
-document.getElementById('poll-submit-button').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    sendForm(document.getElementById('snack-poll'));
-    return false;
-});

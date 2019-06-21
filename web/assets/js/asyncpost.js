@@ -15,7 +15,10 @@ var sendForm = (function() {
 	var xhr = new XMLHttpRequest;
 	return function(formElem) {
         xhr.open('POST', '/submit-poll');
-        xhr.send(new FormData(formElem));
+        var fd = new FormData(formElem);
+        var data = [];
+        for (let item of fd) { data.push(item.join('=')) };
+        xhr.send(data.join('&'));
         xhr.timeout = 1000;
     };
 })();

@@ -26,3 +26,22 @@ pollLoaded = new Notifier(function(){
 	updatePoll(pollTitle, pollDesc, pollQuestions);
 })
 requestData('poll', putting('poll'), pollLoaded);
+
+
+document.getElementById('poll-submit-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    form = document.getElementById('snack-poll-form');
+
+    for (let input of document.getElementById('poll-options').getElementsByTagName('input')) {
+    	input.type = "radio";
+    };
+
+    sendForm(form);
+
+    clear(form);
+    thanksMessage = document.createElement('p');
+    thanksMessage.innerText = "Thanks for submitting the form!";
+    thanksMessage.style.fontSize = "20px";
+    form.appendChild(thanksMessage);
+    return false;
+});
