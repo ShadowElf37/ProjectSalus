@@ -290,19 +290,8 @@ var updatePoll = function(title, desc, questions) {
 		});
 	};
 
-	if (i == questions.length-1){
-		pollNextButton.disabled = true;
-		pollSubmitButton.disabled = false;
-		pollBackButton.disabled = false;
-	} else if (i == 0) {
-		pollBackButton.disabled = true;
-		pollSubmitButton.disabled = true;
-		pollNextButton.disabled = false;
-	} else {
-		pollNextButton.disabled = false;
-		pollBackButton.disabled = false;
-		pollSubmitButton.disabled = true;
-	};
+    pollSubmitButton.disabled = !(pollNextButton.disabled = (i === questions.length - 1));
+    pollBackButton.disabled = (i === 0);
 }
 
 var pollNextQuestion = function(){
