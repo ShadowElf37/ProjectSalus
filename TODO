@@ -35,7 +35,7 @@ Known Bugs:
 - Abstractify everything into configs so we only have to reboot in emergencies
 - Club integration
 - Randomized nice messages everywhere we normally see one (cf HandlerBBInfo "Have a lovely day!" etc.)
-- Landing page JS for assignments (update with classinfo)
+- Bug reports
 
 
 Check for:

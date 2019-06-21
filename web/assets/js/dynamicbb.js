@@ -249,11 +249,6 @@ var updatePoll = function(title, id, questions) {
 	pollTitleElem.innerText = title;
 	let q = questions[i];
 	pollQuestionElem.innerText = q[0];
-	let pollTitleValue = document.createElement('input');
-	pollTitleValue.type = "hidden";
-	pollTitleValue.name = "_id";
-	pollTitleValue.value = id;
-	pollOptionsElem.appendChild(pollTitleValue);
 
 	hideInputs(pollOptionsElem);
 	array(pollOptionsElem.getElementsByTagName('label')).forEach(function(label, i, arr){
@@ -297,9 +292,9 @@ var updatePoll = function(title, id, questions) {
 
 var pollNextQuestion = function(){
 	currentPollIndex++;
-	updatePoll(pollTitle, pollDesc, pollQuestions);
+	updatePoll(pollTitle, pollId, pollQuestions);
 }
 var pollLastQuestion = function(){
 	currentPollIndex--;
-	updatePoll(pollTitle, pollDesc, pollQuestions);
+	updatePoll(pollTitle, pollId, pollQuestions);
 }

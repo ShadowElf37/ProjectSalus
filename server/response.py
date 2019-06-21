@@ -77,6 +77,7 @@ class Response:
         'htm',
         'js',
         'css',
+        'r',
     )
 
     def __init__(self, request: Request):
