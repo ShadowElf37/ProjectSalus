@@ -57,7 +57,7 @@ class TodoItem:
     def get_state(self):
         return TodoItem.STATES[self.state]
 
-@AccountsSerializer.serialized(title='', desc='', questions=[], responses={}, timestamp=0)
+@AccountsSerializer.serialized(title='', desc='', questions=[], responses={}, timestamp=0, priority=1)
 class Poll:
     def __init__(self, title, desc):
         self.title = title
