@@ -57,11 +57,10 @@ class TodoItem:
     def get_state(self):
         return TodoItem.STATES[self.state]
 
-@AccountsSerializer.serialized(title='', desc='', questions=[], responses={}, timestamp=0, priority=1)
+@AccountsSerializer.serialized(title='', questions=[], responses={}, timestamp=0, priority=1)
 class Poll:
-    def __init__(self, title, desc):
+    def __init__(self, title):
         self.title = title
-        self.desc = desc
         self.questions = []
         self.responses = {}
         self.timestamp = time.time()
@@ -156,9 +155,9 @@ def create_announcement(title, text, display_until: int):
     a = Announcement(title, text, display_until)
     GENERAL_ANNOUNCEMENTS.append(a)
     return a
-def create_poll(title, desc):
+def create_poll(title):
     global POLLS
-    p = Poll(title, desc)
+    p = Poll(title)
     POLLS[p.id] = p
     return p
 def create_todo(title):

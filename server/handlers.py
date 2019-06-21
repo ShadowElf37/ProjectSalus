@@ -25,7 +25,7 @@ from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 
 # Demo
 
-p = info.create_poll('Snack Poll', 'Weekly snack poll.')
+p = info.create_poll('Snack Poll')
 p.add_question('Monday', 'Churros', 'Fruit Roll Ups', 'Cereal')
 p.add_question('Tuesday', 'Churros1', 'Fruit Roll Ups1', 'Cereal1')
 p.add_question('Wednesday', 'Churrosa', 'Fruit Roll Upsa', 'Cereala')
@@ -154,7 +154,7 @@ class HandlerDataRequests(RequestHandler):
             poll = None
         else:
             p = info.POLLS[self.account.optimal_poll]
-            poll = p.title, p.desc, p.questions
+            poll = p.title, p.id, p.questions
 
         try:
             self.response.set_body(json.dumps(locals()[self.request.get_query['name'][0]]))
@@ -485,13 +485,13 @@ class HandlerSubmitPoll(RequestHandler):
 
 class HandlerConsolePage(RequestHandler):
     def call(self):
-        wish.SESSIONS[self.request.addr] = wish.TTYWell([wish.EchoWell])
+        wish.SESSIONS[self.request.addr] = wish.SocketWell([wish.EchoWell])
         self.response.attach_file('') # console html
 
 class HandlerConsoleCommand(RequestHandler):
     def call(self):
-        cmd = self.request.get_post('command')
-        result = wish.SESSIONS[self.request.addr].wish(wish.Wish(cmd, None))
+        my_wish = self.request.get_post('command')
+        result = wish.SESSIONS[self.request.addr].take(my_wish, self.request.req.connection)
         self.response.set_body(result)
 
 GET = {

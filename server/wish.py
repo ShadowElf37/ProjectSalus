@@ -34,29 +34,29 @@ class BasicWell:
         self.parent = parent
     
     def verbs(self):
-        return self.__class__.VERBS
+        return __class__.VERBS
     def invocations(self):
-        return self.__class__.INVOCATIONS
+        return __class__.INVOCATIONS
     def prompt(self, *args):
-        return self.__class__.PROMPT.format(*args)
+        return __class__.PROMPT.format(*args)
 
     def wish(self, wish):
         verb = wish.consume()
         if verb is None:
-            self.input(wish, self.__class__.PROMPT)
+            self.input(wish, __class__.PROMPT)
             return
-        if verb == self.__class__.LIST:
-            self.output(self.__class__.LISTING.format(", ".join(self.verbs())))
+        if verb == __class__.LIST:
+            self.output(wish, __class__.LISTING.format(", ".join(self.verbs())))
             return
         value = self.act(verb, wish)
         if value:
-            self.output(self.__class__.ERROR.format(value))
+            self.output(wish, __class__.ERROR.format(value))
         return value
     def act(self, verb, wish):
         return "No wish implemented"
 
-    def output(self, *args):
-        self.parent.output(*args)
+    def output(self, wish, *args):
+        self.parent.output(wish, *args)
     def input(self, wish, prompt):
         self.parent.input(wish, prompt)
 
@@ -84,7 +84,7 @@ class EchoWell(BasicWell):
     def __init__(self, parent):
         super().__init__(parent)
     def act(self, verb, wish):
-        self.output(verb, *wish.consume_all())
+        self.output(wish, verb, *wish.consume_all())
 
 class TTYWell(RecursiveWell):
     def __init__(self, children):
@@ -102,6 +102,20 @@ class TTYWell(RecursiveWell):
             last = self.last
             self.last = ""
             result = self.wish(Wish(last + line, None))
+
+class SocketWell(RecursiveWell):
+    def __init__(self, children):
+        super().__init__(self, children)
+        self.last = ""
+    def output(self, wish, *args):
+        wish.ident.write(' '.join(args)+'\n')
+    def input(self, wish, prompt):
+        self.last = '##WISH:' + wish.string() + " "
+        wish.ident.write(prompt + " ")
+    def take(self, _input, connection):
+        last = self.last
+        self.last = ""
+        return Wish(last + _input, connection).string()
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell])

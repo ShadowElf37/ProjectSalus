@@ -156,8 +156,11 @@ class Fish:
                 continue
 
             server, request, client_address = r[1]
-            server.finish_request(request, client_address)
-            server.shutdown_request(request)
+            try:
+                server.finish_request(request, client_address)
+                server.shutdown_request(request)
+            except ConnectionError as e:
+                server.log('An error occurred during communication with client: %s %s' % (e, e.args))
             self.busy = False
 
 class RWLockMixin:
