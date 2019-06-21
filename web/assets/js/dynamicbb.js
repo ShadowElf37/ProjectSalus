@@ -244,15 +244,16 @@ var revertStyle = function(...elems) {
 };
 
 
-var updatePoll = function(title, desc, questions) {
+var updatePoll = function(title, id, questions) {
 	let i = currentPollIndex;
 	pollTitleElem.innerText = title;
 	let q = questions[i];
 	pollQuestionElem.innerText = q[0];
-	let pollTitleInput = document.createElement('input');
-	pollTitleInput.type = "hidden";
-	pollTitleInput.name = "id";
-	pollTitleInput.value = title;  // REPLACE WITH ID
+	let pollTitleValue = document.createElement('input');
+	pollTitleValue.type = "hidden";
+	pollTitleValue.name = "_id";
+	pollTitleValue.value = id;
+	pollOptionsElem.appendChild(pollTitleValue);
 
 	hideInputs(pollOptionsElem);
 	array(pollOptionsElem.getElementsByTagName('label')).forEach(function(label, i, arr){
