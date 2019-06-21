@@ -107,7 +107,7 @@ class SocketWell(RecursiveWell):
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):
-        wish.ident.write('OUT{}\n'.format(' '.join(args))
+        wish.ident.write('OUT{}\n'.format(' '.join(args)))
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         wish.ident.write('INP{}\n'.format(wish.string() + ' '))
