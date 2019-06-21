@@ -299,3 +299,9 @@ var pollLastQuestion = function(){
 	currentPollIndex--;
 	updatePoll(pollTitle, pollDesc, pollQuestions);
 }
+document.getElementById('poll-submit-button').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    sendForm(document.getElementById('snack-poll'));
+    return false;
+});
