@@ -28,7 +28,9 @@ from .htmlutil import snippet, ISOWEEKDAYNAMES, ordinal
 p = info.create_poll('Snack Poll')
 p.add_question('Monday', 'Churros', 'Fruit Roll Ups', 'Cereal')
 p.add_question('Tuesday', 'Churros1', 'Fruit Roll Ups1', 'Cereal1')
-p.add_question('Wednesday', 'Churrosa', 'Fruit Roll Upsa', 'Cereala')
+p.add_question('Wednesday', 'Churros2', 'Fruit Roll Ups2', 'Cereal2')
+p.add_question('Thursday', 'Churros3', 'Fruit Roll Ups3', 'Cereal3')
+p.add_question('Friday', 'Churros4', 'Fruit Roll Ups4', 'Cereal4')
 
 #info.create_announcement('Test', 'This is an announcement.', time()+1000000)
 #info.create_announcement('Test 2', 'This is a more recent announcement', time()+1000000)

@@ -207,7 +207,7 @@ class ClassSerializer(RecursiveSerializer):
             setattr(cls, var, property(lambda self: baseclass(self), _s_value))
             
             def point(self, v):
-                if type(v) not in self.__bases__:
+                if type(v) not in self.__class__.__bases__:
                     raise TypeError('Class %s cannot emulate uninherited type %s' % (type(self), type(v)))
                 type(v).__init__(self, v)
                 self.__dict__[var] = v

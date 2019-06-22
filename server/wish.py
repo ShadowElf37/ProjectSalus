@@ -25,7 +25,7 @@ class Wish:
 class BasicWell:
     PROMPT      = "What do you wish for?"
     VERBS       = ()
-    INVOCATIONS = ("please")
+    INVOCATIONS = ("please",)
     LIST        = "list"
     LISTING     = "You can wish for: {}"
     ERROR       = "Wish failed: {}!"
@@ -80,7 +80,7 @@ class RecursiveWell(BasicWell):
 
 class EchoWell(BasicWell):
     PROMPT      = "What to echo?"
-    INVOCATIONS = "echo"
+    INVOCATIONS = ("echo",)
     def __init__(self, parent):
         super().__init__(parent)
     def act(self, verb, wish):
