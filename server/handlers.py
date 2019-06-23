@@ -49,7 +49,7 @@ class RequestHandler:
         self.request = request
         self.response = response
         self.path: str = self.request.path
-        self.server = self.request.req.server
+        self.server = self.request.server
         self.c_ip, self.c_port = self.request.req.client_address
         self.ip = self.request.server.host
         self.port = self.request.server.port
@@ -490,10 +490,10 @@ class HandlerConsolePage(RequestHandler):
         self.response.attach_file('/admin/well.html')
 
 class HandlerConsoleCommand(RequestHandler):
-    well = wish.SocketWell([wish.EchoWell])
+    well = wish.SocketWell([wish.EchoWell, wish.BagelWell, wish.MultiplicityWell])
     def call(self):
         my_wish = self.request.get_post('command')
-        result = self.well.wish(wish.Wish(my_wish, self.request.req.connection))
+        result = self.well.wish(wish.Wish(my_wish, {}))
         self.response.set_body(result)
 
 GET = {

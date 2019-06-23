@@ -38,7 +38,7 @@
         <a href="/">Go home.</a>
 
         <div class="well">
-            <pre>    .-------------.
+            <pre>                .-------------.
                /= ^ =_ ^-_- =  \
               /^ ==_  -_ = _ ^  \
              / =_ ^ -_  =   _  = \
@@ -54,13 +54,18 @@
                |_| _ |_ ]_ _[_ |
                `"-..........--"`
                 A wishing well</pre>
-                    >> <input type="text" id="input">
+                    &gt;&gt; <input type="text" id="input">
                     <div id="output"></div>
             </div>
     </body>
     <script>
     var dgi = function(x) {return document.getElementById(x)};
-    var client = new WishUI(dgi("input"), dgi("output"));
-    dgi("input").focus();
+    var input = dgi("input");
+    var client = new WishUI(input, dgi("output"));
+    document.body.addEventListener('keydown', function(ev) {
+      if(ev.code === "Enter" || ev.which === 13 || event.keyCode === 13) {
+        input.focus();
+      };
+    });
     </script>
 </html>

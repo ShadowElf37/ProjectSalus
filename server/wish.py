@@ -2,8 +2,6 @@ from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
 
-SESSIONS = {}
-
 class Wish:
     def __init__(self, string, data):
         self.tokens = split(string or '')
@@ -27,6 +25,7 @@ class BasicWell:
     PROMPT      = "What do you wish for?"
     VERBS       = ()
     INVOCATIONS = ("please",)
+    IGNORE      = ("a", "an", "of")
     LIST        = "list"
     LISTING     = "You can wish for these things: {}."
     ERROR       = "Wish failed: {}!"
@@ -42,10 +41,14 @@ class BasicWell:
         return self.PROMPT.format(*args)
 
     def wish(self, wish):
-        verb = wish.consume()
-        if verb is None:
-            self.input(wish, self.prompt())
-            return
+        while True:
+            verb = wish.consume()
+            if verb is None:
+                self.input(wish, self.prompt())
+                return
+            verb = verb.lower()
+            if not verb in self.IGNORE:
+                break
         if verb == self.LIST:
             self.output(wish, self.LISTING.format(", ".join(self.verbs())))
             wish.tokens = wish.tokens[:wish.location-1]
@@ -67,9 +70,8 @@ class RecursiveWell(BasicWell):
         super().__init__(parent)
         self.children = [self.gen_child(child) for child in children]
         self.lut = dict((i, c) for c in self.children for i in c.invocations())
-        self.verbage = tuple(self.lut.keys())
-        print(self.lut)
-        print(self.verbage)
+        self.verbage = tuple(k for k in self.lut.keys())
+        print(self.lut, self.verbage)
     def gen_child(self, child):
         if type(child) is type:
             return child(self)
@@ -87,11 +89,53 @@ class EchoWell(BasicWell):
     def act(self, verb, wish):
         self.output(wish, verb, *wish.consume_all())
 
-class TTYWell(RecursiveWell):
+class BagelWell(BasicWell):
+    INVOCATIONS = ('bagel', 'bagels')
+    BAGEL = r"""
+    .-"   "-.
+  .'   . ;   `.
+ /    : . ' :  \
+|   `  .-. . '  |
+|  :  (   ) ; ` |
+|   :  `-'   :  |
+ \   .` ;  :   /
+  `.   . '   .'
+    `-.___.-'"""
+    def wish(self, wish):
+        self.output(wish, self.BAGEL)
+
+class MultiWell(RecursiveWell):
+    QUANTITIES = {
+        1: ['one'],
+        2: ['couple', 'two', 'pair', 'twain'],
+        3: ['three', 'few'],
+        4: ['four', 'some']
+    }
+    LUT = {k: v for (v, l) in QUANTITIES.items() for k in l}
+    CAP = 4
+    def __init__(self, parent, children):
+        super().__init__(parent, children)
+        
+    def act(self, verb, wish):
+        wish.data["count"] = wish.data.get("count", 1)
+        if verb in self.LUT:
+            number = self.LUT[verb]
+            wish.data["count"] *= number
+            self.wish(wish)
+        if wish.data["count"] > self.CAP:
+            self.output(wish, "Too much multiplicity!")
+            wish.data["count"] = 0
+            return
+        ol = wish.location
+        for _ in range(wish.data["count"]):
+            wish.location = ol
+            super().act(verb, wish)
+
+class TTYWell(MultiWell):
     def __init__(self, children):
         super().__init__(self, children)
         self.last = ""
-    def output(self, *args):
+    def output(self, wish, *args):
         print(*args)
     def input(self, wish, prompt):
         print(prompt + " ", end="")
@@ -102,16 +146,9 @@ class TTYWell(RecursiveWell):
         for line in stdin:
             last = self.last
             self.last = ""
-            result = self.wish(Wish(last + line, None))
+            self.wish(Wish(last + line, {}))
 
-class MultiplicityWell(BasicWell):
-    QUANTITIES = 
-    def __init__(self, parent):
-        super().__init__(parent)
-        
-    def act(self,
-
-class SocketWell(RecursiveWell):
+class SocketWell(MultiWell):
     PROMPT      = "What do you want?"
     def __init__(self, children):
         super().__init__(self, children)
@@ -120,10 +157,9 @@ class SocketWell(RecursiveWell):
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         self.write("INP", wish.string(), wish)
-        raise StopIteration
     @staticmethod
     def write(op, data, wish):
-        wish.data["out"] += "{}{}\n".format(op, data)
+        wish.data["out"] += "{}{}\n".format(op, data.replace("\n", "\\n"))
     def wish(self, wish):
         wish.data["out"] = ""
         try:
@@ -135,5 +171,5 @@ class SocketWell(RecursiveWell):
         return wish.data["out"]
 
 if __name__ == "__main__":
-    well = TTYWell([EchoWell])
+    well = TTYWell([EchoWell, BagelWell])
     well.mainloop()
