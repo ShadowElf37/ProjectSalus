@@ -2,8 +2,6 @@ from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
 
-SESSIONS = {}
-
 class Wish:
     def __init__(self, string, ident):
         self.tokens = split(string or '')
@@ -102,7 +100,13 @@ class TTYWell(RecursiveWell):
         for line in stdin:
             last = self.last
             self.last = ""
-            result = self.wish(Wish(last + line, None))
+            self.wish(Wish(last + line, None))
+
+class BagelWell(BasicWell):
+    PROMPT = "How many bagels would you like?"
+    INVOCATIONS = ('bagel', 'a bagel')
+    def act(self, verb, wish):
+        self.output(wish, '{} bagel{}, order up.'.format(('one' if verb in ('a', 'an') else verb).title(), 's' if verb not in ('one', 'a', 'an') else ''), *wish.consume_all())
 
 class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
@@ -113,18 +117,14 @@ class SocketWell(RecursiveWell):
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         self.write("INP", wish.string(), wish)
-        raise StopIteration
     @staticmethod
     def write(op, data, wish):
         wish.data += "{}{}\n".format(op, data)
     def wish(self, wish):
         wish.data = ""
-        try:
-            super().wish(wish)
-            wish.tokens = []
-            self.input(wish, self.prompt())
-        except StopIteration:
-            pass
+        super().wish(wish)
+        wish.tokens = []
+        self.input(wish, self.prompt())
         return wish.data
 
 if __name__ == "__main__":
