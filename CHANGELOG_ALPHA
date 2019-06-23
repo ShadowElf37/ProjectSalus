@@ -1,3 +1,9 @@
+v0.5.7 (6/22/19)
+- Fixed a lot of bugs
++ Added wishclient.js
++ Added directory.css
+
+
 v0.5.6 (6/21/19)
 - Weekends are now included in the schedule, along with dates beyond the schedule or menu range (in principle, although this is limited by server-provided timespan to the schedule range), through client-side date calculation
 - Fixed a bug where the Ma'amad info div would revert to default after changing the schedule day

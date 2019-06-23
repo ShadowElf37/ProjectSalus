@@ -187,9 +187,10 @@ class Response:
     def render(byte, render_opts):
         f = byte
 
-        defrender = re.findall(b'(#(?:[dD][eE][fF][iI][nN][eE]) +([^ ]*)? +([^;\n\r]*)(?:[;\n\r]*))', f)
+        defrender = re.findall(b'(#(?:[dD][eE][fF][iI][nN][eE])\s+([^ ]*)\s+([^;\n\r]*)(?:[;\n\r]+))', f)
         if defrender:
             for df in defrender:
+                f = f.replace(df[0], b'')
                 f.replace(df[1], df[2])
 
         argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
@@ -197,7 +198,8 @@ class Response:
             f = f.replace(b'[[' + arg + b']]', render_opts[arg])
         if defrender:
             for df in defrender:
-                f.replace(df[1], df[2])
+                f = f.replace(df[0], b'')
+                f = f.replace(df[1], df[2])
 
         kwrender = set(re.findall(b'{{(.[^\}]*)}}', f))
         for kw in kwrender:
@@ -213,8 +215,8 @@ class Response:
             f = f.replace(b'{{' + kw + b'}}', r)
         if defrender:
             for df in defrender:
-                f.replace(df[1], df[2])
-                f.replace(df[0], b'')
+                f = f.replace(df[0], b'')
+                f = f.replace(df[1], df[2])
 
         return f
 

@@ -109,7 +109,6 @@ except (JSONDecodeError, KeyError):
     Poolsafe.await_all(d, t, s, sp)
     # d.wait();t.wait();s.wait();sp.wait()
 
-
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
 

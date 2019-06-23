@@ -2,16 +2,10 @@ Known Bugs:
 - No known bugs
 
 - Redo CSS
-
-- Poll ID tracking
-- Rename bb_test.html
-
-- Admin control board
 - Rework BB login flow
 
 - SGA feedback form & email forwarding system
-- Snack polls
-- Referendums / Surveys
+- Survey input types
 - Announcements, Ma'amad info editors
 - Public calendar with meetings & events
 - Transcripts / summaries of meetings
@@ -23,14 +17,12 @@ Known Bugs:
 - Student life board?
 - SMS with periods etc.
 - Student directory
-- Links to Blackbaud etc. - but easily accessible (maybe on the bottombar?)
 - IMAP/SMTP replacement for Outlook
 - Click on email address to open small window for composing emails
 - Store updater information for SMS scheduler, etc.
 - Purge stale updaters; generally overhaul session tokens with something more flexible
 - Whitelist ranks
 - User settings and customization (delete, reload, etc.)
-- Sensitize schedule span scrape to half days and special events
 - Check dates of recently graded assignments
 - Abstractify everything into configs so we only have to reboot in emergencies
 - Club integration
@@ -42,6 +34,7 @@ Check for:
     - Bugs
     - Everything is html escaped
     - Remove TESTDATEs
+
 
 Post-deployment wishlist:
     - Minimalist text editor

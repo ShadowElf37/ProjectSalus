@@ -1,0 +1,54 @@
+.cards {
+	#define G 1px solid #444;
+	border-left: G;
+	border-right: G;
+	width: 20%;
+	padding: 5%;
+	display: inline-block;
+	margin: 0 3vw;
+}
+
+.card {
+	display: block;
+	height: 30vh;
+	width: 90%;
+	border-radius: 7px;
+	background: #222;
+	margin: 0;
+	padding: 5%;
+	text-anchor: center;
+}
+.card * {
+	text-align: left;
+}
+
+.name {
+	font-size: 34px;
+}
+.email {
+	font-size: 18px;
+}
+.id {
+	font-size: 14px;
+}
+.address{
+	font-size: 18px;
+	text-align: center;
+}
+
+.phone strong{
+	font-size: 20px;
+}
+.phone p{
+	font-size: 18px;
+	margin: 0;
+}
+
+.class{
+	display: block;
+	font-size: 18px;
+}
+.grade{
+	display: inline;
+	font-size: 18px;
+}
