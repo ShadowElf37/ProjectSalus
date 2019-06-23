@@ -15,6 +15,7 @@ import mods.modding
 RESPONSE_QUEUE = []
 
 class Server(HTTPServer):
+    SERMANAGER = Manager
     def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
         super().__init__((host, port), HTTPMacroHandler, *args)
         self.host = host
@@ -62,8 +63,15 @@ class Server(HTTPServer):
         self.close()
         os._exit(37)
 
+    # DEPRECATED - use read_log()
     def get_log(self):
         return self.buffer.getvalue() if self.buffer else None
+
+    def read_log(self, nlines=-1):
+        if nlines == -1:
+            return self.get_log()
+        log = reversed(self.get_log().split('\n'))
+        return '\n'.join([i for i in [next(log, '-null-') for _ in range(nlines+1)] if i])
 
     def reload_config(self):
         self.config_cache.reload()
@@ -95,8 +103,10 @@ class Server(HTTPServer):
         self.server_close()
 
     @staticmethod
-    def log(*string):
-        print('Server ['+time.strftime('%D %X')+'] -', *string)
+    def log(*string, user='Server'):
+        text = user+' ['+time.strftime('%D %X')+'] -', *string
+        print(*text)
+        return ' '.join(text)
 
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):

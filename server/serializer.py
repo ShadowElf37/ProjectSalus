@@ -315,14 +315,21 @@ class ClassSerializer(RecursiveSerializer):
 class BoundSerializer(ClassSerializer):
     def __init__(self, name):
         super().__init__()
-        path = "{}/{}".format(config.get("dir"), name)
-        self.setfile(path)
+        self.path = "{}/{}".format(config.get("dir"), name)
+        self.name = name
+        self.setfile(self.path)
 
     def __del__(self):
         self.fh.close()
 
     def getfile(self):
         return self.fh
+
+    def relinquish(self):
+        self.fh.close()
+    def proceed(self):
+        self.setfile(self.path)
+        self.getfile().seek(0)
     
     def setfile(self, path):
         try:
@@ -338,6 +345,11 @@ class BoundSerializer(ClassSerializer):
         self.getfile().seek(0)
         self.getfile().truncate()
         super().dump(self.getfile())
+        self.getfile().flush()
+
+    def nuke(self, *args):
+        self.getfile().seek(0)
+        self.getfile().truncate()
         self.getfile().flush()
 
 class BoundRotatingSerializer(BoundSerializer):

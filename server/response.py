@@ -94,6 +94,7 @@ class Response:
             addr=self.server.host+':'+str(self.server.port),
         )
         self.sent_prematurely = False
+        self.compiled = False
         self.head = False
         self.content_type = 'application/octet-stream'
     
@@ -264,11 +265,13 @@ class Response:
         for cookie in self.cookie.output(header='').split('\n'):
             self.req.send_header('Set-Cookie', cookie)
         self.req.end_headers()
+        self.compiled = True
 
     def finish(self):
         if self.sent_prematurely:
             return
-        self.compile_header()
+        if not self.compiled:
+            self.compile_header()
         if self.head:
             return
 
