@@ -6,9 +6,10 @@ SESSIONS = {}
 
 class Wish:
     def __init__(self, string, ident):
-        self.tokens = split(string)
+        self.tokens = split(string or '')
         self.location = 0
         self.ident = ident
+        self.data = None
     def consume(self):
         if self.location >= len(self.tokens):
             return None
@@ -47,12 +48,12 @@ class BasicWell:
             return
         if verb == self.LIST:
             self.output(wish, self.LISTING.format(", ".join(self.verbs())))
-            wish.tokens = wish.tokens[:wish.location]
+            wish.tokens = wish.tokens[:wish.location-1]
+            self.input(wish, self.prompt())
             return
         value = self.act(verb, wish)
         if value:
             self.output(wish, self.ERROR.format(value))
-        return value
     def act(self, verb, wish):
         return "No wish implemented"
 
@@ -65,14 +66,15 @@ class RecursiveWell(BasicWell):
     def __init__(self, parent, children):
         super().__init__(parent)
         self.children = [self.gen_child(child) for child in children]
-        self.lut = dict(chain((c.invocations(), c) for c in self.children))
-        self.verbage = tuple(self.lut)
+        self.lut = dict((i, c) for c in self.children for i in c.invocations())
+        self.verbage = tuple(self.lut.keys())
+        print(self.lut)
+        print(self.verbage)
     def gen_child(self, child):
         if type(child) is type:
             return child(self)
         return child[0](self, *child[1:])
     def verbs(self):
-        print(self.verbage)
         return self.verbage
     def act(self, verb, wish):
         if verb not in self.lut:
@@ -105,23 +107,27 @@ class TTYWell(RecursiveWell):
             result = self.wish(Wish(last + line, None))
 
 class SocketWell(RecursiveWell):
+    PROMPT      = "What do you want?"
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):
-        self.write("OUT", ' '.join(args), wish.ident)
+        self.write("OUT", ' '.join(args), wish)
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
-        self.write("INP", wish.string(), wish.ident)
+        self.write("INP", wish.string(), wish)
         raise StopIteration
     @staticmethod
-    def write(op, data, sock):
-        sock.send("{}{}\n".format(op, data).encode('utf-8'))
+    def write(op, data, wish):
+        wish.data += "{}{}\n".format(op, data)
     def wish(self, wish):
+        wish.data = ""
         try:
             super().wish(wish)
+            wish.tokens = []
+            self.input(wish, self.prompt())
         except StopIteration:
-            try: self.input(wish, self.prompt())
-            except StopIteration: pass
+            pass
+        return wish.data
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell])

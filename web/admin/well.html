@@ -3,6 +3,12 @@
     <head>
         <title>Well, well, well.</title>
         {{js('wishclient.js')}}
+        <style>
+          #output span:first-child {
+            font-weight: bold;
+            font-style: italic;
+          }
+        </style>
     </head>
     <body>
         <a href="/">Go home.</a>
@@ -23,8 +29,8 @@
    |_| _ |_ ]_ _[_ |
    `"-..........--"`
     A wishing well</pre>
-        <div id="output"></div>
         <input type="text" id="input">
+        <div id="output"></div>
 
     </body>
     <script>

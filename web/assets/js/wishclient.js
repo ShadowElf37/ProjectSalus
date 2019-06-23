@@ -33,12 +33,11 @@ function WishParser() {
 WishParser.prototype.len = 3;
 WishParser.prototype.parse = function(block) {
 	var lines = block.split('\n');
-	console.log(lines);
 	for(var i=0; i<lines.length; i++) {
 		var chunk, line = lines[i];
 		if(!line) continue;
 		chunk = line.substring(0, this.len);
-		line = line.substring(this.len).trim();
+		line = line.substring(this.len);
 		var handler = this.handlers[chunk];
 		if(handler) {
 			handler(line);
@@ -57,9 +56,10 @@ function WishUI(i, o) {
 	this.in = i;
 	this.out = o;
 	this.out.style.whiteSpace = "pre-wrap";
+	this.cycle = false;
 	this.parser = new WishParser();
-	this.parser.register("INP", this.hdl_inp);
-	this.parser.register("OUT", this.hdl_out);
+	this.parser.register("INP", function(data) { self.hdl_inp(data); });
+	this.parser.register("OUT", function(data) { self.hdl_out(data); });
 	this.fetcher = new Fetcher();
 	this.in.addEventListener('keydown', function(ev) {
 		if(ev.code === "Enter" || ev.which === 13 || event.keyCode === 13) {
@@ -71,14 +71,22 @@ WishUI.prototype.onsubmit = function() {
 	var self = this;
 	this.in.disabled = true;
 	this.fetcher.fetch("POST", "/wish", "command=" + escape(this.in.value), function(line) {
-		console.log('got');
 		self.parser.parse(line);
 	});
 };
 WishUI.prototype.hdl_inp = function(line) {
-	this.in.value = line;
+	this.in.value = line.trim() ? line + ' ' : '';
 	this.in.disabled = false;
+	this.cycle = true;
+	var quote = this.out.firstChild;
+	quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
 };
 WishUI.prototype.hdl_out = function(line) {
-	this.out.insertBefore(document.createTextNode(line), this.out.firstChild);
+	if(this.cycle) {
+		this.out.removeChild(this.out.firstChild);
+		this.cycle = false;
+	}
+	var span = document.createElement('span');
+	span.appendChild(document.createTextNode(line + '\n'));
+	this.out.insertBefore(span, this.out.firstChild);
 };

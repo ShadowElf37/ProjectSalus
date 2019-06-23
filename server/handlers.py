@@ -490,11 +490,11 @@ class HandlerConsolePage(RequestHandler):
         self.response.attach_file('/admin/well.html') # console html
 
 class HandlerConsoleCommand(RequestHandler):
-    well = wish.SocketWell([wish.EchoWell])
+    well = wish.SocketWell([(wish.RecursiveWell, [wish.EchoWell])])
     def call(self):
         my_wish = self.request.get_post('command')
         result = self.well.wish(wish.Wish(my_wish, self.request.req.connection))
-        #self.response.set_body(result)
+        self.response.set_body(result)
 
 GET = {
     '/': HandlerBlank,
