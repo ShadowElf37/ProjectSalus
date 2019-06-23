@@ -16,12 +16,13 @@ Fetcher.prototype.next = function() {
 	var next = this.queue[0];
 	this.queue = this.queue.slice(1);
 	this.xhr.open(next[0], next[1]);
+	this.xhr.responseType = "text";
 	this.cb = next[3];
 	this.xhr.send(next[2]);
 };
 Fetcher.prototype.resolve = function() {
 	if(this.xhr.readyState === 4) {
-		this.cb(xhr.responseText);
+		this.cb(this.xhr.responseText);
 		this.next();
 	}
 };
@@ -32,6 +33,7 @@ function WishParser() {
 WishParser.prototype.len = 3;
 WishParser.prototype.parse = function(block) {
 	var lines = block.split('\n');
+	console.log(lines);
 	for(var i=0; i<lines.length; i++) {
 		var chunk, line = lines[i];
 		if(!line) continue;
@@ -51,6 +53,7 @@ WishParser.prototype.register = function(name, handler) {
 };
 
 function WishUI(i, o) {
+	var self = this;
 	this.in = i;
 	this.out = o;
 	this.out.style.whiteSpace = "pre-wrap";
@@ -58,16 +61,18 @@ function WishUI(i, o) {
 	this.parser.register("INP", this.hdl_inp);
 	this.parser.register("OUT", this.hdl_out);
 	this.fetcher = new Fetcher();
-	this.out.addEventListener('keypress', function(ev) {
-		if(ev.which === 13 || event.keyCode === 13) {
-			this.onsubmit();
+	this.in.addEventListener('keydown', function(ev) {
+		if(ev.code === "Enter" || ev.which === 13 || event.keyCode === 13) {
+			self.onsubmit();
 		}
 	});
 }
 WishUI.prototype.onsubmit = function() {
+	var self = this;
 	this.in.disabled = true;
-	this.fetcher.fetch("POST", "/wish", this.in.value, function(line) {
-		this.parser.parse(line);
+	this.fetcher.fetch("POST", "/wish", "command=" + escape(this.in.value), function(line) {
+		console.log('got');
+		self.parser.parse(line);
 	});
 };
 WishUI.prototype.hdl_inp = function(line) {

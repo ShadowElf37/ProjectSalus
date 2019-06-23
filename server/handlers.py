@@ -487,7 +487,7 @@ class HandlerSubmitPoll(RequestHandler):
 
 class HandlerConsolePage(RequestHandler):
     def call(self):
-        self.response.attach_file('') # console html
+        self.response.attach_file('/admin/well.html') # console html
 
 class HandlerConsoleCommand(RequestHandler):
     well = wish.SocketWell([wish.EchoWell])
@@ -509,7 +509,7 @@ GET = {
     '/bb_login': HandlerBBPage,
     '/bb': HandlerBBInfo,
     '/data': HandlerDataRequests,
-    '/wish': HandlerConsolePage,
+    '/well': HandlerConsolePage,
 }
 
 POST = {

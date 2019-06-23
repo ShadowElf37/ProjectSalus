@@ -12,40 +12,40 @@ var sendControlKey = (function() {
 })();
 
 var sendForm = (function() {
-	var xhr = new XMLHttpRequest;
+    var xhr = new XMLHttpRequest;
 	return function(formElem) {
         xhr.open('POST', '/submit-poll');
         var fd = new FormData(formElem);
         var data = [];
         for (let item of fd) { data.push(item.join('=')) };
-        xhr.send(data.join('&'));
         xhr.timeout = 1000;
+        xhr.send(data.join('&'));
     };
 })();
 
-class Notifier{
-	constructor(oncomplete=function(){}, awaiting=1){
-		this.oncomplete = oncomplete;
-		this.value = 0;
-		this.awaiting = awaiting;
-	}
-	complete() {
-		this.value++;
-		if (this.value == this.awaiting){
-			return this.oncomplete();
-		};
-	}
+function Notifier(cb, target) {
+		this.cb = cb;
+		this.count = 0;
+        this.target = target;
 }
+Notifier.prototype.complete = function() {
+    if(this.count++ >= this.target) {
+        this.count = 0;
+        return this.oncomplete();
+    }
+    return null;
+};
 
-var requestData = (function(name, dowith, notifier=new Notifier()) {
+function requestData(name, dowith, notifier=null) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
 	    	dowith(this.response);
-	    	notifier.complete();
+            if(notifier)
+                notifier.complete();
 	    };
 	};
     xhr.open('GET', '/data?name='+name);
     xhr.send();
-});
+}

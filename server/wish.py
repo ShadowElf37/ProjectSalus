@@ -43,10 +43,11 @@ class BasicWell:
     def wish(self, wish):
         verb = wish.consume()
         if verb is None:
-            self.input(wish, self.PROMPT)
+            self.input(wish, self.prompt())
             return
         if verb == self.LIST:
             self.output(wish, self.LISTING.format(", ".join(self.verbs())))
+            wish.tokens = wish.tokens[:wish.location]
             return
         value = self.act(verb, wish)
         if value:
@@ -107,10 +108,20 @@ class SocketWell(RecursiveWell):
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):
-        wish.ident.write('OUT{}\n'.format(' '.join(args)))
+        self.write("OUT", ' '.join(args), wish.ident)
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
-        wish.ident.write('INP{}\n'.format(wish.string() + ' '))
+        self.write("INP", wish.string(), wish.ident)
+        raise StopIteration
+    @staticmethod
+    def write(op, data, sock):
+        sock.send("{}{}\n".format(op, data).encode('utf-8'))
+    def wish(self, wish):
+        try:
+            super().wish(wish)
+        except StopIteration:
+            try: self.input(wish, self.prompt())
+            except StopIteration: pass
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell])
