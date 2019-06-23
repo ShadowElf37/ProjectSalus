@@ -70,6 +70,7 @@ function WishUI(i, o) {
 WishUI.prototype.onsubmit = function() {
 	var self = this;
 	this.in.disabled = true;
+	this.hdl_out("> " + this.in.value);
 	this.fetcher.fetch("POST", "/wish", "command=" + escape(this.in.value), function(line) {
 		self.parser.parse(line);
 	});

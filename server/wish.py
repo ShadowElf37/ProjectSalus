@@ -157,6 +157,7 @@ class SocketWell(MultiWell):
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         self.write("INP", wish.string(), wish)
+        raise StopIteration
     @staticmethod
     def write(op, data, wish):
         wish.data["out"] += "{}{}\n".format(op, data.replace("\n", "\\n"))
