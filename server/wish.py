@@ -26,7 +26,7 @@ class BasicWell:
     VERBS       = ()
     INVOCATIONS = ("please",)
     LIST        = "list"
-    LISTING     = "You can wish for: {}"
+    LISTING     = "You can wish for these things: {}."
     ERROR       = "Wish failed: {}!"
     
     def __init__(self, parent):
@@ -76,7 +76,7 @@ class RecursiveWell(BasicWell):
         return self.verbage
     def act(self, verb, wish):
         if verb not in self.lut:
-            return "Can't wish for that!"
+            return "You can't wish for that!"
         return self.lut[verb].wish(wish)
 
 class EchoWell(BasicWell):
