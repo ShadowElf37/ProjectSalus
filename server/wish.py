@@ -104,9 +104,9 @@ class TTYWell(RecursiveWell):
 
 class BagelWell(BasicWell):
     PROMPT = "How many bagels would you like?"
-    INVOCATIONS = ('bagel', 'a bagel')
+    INVOCATIONS = ('bagel', 'bagels')
     def act(self, verb, wish):
-        self.output(wish, '{} bagel{}, order up.'.format(('one' if verb in ('a', 'an') else verb).title(), 's' if verb not in ('one', 'a', 'an') else ''), *wish.consume_all())
+        self.output(wish, '{} bagel{}, order up.'.format(('one' if verb in ('a', 'an') else verb.replace('twain', 'two')).title(), 's' if verb not in ('one', 'a', 'an') else ''), *wish.consume_all())
 
 class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
@@ -117,14 +117,18 @@ class SocketWell(RecursiveWell):
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         self.write("INP", wish.string(), wish)
+        raise StopIteration
     @staticmethod
     def write(op, data, wish):
         wish.data += "{}{}\n".format(op, data)
     def wish(self, wish):
         wish.data = ""
-        super().wish(wish)
-        wish.tokens = []
-        self.input(wish, self.prompt())
+        try:
+            super().wish(wish)
+            wish.tokens = []
+            self.input(wish, self.prompt())
+        except StopIteration:
+            pass
         return wish.data
 
 if __name__ == "__main__":
