@@ -5,11 +5,11 @@ from shlex      import split, quote
 SESSIONS = {}
 
 class Wish:
-    def __init__(self, string, ident):
+    def __init__(self, string, data):
         self.tokens = split(string or '')
         self.location = 0
-        self.ident = ident
-        self.data = None
+        self.data = {}
+        self.data.update(data)
     def consume(self):
         if self.location >= len(self.tokens):
             return None
@@ -104,6 +104,13 @@ class TTYWell(RecursiveWell):
             self.last = ""
             result = self.wish(Wish(last + line, None))
 
+class MultiplicityWell(BasicWell):
+    QUANTITIES = 
+    def __init__(self, parent):
+        super().__init__(parent)
+        
+    def act(self,
+
 class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
     def __init__(self, children):
@@ -116,16 +123,16 @@ class SocketWell(RecursiveWell):
         raise StopIteration
     @staticmethod
     def write(op, data, wish):
-        wish.data += "{}{}\n".format(op, data)
+        wish.data["out"] += "{}{}\n".format(op, data)
     def wish(self, wish):
-        wish.data = ""
+        wish.data["out"] = ""
         try:
             super().wish(wish)
             wish.tokens = []
             self.input(wish, self.prompt())
         except StopIteration:
             pass
-        return wish.data
+        return wish.data["out"]
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell])
