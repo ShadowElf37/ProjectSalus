@@ -84,8 +84,6 @@ class RecursiveWell(BasicWell):
 class EchoWell(BasicWell):
     PROMPT      = "What to echo?"
     INVOCATIONS = ("echo",)
-    def __init__(self, parent):
-        super().__init__(parent)
     def act(self, verb, wish):
         self.output(wish, verb, *wish.consume_all())
 

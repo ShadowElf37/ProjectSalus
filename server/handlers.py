@@ -487,10 +487,10 @@ class HandlerSubmitPoll(RequestHandler):
 
 class HandlerConsolePage(RequestHandler):
     def call(self):
-        self.response.attach_file('/admin/well.html') # console html
+        self.response.attach_file('/admin/well.html')
 
 class HandlerConsoleCommand(RequestHandler):
-    well = wish.SocketWell([(wish.RecursiveWell, [wish.EchoWell])])
+    well = wish.SocketWell([wish.EchoWell])
     def call(self):
         my_wish = self.request.get_post('command')
         result = self.well.wish(wish.Wish(my_wish, self.request.req.connection))

@@ -149,7 +149,7 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=True, htmlsafe=False, **render_opts):
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=False, htmlsafe=False, **render_opts):
         """This function has a fair number of very important features to understand.
             Firstly, the path. The path will default to be in /web/, and the cache will automatically search folders from the given path all the way back up to /web/ for a requested file.
             The path here can also accept /../ in order to escape /web/.
