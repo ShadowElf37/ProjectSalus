@@ -456,7 +456,7 @@ class HandlerConsoleCommand(RequestHandler):
         self.response.wrest()
         self.well.wish(wish.Wish(my_wish, {
             'server': self.server,
-            'wfile': self.response.req.wfile,
+            'wfile': self.response,
         }))
 
 
