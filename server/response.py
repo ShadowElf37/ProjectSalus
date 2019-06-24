@@ -100,6 +100,7 @@ class Response:
         self.compiled = False
         self.head = False
         self.content_type = 'application/octet-stream'
+        self.wrested = False
     
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):
@@ -272,13 +273,17 @@ class Response:
 
     def wrest(self):
         self.compile_header()
-        self.req.wrested = True
+        self.wrested = True
+    def flush(self):
+        self.req.wfile.flush()
 
     def write(self, data):
         self.req.wfile.write(data)
+    def read(self):
+        return self.request.read()
 
     def finish(self):
-        if self.sent_prematurely:
+        if self.wrested:
             return
         if not self.compiled:
             self.compile_header()
@@ -289,4 +294,4 @@ class Response:
             b = self.body.encode(ENCODING)
         else:
             b = self.body
-        self.req.wfile.write(b or b'')
+        self.write(b if b else b'')

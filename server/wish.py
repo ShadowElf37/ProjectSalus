@@ -76,7 +76,6 @@ class RecursiveWell(BasicWell):
         self.children = [self.gen_child(child) for child in children]
         self.lut = dict((i, c) for c in self.children for i in c.invocations())
         self.verbage = tuple(i for c in self.children for i in c.list())
-        print(self.lut, self.verbage)
     def gen_child(self, child):
         if type(child) is type:
             return child(self)
@@ -195,7 +194,7 @@ class SocketWell(RecursiveWell):
         raise StopIteration
     @staticmethod
     def write(op, data, wish):
-        wish.data["out"] += "{}{}\n".format(op, data.replace("\n", "\\n"))
+        wish.data['wfile'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('UTF-8'))
     def wish(self, wish):
         wish.data["out"] = ""
         try:
