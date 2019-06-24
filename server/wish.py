@@ -200,6 +200,89 @@ class SocketWell(RecursiveWell):
             pass
         return wish.data["out"]
 
+
+class ReloadWell(BasicWell):
+    PROMPT      = "Clear config or cache?"
+    INVOCATIONS = ("clear",)
+    VERBS       = ("config", "cache")
+    def act(self, verb, wish):
+        server = wish.data['server']
+        if verb == 'config':
+            server.log('Request to clear config granted.')
+            server.reload_config()
+            self.output(wish, 'Request to clear config granted.')
+        elif verb == 'cache':
+            server.log('Request to clear file caches granted.')
+            server.reload_cache()
+            self.output(wish, 'Request to clear file caches granted.')
+        else:
+            return 'Invalid clear target %s' % verb
+
+class LogWell(BasicWell):
+    INVOCATIONS = ("log",)
+    VERBS = ('write', 'read')
+    def act(self, verb, wish):
+        server = wish.data["server"]
+        if verb == 'write':
+            server.log(*wish.consume_all(), user='Wishing Well')
+            self.output(wish, 'Line written.')
+        elif verb == 'read':
+            lines = int(wish.consume() or -1)
+            server.log('Reading %s lines of log to client.' % lines)
+            self.output(wish, server.read_log(lines))
+        else:
+            self.input(wish, 'What should be done with the log?')
+
+class SystemWell(BasicWell):
+    INVOCATIONS = ('system',)
+    VERBS = ('reboot', 'update')
+    def act(self, verb, wish):
+        server = wish.data['server']
+        if verb == 'reboot':
+            self.output(wish, 'Rebooting, watch out!')
+            server.log('Request to reboot granted.')
+            server.reboot()
+        elif verb == 'update':
+            self.output(wish, 'Updating server...')
+            server.log('Request to update granted.')
+            server.update()
+            self.output(wish, 'Update complete!')
+        else:
+            return 'You can\'t wish for that silly.'
+
+class DataWell(BasicWell):
+    INVOCATIONS = ('data',)
+    VERBS = ('dump', 'nuke')
+    def act(self, verb, wish):
+        server = wish.data['server']
+        if verb == 'dump':
+            target = wish.consume()
+            if not target:
+                server.SERMANAGER.cleanup()
+                server.log('JSON files manually dumped.')
+                self.output(wish, 'JSON files manually dumped.')
+            else:
+                ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
+                if ser is None:
+                    return 'Invalid data dump target %s.' % target
+                ser.dump()
+                server.log('JSON file %s manually dumped to.' % target)
+                self.output(wish, 'JSON file %s manually dumped to.' % target)
+        
+        elif verb == 'nuke':
+            # Add some protections to this to make sure you don't do it accidentally.
+            target = wish.consume()
+            if target is None:
+                self.input(wish, 'Need a nuke target:')
+            ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
+            if ser is None:
+                return 'Invalid data nuke target %s.' % target
+            ser.nuke()
+            self.output(wish, 'Target nuked. Ladies and gentlement, we got \'em.')
+
+        else:
+            return 'Invalid data command.'
+
 if __name__ == "__main__":
     well = TTYWell([EchoWell, BagelWell])
     well.mainloop()

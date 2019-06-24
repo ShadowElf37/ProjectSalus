@@ -67,7 +67,6 @@ class RequestHandler:
             themeoffwhite='#eeeeee',
             themegrey='#cccccc',
             navbar='\n'.join(['<li{}><a{}>{}</a></li>'.format(' class="active"' if self.path == li[1] else ' class="disabled"' if li[2] else '', (' href="'+li[1]+'"') if not li[2] else '', li[0]) for li in navbar.get(self.rank)]),
-            reboot_controls=''
         )
         # self.server.cache.reload()
 
@@ -84,21 +83,6 @@ class RequestHandler:
         self.account.manual_key(self.token)
 
     def pre_call(self):
-        # For debug - remove and use admin board
-        if self.account.name == 'Yovel Key-Cohen':
-            self.render_register(
-                reboot_controls='\n'.join([
-                    '<button type="button" class="ctrl-button" onclick="sendControlKey(\'{1}\')">{0}</button>'.format(i,j) for i,j in
-                    {
-                        'Update': 'update',
-                        'Reboot': 'reboot',
-                        'Clear Config': 'refresh-config',
-                        'Clear Cache': 'refresh-cache',
-                        'Update and Restart': 'update-reboot',
-                        'Shutdown': 'shutdown',
-                    }.items()])
-            )
-
         if self.rank == 0:
             ...
         elif self.rank == 1:
@@ -164,33 +148,6 @@ class HandlerDataRequests(RequestHandler):
             print(e)
             self.response.set_body('null')
 
-class HandlerControlWords(RequestHandler):
-    def call(self):
-        self.response.set_body('0')
-        cmd = self.request.get_post('cmd')
-        self.noclient()
-
-        # if self.rank >= 4:
-        if cmd == 'reboot':
-            self.server.log('Request to reboot granted.')
-            self.server.reboot()
-        elif cmd == 'refresh-cache':
-            self.server.log('Request to refresh server cache granted.')
-            self.server.reload_cache()
-        elif cmd == 'refresh-config':
-            self.server.log('Request to reload config granted.')
-            self.server.reload_config()
-        elif cmd == 'update':
-            self.server.log('Request to update granted.')
-            self.server.update()
-        elif cmd == 'update-reboot':
-            self.server.log('Request to update and reboot granted.')
-            self.server.update()
-            self.server.reboot()
-        elif cmd == 'shutdown':
-            self.server.shutdown()
-        else:
-            self.server.log('An unknown control word was received:', cmd)
 
 # Project-specific handlers
 
@@ -292,9 +249,7 @@ class HandlerBBLogin(RequestHandler):
 
         # Log into Blackbaud
         myscraper = scrape.BlackbaudScraper()
-        try:
-            myscraper.login(*auth)
-        except scrape.StatusError:
+        if myscraper.login(*auth).get('t') is None:
             self.response.refuse('Invalid password for %s' % self.account.name)
             self.account.bb_enc = ''
             self.account.bb_auth = ('', '')
@@ -410,6 +365,7 @@ class HandlerBBInfo(RequestHandler):
             else:
                 periods.append(snippet('nullclass', name=period))
 
+        # Generate menu
         menulist = updates.SAGEMENU.get(TESTDATE, ())
         menu = []
         if menulist:
@@ -420,6 +376,7 @@ class HandlerBBInfo(RequestHandler):
 
         contains, may_contain, cross = updates.SAGEMENUINFO.get(TESTDATE, ('nothing', 'nothing', ''))
 
+        # Generate announcements
         announcements = [snippet('announcement',
             title=ann.title,
             date=datetime.fromtimestamp(ann.timestamp).strftime('%m/%d/%Y'),
@@ -429,6 +386,7 @@ class HandlerBBInfo(RequestHandler):
         if not announcements:
             announcements = snippet('no-announcement'),
 
+        # Generate assignments
         assignmentlist = []
         for title, assignment in assignments:
             assignmentlist.append(snippet('assignment',
@@ -438,6 +396,7 @@ class HandlerBBInfo(RequestHandler):
                                           assnd=assignment['assigned'],
                                           desc=assignment['desc']))
 
+        # Generate Ma'amad schedule
         maamads = []
         for week in info.MAAMADS:
             if week.is_this_week(TESTDATE):
@@ -490,10 +449,12 @@ class HandlerConsolePage(RequestHandler):
         self.response.attach_file('/admin/well.html')
 
 class HandlerConsoleCommand(RequestHandler):
-    well = wish.SocketWell([wish.EchoWell, wish.BagelWell])
+    well = wish.SocketWell([wish.EchoWell, wish.BagelWell, wish.LogWell, wish.SystemWell, wish.DataWell, wish.ReloadWell])
     def call(self):
         my_wish = self.request.get_post('command')
-        result = self.well.wish(wish.Wish(my_wish, {}))
+        result = self.well.wish(wish.Wish(my_wish, {
+            'server': self.server,
+        }))
         self.response.set_body(result)
 
 GET = {
@@ -515,7 +476,6 @@ GET = {
 POST = {
     '/signup': HandlerSignup,
     '/login': HandlerLogin,
-    '/ctrl-words': HandlerControlWords,
     '/mod-h': HandlerMod,
     '/mod-s': HandlerModServer,
     '/bb_post': HandlerBBLogin,
