@@ -452,7 +452,7 @@ class HandlerConsoleCommand(RequestHandler):
     well = wish.SocketWell([wish.EchoWell, wish.BagelWell, wish.LogWell, wish.SystemWell, wish.DataWell, wish.ReloadWell])
     def call(self):
         my_wish = self.request.get_post('command')
-        self.response.presume_body_of(1000)
+        # self.response.fix_buffer(1000)
         self.response.wrest()
         self.well.wish(wish.Wish(my_wish, {
             'server': self.server,

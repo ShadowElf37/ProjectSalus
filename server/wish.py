@@ -194,7 +194,6 @@ class SocketWell(RecursiveWell):
         raise StopIteration
     @staticmethod
     def write(op, data, wish):
-        print(op, data)
         wish.data['wfile'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('utf-8'))
         wish.data['wfile'].flush()
     def wish(self, wish):
