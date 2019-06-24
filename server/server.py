@@ -14,6 +14,21 @@ import mods.modding
 
 RESPONSE_QUEUE = []
 
+ServerDataSerializer = Manager.make_serializer('serverstats.json')
+
+@ServerDataSerializer.serialized(handled=0, ips=set())
+class ServerData:
+    def __init__(self):
+        self.handled = 0
+        self.ips = set()
+
+try:
+    ServerDataSerializer.load()
+    SERVER_DATA = ServerDataSerializer.get('stats')
+except (KeyError, JSONDecodeError):
+    SERVER_DATA = ServerData()
+ServerDataSerializer.set('stats', SERVER_DATA)
+
 class Server(HTTPServer):
     SERMANAGER = Manager
     def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
@@ -31,6 +46,11 @@ class Server(HTTPServer):
         self.cache = FileCache()
         self.buffer = stdout_buffer
         self.running = True
+        self.stats = SERVER_DATA
+
+        self.REQUESTS_HANDLED = 0
+        self.CONNECTION_ERRORS = 0
+        self.MISC_ERRORS = 0
 
     # Overloads socketserver.TCPServer.process_request()
     def process_request(self, request, client_address):
@@ -106,6 +126,9 @@ class Server(HTTPServer):
         Manager.cleanup()
         self.server_close()
 
+    def scope(self):
+        return globals()
+
     @staticmethod
     def log(*string, user='Server'):
         text = user+' ['+time.strftime('%D %X')+'] -', *string
@@ -115,6 +138,12 @@ class Server(HTTPServer):
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.0'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.server.REQUESTS_HANDLED += 1
+        self.server.stats.handled += 1
+        self.server.stats.ips.add(self.address_string())
 
     def log_message(self, msg, *subs):
         sys.stderr.write("%s [%s] - %s\n" %
@@ -151,6 +180,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             rsp.finish()
         except Exception as e:
             self.make_error(e)
+            self.server.MISC_ERRORS += 1
 
         #while RESPONSE_QUEUE[0] != rsp:
         #    time.sleep(0.00001)
@@ -168,11 +198,11 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             rsp.finish()
         except Exception as e:
             self.make_error(e)
+            self.server.MISC_ERRORS += 1
 
         #while RESPONSE_QUEUE[0] != rsp:
         #    time.sleep(0.00001)
         #del RESPONSE_QUEUE[0]
-
 
 if __name__ == '__main__':
     s = Server()

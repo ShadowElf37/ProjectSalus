@@ -91,6 +91,7 @@ class Pool:
         self.condition = Condition(Lock())
         self.queue = []
         self.threads = [Fish(self.condition, self.queue) for _ in range(threadcount)]
+        self.thread_count = threadcount
 
     def launch(self):
         for t in self.threads:
@@ -103,6 +104,9 @@ class Pool:
             self.condition.notify_all()
         for t in self.threads:
             t.thread.join(config.get('cleanup-timeout'))
+
+    def alive_count(self):
+        return sum([1 for thread in self.threads if thread.alive()])
 
     def push(self, reqtuple):
         self.pushf(None, *reqtuple)
@@ -161,6 +165,7 @@ class Fish:
                 server.shutdown_request(stream)
             except ConnectionError as e:
                 server.log('An error occurred during communication with client: %s %s' % (e, e.args))
+                server.CONNECTION_ERRORS += 1
             self.busy = False
 
 class RWLockMixin:

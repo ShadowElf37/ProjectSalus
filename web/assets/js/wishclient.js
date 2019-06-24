@@ -92,9 +92,9 @@ WishUI.prototype.hdl_out = function(line, isReprint=false) {
 
 	// Begin formatting
 	if (!isReprint) {
-		bold = /\*\*([^*]*)\*\*/;
-		italicize = /\*([^*]*)\*/;
-		color = /\[(#[0-9a-f]{3,8}|#default)\]/g;
+		let bold = /\*(?<!\\)\*(?<!\\)([^*]*?)\*(?<!\\)\*(?<!\\)/g;
+		let italicize = /\*(?<!\\)([^*]*?)\*(?<!\\)/g;
+		let color = /\[(#[0-9a-f]{3,8}|#default)\]/gi;
 		text = text.replace(bold,
 			function(match, inner, offset, string) {
 				return "<b>"+inner+"</b>"
@@ -104,7 +104,7 @@ WishUI.prototype.hdl_out = function(line, isReprint=false) {
 				return "<i>"+inner+"</i>"
 			});
 		
-		colorCounter = 0;
+		let colorCounter = 0;
 		text = text.replace(color,
 			function(match, color, offset, string) {
 				colorCounter++;

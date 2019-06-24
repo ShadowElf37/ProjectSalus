@@ -27,7 +27,7 @@ class RotationHandler:
         src = self.resolve_name(offset)
         offset += 1
         dest = self.resolve_name(offset)
-        if isfile(dest) and offset <= self.cap:
+        if isfile(dest) and offset < self.cap:
             self._rotate(offset)
         replace(src, dest)
 

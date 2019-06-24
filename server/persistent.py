@@ -1,7 +1,7 @@
 from .serializer import BSManager
 
 Manager = BSManager()
-AccountsSerializer = Manager.make_serializer('accounts.json')
+AccountsSerializer = Manager.make_serializer('accounts.json', keep_backups=10)
 
 @AccountsSerializer.extending(dict)
 class PersistentDict(dict):

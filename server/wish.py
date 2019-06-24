@@ -3,6 +3,9 @@ from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
 
+class InputNeededError(BaseException):
+    pass
+
 class Wish:
     def __init__(self, string, data):
         self.tokens = split(string or '')
@@ -31,6 +34,8 @@ class BasicWell:
     IGNORE      = ("a", "an", "of")
     LIST        = "list"
     LISTING     = "You can wish for these things: {}."
+    HELP        = "help"
+    HELPSTR     = "No help strings in this well!"
     ERROR       = "Wish failed: {}!"
     
     def __init__(self, parent):
@@ -59,6 +64,10 @@ class BasicWell:
             wish.tokens = wish.tokens[:wish.location-1]
             self.input(wish, self.prompt())
             return
+        elif verb == self.HELP:
+            self.output(wish, self.HELPSTR)
+            wish.tokens = wish.tokens[:wish.location - 1]
+            self.input(wish, self.prompt())
         value = self.act(verb, wish)
         if value:
             self.output(wish, self.ERROR.format(value))
@@ -169,7 +178,7 @@ class TTYWell(RecursiveWell):
         print(prompt + " ", end="")
         self.last = wish.string() + " "
         stdout.flush()
-        raise StopIteration
+        raise InputNeededError
     def mainloop(self):
         from sys import stdin
         for line in stdin:
@@ -180,35 +189,37 @@ class TTYWell(RecursiveWell):
                 self.wish(wish)
                 wish.tokens = []
                 self.input(wish, self.prompt())
-            except StopIteration: pass
+            except InputNeededError: pass
 
 class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):
+        if type(wish) is str:
+            raise TypeError('You forgot to pass the wish to output() somewhere')
         self.write("OUT", ' '.join(args), wish)
     def input(self, wish, prompt):
         self.output(wish, prompt + " ")
         self.write("INP", wish.string(), wish)
-        raise StopIteration
+        raise InputNeededError
     @staticmethod
     def write(op, data, wish):
-        wish.data['wfile'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('utf-8'))
-        wish.data['wfile'].flush()
+        wish.data['response'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('utf-8'))
+        wish.data['response'].flush()
     def wish(self, wish):
         try:
             super().wish(wish)
             wish.tokens = []
             self.input(wish, self.prompt())
-        except StopIteration:
+        except InputNeededError:
             pass
 
 
 class ReloadWell(BasicWell):
     PROMPT      = "Clear config or cache?"
-    INVOCATIONS = ("clear",)
-    VERBS       = ("config", "cache")
+    INVOCATIONS = "clear",
+    VERBS       = "config", "cache"
     def act(self, verb, wish):
         server = wish.data['server']
         if verb == 'config':
@@ -223,8 +234,8 @@ class ReloadWell(BasicWell):
             return 'Invalid clear target %s' % verb
 
 class LogWell(BasicWell):
-    INVOCATIONS = ("log",)
-    VERBS = ('write', 'read')
+    INVOCATIONS = "log",
+    VERBS = 'write', 'read'
     PROMPT = "Read or write to log?"
     def act(self, verb, wish):
         server = wish.data["server"]
@@ -236,12 +247,12 @@ class LogWell(BasicWell):
             server.log('Reading %s lines of log to client.' % lines)
             self.output(wish, server.read_log(lines))
         else:
-            return "Invalid action with log."
+            return "Invalid log action."
 
 class SystemWell(BasicWell):
-    INVOCATIONS = ('system',)
-    VERBS = ('reboot', 'update')
-    PROMPT = "System:"
+    INVOCATIONS = 'system',
+    VERBS = 'reboot', 'update'
+    PROMPT = "System is here."
     def act(self, verb, wish):
         server = wish.data['server']
         if verb == 'reboot':
@@ -254,12 +265,13 @@ class SystemWell(BasicWell):
             server.update()
             self.output(wish, 'Update complete!')
         else:
-            return 'You can\'t wish for that silly.'
+            return 'Unknown command.'
 
 class DataWell(BasicWell):
-    INVOCATIONS = ('data',)
-    VERBS = ('dump', 'nuke')
+    INVOCATIONS = 'data',
+    VERBS = 'dump', 'nuke', 'restore', 'help'
     PROMPT = "What to do with data?"
+    HELPSTR = 'Available commands:[#03f]\ndata help\ndata dump <?target_file>\ndata nuke <target_file>\ndata restore <target_file> <?version>'.replace('<', '&lt;').replace('>', '&gt;')
     def act(self, verb, wish):
         server = wish.data['server']
         if verb == 'dump':
@@ -269,7 +281,7 @@ class DataWell(BasicWell):
                 server.log('JSON files manually dumped.')
                 self.output(wish, 'JSON files manually dumped.')
             else:
-                ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
+                ser = server.SERMANAGER.get_by_filename(target)
                 if ser is None:
                     return 'Invalid data dump target %s' % target
                 ser.dump()
@@ -279,16 +291,79 @@ class DataWell(BasicWell):
         elif verb == 'nuke':
             # Add some protections to this to make sure you don't do it accidentally.
             target = wish.consume()
+            confirm = wish.consume()
             if target is None:
-                self.input(wish, 'Need a nuke target:')
-            ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
+                self.input(wish, 'Need a nuke target.')
+            elif confirm is None or 'y' not in confirm:
+                self.input(wish, 'This action will wipe %s of all data permanently.\nIt will be restored on the next dump, but if the server crashes or data is otherwise corrupted, the information may be lost forever. YOU HAVE BEEN WARNED.\nType \'yes\' to proceed with the nuking.' % target)
+            ser = server.SERMANAGER.get_by_filename(target)
             if ser is None:
                 return 'Invalid data nuke target %s' % target
             ser.nuke()
             self.output(wish, 'Target nuked. Ladies and gentlement, we got \'em.')
 
+        elif verb == 'restore':
+            target = wish.consume()
+            if target is None:
+                self.input(wish, 'What file should be restored?')
+            ser = server.SERMANAGER.get_by_filename(target)
+            from .serializer import BoundRotatingSerializer
+            if ser is None or not isinstance(ser, BoundRotatingSerializer):
+                return 'Invalid data file for backup.'
+            iterations = wish.consume() or 1
+            ser.handler.restore(iterations)
+            self.output('Version %s of %s restored successfully.' % (iterations, target))
+            server.log('User restored version %s of %s.' % (iterations, target))
+
         else:
             return 'Invalid data command.'
+
+class PingWell(BasicWell):
+    INVOCATIONS = 'ping',
+    VERBS = ()
+    def wish(self, wish):
+        self.output(wish, 'Pong.')
+
+class StatusWell(BasicWell):
+    INVOCATIONS = 'report', 'status'
+    SEP         = '[#fff]'+'-'*40
+    @staticmethod
+    def make_context(dict):
+        # Returns an object with __dict__ of whatever you pass, so you can reference its keys as object.key instead of object['key']
+        return type('Context', (), dict)
+
+    def wish(self, wish):
+        status = []
+        server = wish.data['server']
+        outside_server = self.make_context(server.scope())
+        response = wish.data['response']
+        outside = self.make_context(wish.data['outside-world'])
+
+        import time, os, datetime
+
+        status.append('[#f0f]*Server-Generated Status Report*')
+        status.append(self.SEP)
+        status.append('[#f00]**General**:')
+        status.append('[#fff]IPv4:[#ff0] %s' % server.ip)
+        status.append('[#fff]Port:[#ff0] %d' % server.port)
+        status.append('[#fff]Server time:[#ff0] %.1f' % time.time())
+        status.append('[#fff]Time since last reboot:[#ff0] %.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp()))
+        status.append('[#fff]Requests handled (session):[#ff0] %d' % outside_server.REQUESTS_HANDLED)
+        status.append('[#fff]Requests handled (lifetime):[#ff0] %d' % outside_server.SERVER_DATA.handled)
+        status.append('[#fff]Unique IPs seen (lifetime):[#ff0] %d' % len(outside_server.SERVER_DATA.ips))
+        status.append(self.SEP)
+        status.append('[#f00]**Threads**:')
+        status.append('[#fff]Server pool:[#ff0] %d/%d' % (server.pool.alive_count(), server.pool.thread_count))
+        status.append('[#fff]Scrape pool:[#ff0] %d/%d' % (outside.updates.updater_pool.alive_count(), outside.updates.updater_pool.thread_count))
+        status.append(self.SEP)
+        status.append('[#f00]**Accounts**:')
+        status.append('[#fff]Registered:[#ff0] %d' % len(outside.user_tokens))
+        status.append('[#fff]Dead validator keys:[#ff0] %d' % len([v for v in outside.user_tokens.values() if v is None]))
+        status.append(self.SEP)
+        status.append('[#f00]**Diagnostics**:')
+
+        self.output(wish, '\n'.join(status), '\n')
+
 
 if __name__ == "__main__":
     well = TTYWell([EchoWell, BagelWell])

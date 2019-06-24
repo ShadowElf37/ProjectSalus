@@ -11,8 +11,6 @@ Known Bugs:
 - User-friendly ways to edit all these
 - Simple mass-email interface
 - Remote access console and maintenance-in-progress backup system
-- SSL, Client-side encryption
-- Student life board?
 - SMS with periods etc.
 - Student directory
 - IMAP/SMTP replacement for Outlook
@@ -26,6 +24,8 @@ Known Bugs:
 - Club integration
 - Randomized nice messages everywhere we normally see one (cf HandlerBBInfo "Have a lovely day!" etc.)
 - Bug reports
+
+- SSL, Client-side encryption
 
 
 Check for:

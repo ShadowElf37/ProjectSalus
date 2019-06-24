@@ -353,22 +353,33 @@ class BoundSerializer(ClassSerializer):
         self.getfile().flush()
 
 class BoundRotatingSerializer(BoundSerializer):
-    def __init__(self, name):
+    def __init__(self, name, cap):
+        self.cap = cap
         super().__init__(name)
 
     def setfile(self, path):
-        self.handler = RotationHandler(path)
+        self.handler = RotationHandler(path, self.cap)
 
     def getfile(self):
         return self.handler.handle
 
+    def dump(self, *args):
+        self.handler.rotate()
+        super().dump(*args)
+
 class BSManager:
     def __init__(self):
         self.serials = []
-    def make_serializer(self, name):
-        s = BoundSerializer(name)
+    def make_serializer(self, name, keep_backups=0):
+        if keep_backups > 0:
+            s = BoundRotatingSerializer(name, keep_backups)
+        else:
+            s = BoundSerializer(name)
         self.serials.append(s)
         return s
     def cleanup(self):
         for s in self.serials:
             s.dump()
+
+    def get_by_filename(self, f):
+        return next(filter(lambda s: s.name == f, self.serials), None)

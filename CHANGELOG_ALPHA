@@ -1,3 +1,10 @@
+v0.5.9 (6/24/19)
+- Fixed issue where content-length would be set in responses with no body
+- Added colors, italics, and bolding to wishclient.js
+- Added PingWell
+- Added StatusWell with a full status report
+- Improved and fixed various Wells
+
 v0.5.8 (6/23/19)
 - Fixes to wish.py
 + Added a bunch of commands to wish.py Wells
