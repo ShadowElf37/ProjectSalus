@@ -114,7 +114,7 @@ class Server(HTTPServer):
 
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
-    protocol_version = 'HTTP/1.1'
+    protocol_version = 'HTTP/1.0'
 
     def log_message(self, msg, *subs):
         sys.stderr.write("%s [%s] - %s\n" %

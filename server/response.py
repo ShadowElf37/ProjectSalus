@@ -143,7 +143,8 @@ class Response:
         if content_type is not None:
             self.set_content_type(content_type)
         self.add_header('Accept-Ranges', 'none')
-        self.add_header('Content-Length', str(len(self.body if self.body is not None else '')))
+        if self.body is not None:
+            self.add_header('Content-Length', str(len(self.body)))
 
     def set_body(self, string, append=False, specify_length=False, ctype='text/plain'):
         if specify_length:
