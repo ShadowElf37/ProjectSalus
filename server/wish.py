@@ -1,3 +1,4 @@
+from functools  import wraps
 from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
@@ -8,11 +9,13 @@ class Wish:
         self.location = 0
         self.data = {}
         self.data.update(data)
+        self.last = None
     def consume(self):
         if self.location >= len(self.tokens):
             return None
         rv = self.tokens[self.location]
         self.location += 1
+        self.last = rv
         return rv
     def consume_some(self, count):
         return [self.consume() for _ in range(count)]
@@ -37,6 +40,8 @@ class BasicWell:
         return self.VERBS
     def invocations(self):
         return self.INVOCATIONS
+    def list(self): # public invocations
+        return self.invocations()
     def prompt(self, *args):
         return self.PROMPT.format(*args)
 
@@ -70,7 +75,7 @@ class RecursiveWell(BasicWell):
         super().__init__(parent)
         self.children = [self.gen_child(child) for child in children]
         self.lut = dict((i, c) for c in self.children for i in c.invocations())
-        self.verbage = tuple(k for k in self.lut.keys())
+        self.verbage = tuple(i for c in self.children for i in c.list())
         print(self.lut, self.verbage)
     def gen_child(self, child):
         if type(child) is type:
@@ -89,6 +94,57 @@ class EchoWell(BasicWell):
     def act(self, verb, wish):
         self.output(wish, verb, *wish.consume_all())
 
+def argless(cls):
+    old_wish = cls.wish
+    @wraps(old_wish)
+    def wish(self, wish):
+        value = self.act(None, wish)
+        if value:
+            self.output(wish, self.ERROR.format(value))
+    cls.wish = wish
+    return cls
+def multi_well(cap):
+    def decor(cls):
+        QUANTITIES = {
+            1: ['one'],
+            2: ['couple', 'two', 'pair', 'twain'],
+            3: ['three', 'few'],
+            4: ['four', 'some']
+        }
+        MULTI_LUT = {k: v for (v, l) in QUANTITIES.items() for k in l}
+        cls = argless(cls)
+        old_act = cls.act
+        @wraps(old_act)
+        def act(self, _, wish):
+            verb = wish.last
+            wish.data["count"] = wish.data.get("count", 1)
+            if verb in MULTI_LUT:
+                number = MULTI_LUT[verb]
+                wish.data["count"] *= number
+                if wish.consume() is None:
+                    self.input(wish, "{} of what?".format(wish.data["count"]))
+                    return
+                self.wish(wish)
+            if wish.data["count"] > cap:
+                self.output(wish, "Too much multiplicity!")
+                wish.data["count"] = 0
+                return
+            ol = wish.location
+            for _ in range(wish.data["count"]):
+                wish.location = ol
+                old_act(self, verb, wish)
+            wish.data["count"] = 0
+        cls.act = act
+        old_invocations = cls.invocations
+        @wraps(old_invocations)
+        def invocations(self):
+            return chain(MULTI_LUT.keys(), old_invocations(self))
+        cls.invocations = invocations
+        cls.list = old_invocations
+        return cls
+    return decor
+
+@multi_well(4)
 class BagelWell(BasicWell):
     INVOCATIONS = ('bagel', 'bagels')
     BAGEL = r"""
@@ -101,37 +157,10 @@ class BagelWell(BasicWell):
  \   .` ;  :   /
   `.   . '   .'
     `-.___.-'"""
-    def wish(self, wish):
+    def act(self, _, wish):
         self.output(wish, self.BAGEL)
 
-class MultiWell(RecursiveWell):
-    QUANTITIES = {
-        1: ['one'],
-        2: ['couple', 'two', 'pair', 'twain'],
-        3: ['three', 'few'],
-        4: ['four', 'some']
-    }
-    LUT = {k: v for (v, l) in QUANTITIES.items() for k in l}
-    CAP = 4
-    def __init__(self, parent, children):
-        super().__init__(parent, children)
-        
-    def act(self, verb, wish):
-        wish.data["count"] = wish.data.get("count", 1)
-        if verb in self.LUT:
-            number = self.LUT[verb]
-            wish.data["count"] *= number
-            self.wish(wish)
-        if wish.data["count"] > self.CAP:
-            self.output(wish, "Too much multiplicity!")
-            wish.data["count"] = 0
-            return
-        ol = wish.location
-        for _ in range(wish.data["count"]):
-            wish.location = ol
-            super().act(verb, wish)
-
-class TTYWell(MultiWell):
+class TTYWell(RecursiveWell):
     def __init__(self, children):
         super().__init__(self, children)
         self.last = ""
@@ -148,7 +177,7 @@ class TTYWell(MultiWell):
             self.last = ""
             self.wish(Wish(last + line, {}))
 
-class SocketWell(MultiWell):
+class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
     def __init__(self, children):
         super().__init__(self, children)
