@@ -88,6 +88,23 @@ WishUI.prototype.hdl_out = function(line) {
 		this.cycle = false;
 	}
 	var span = document.createElement('span');
-	span.appendChild(document.createTextNode(line + '\n'));
+	text = line
+
+	// Begin formatting
+	bold = /\*\*([^*]*)\*\*/;
+	italicize = /\*([^*]*)\*/;
+	color = /\[(#[0-9a-f]{3,8})\]/g;
+	text = text.replace(bold,
+		function(match, inner, offset, string) {return "<b>"+inner+"</b>"});
+	text = text.replace(italicize,
+		function(match, inner, offset, string) {return "<i>"+inner+"</i>"});
+	
+	colorCounter = 0;
+	text = text.replace(color,
+		function(match, color, offset, string) {colorCounter++; console.log(match);return "<span style=\"color: "+color+"\">"});
+	while (colorCounter != 0) {text += '</span>';     colorCounter--;}
+	// End formatting
+
+	span.appendChild(document.createTextNode(text+'\n'));
 	this.out.insertBefore(span, this.out.firstChild);
 };
