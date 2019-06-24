@@ -102,6 +102,7 @@ class Response:
         self.content_type = 'application/octet-stream'
         self.content_length = -1  # auto
         self.wrested = False
+        self.body_buffer = b''
     
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):
@@ -277,6 +278,9 @@ class Response:
 
     def presume_body_of(self, nchars):
         self.content_length = nchars
+    def filltolen(self):
+        if len(self.body_buffer) < self.content_length:
+            self.write(b'\r'*(self.content_length-len(self.body_buffer)))
     def wrest(self):
         self.compile_header()
         self.wrested = True
@@ -284,12 +288,14 @@ class Response:
         self.req.wfile.flush()
 
     def write(self, data):
+        self.body_buffer += data
         self.req.wfile.write(data)
     def read(self):
         return self.request.read()
 
     def finish(self):
         if self.wrested:
+            self.filltolen()
             return
         if not self.compiled:
             self.compile_header()
@@ -301,6 +307,7 @@ class Response:
         else:
             b = self.body or b''
         
-        if len(self.body) < self.content_length:
-            b += b'\r'*(self.content_length-len(self.body))
         self.write(b if b else b'')
+        self.filltolen()
+        
+        
