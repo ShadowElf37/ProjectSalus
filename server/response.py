@@ -100,6 +100,7 @@ class Response:
         self.compiled = False
         self.head = False
         self.content_type = 'application/octet-stream'
+        self.content_length = -1  # auto
         self.wrested = False
     
     @staticmethod
@@ -143,12 +144,14 @@ class Response:
         if content_type is not None:
             self.set_content_type(content_type)
         self.add_header('Accept-Ranges', 'none')
-        if self.body is not None:
+        if self.body is not None and self.content_length == -1:
             self.add_header('Content-Length', str(len(self.body)))
+        elif self.content_length >= 0:
+            self.add_header('Content-Length', str(self.content_length))
 
     def set_body(self, string, append=False, specify_length=False, ctype='text/plain'):
         if specify_length:
-            self.add_header('Content-Length', len(string))
+            self.content_length = string
         if append:
             self.body += string
         else:
@@ -272,6 +275,8 @@ class Response:
         self.req.end_headers()
         self.compiled = True
 
+    def presume_body_of(self, nchars):
+        self.content_length = nchars
     def wrest(self):
         self.compile_header()
         self.wrested = True
@@ -294,5 +299,8 @@ class Response:
         if type(self.body) is str:
             b = self.body.encode(ENCODING)
         else:
-            b = self.body
+            b = self.body or b''
+        
+        if len(self.body) < self.content_length:
+            b += b'\r'*(self.content_length-len(self.body))
         self.write(b if b else b'')
