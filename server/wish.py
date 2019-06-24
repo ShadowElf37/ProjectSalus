@@ -170,12 +170,18 @@ class TTYWell(RecursiveWell):
         print(prompt + " ", end="")
         self.last = wish.string() + " "
         stdout.flush()
+        raise StopIteration
     def mainloop(self):
         from sys import stdin
         for line in stdin:
             last = self.last
             self.last = ""
-            self.wish(Wish(last + line, {}))
+            try:
+                wish = Wish(last + line, {})
+                self.wish(wish)
+                wish.tokens = []
+                self.input(wish, self.prompt())
+            except StopIteration: pass
 
 class SocketWell(RecursiveWell):
     PROMPT      = "What do you want?"
