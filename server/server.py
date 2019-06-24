@@ -32,8 +32,12 @@ class Server(HTTPServer):
         self.buffer = stdout_buffer
         self.running = True
 
+    # Overloads socketserver.TCPServer.process_request()
     def process_request(self, request, client_address):
         self.pool.push((self, request, client_address))
+
+    def finish_request(self, request, client_address):
+        return self.RequestHandlerClass(request, client_address, self)
 
     def serve_forever(self, shutdown_poll_interval=0.5):
         try:
@@ -111,6 +115,9 @@ class Server(HTTPServer):
 
 class HTTPMacroHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.wrested = False
 
     def log_message(self, msg, *subs):
         sys.stderr.write("%s [%s] - %s\n" %
@@ -148,9 +155,9 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.make_error(e)
 
-        while RESPONSE_QUEUE[0] != rsp:
-            time.sleep(0.00001)
-        del RESPONSE_QUEUE[0]
+        #while RESPONSE_QUEUE[0] != rsp:
+        #    time.sleep(0.00001)
+        #del RESPONSE_QUEUE[0]
 
     def do_POST(self):
         req = Request(self)
@@ -165,9 +172,9 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.make_error(e)
 
-        while RESPONSE_QUEUE[0] != rsp:
-            time.sleep(0.00001)
-        del RESPONSE_QUEUE[0]
+        #while RESPONSE_QUEUE[0] != rsp:
+        #    time.sleep(0.00001)
+        #del RESPONSE_QUEUE[0]
 
 
 if __name__ == '__main__':

@@ -155,10 +155,10 @@ class Fish:
                 r[0](*r[1], **r[2])
                 continue
 
-            server, request, client_address = r[1]
+            server, stream, client_address = r[1]
             try:
-                server.finish_request(request, client_address)
-                server.shutdown_request(request)
+                server.finish_request(stream, client_address)
+                server.shutdown_request(stream)
             except ConnectionError as e:
                 server.log('An error occurred during communication with client: %s %s' % (e, e.args))
             self.busy = False

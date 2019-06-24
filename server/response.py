@@ -70,6 +70,9 @@ class Request:
             v = v[0]
         return v
 
+    def read(self):
+        return self.req.rfile.read()
+
 
 class Response:
     RENDER = (
@@ -179,8 +182,8 @@ class Response:
         mime = guess_mime(path)
         if resolve_ctype:
             self.set_content_type(mime)
-        if 'html' in mime or 'xml' in mime or htmlsafe:
-            f = f.decode(ENCODING).encode('ascii', 'xmlcharrefreplace')
+        #if 'html' in mime or 'xml' in mime or htmlsafe:
+        #    f = f.decode(ENCODING).encode('ascii', 'xmlcharrefreplace')
         self.set_body(f, append=append, ctype=self.content_type)
 
 
@@ -267,6 +270,13 @@ class Response:
         self.req.end_headers()
         self.compiled = True
 
+    def wrest(self):
+        self.compile_header()
+        self.req.wrested = True
+
+    def write(self, data):
+        self.req.wfile.write(data)
+
     def finish(self):
         if self.sent_prematurely:
             return
@@ -279,4 +289,4 @@ class Response:
             b = self.body.encode(ENCODING)
         else:
             b = self.body
-        self.req.wfile.write(b if b else b'')
+        self.req.wfile.write(b or b'')
