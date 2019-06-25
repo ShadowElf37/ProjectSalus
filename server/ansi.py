@@ -1,5 +1,4 @@
 ESC = '\x1b'
-
 def ANSI(*codes):
     return ESC + '[' + ';'.join(map(str, codes)) + 'm'
 
@@ -36,7 +35,7 @@ INVERT_OFF          = 27
 BLACK               = 30
 RED_DARK            = 31
 GREEN_DARK          = 32
-YELLOW_DARK         = 33
+YELLOW_DARK = GOLD  = 33
 BLUE_DARK           = 34
 MAGENTA_DARK        = 35
 CYAN_DARK           = 36

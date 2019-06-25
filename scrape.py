@@ -110,7 +110,11 @@ def striptimezeros(string):
     return string
 
 
-class StatusError(BaseException):...
+class StatusError(BaseException):
+    COUNTER = 0
+    def __init__(self, *args):
+        StatusError.COUNTER += 1
+        super().__init__(*args)
 
 class Scraper:
     def __init__(self):

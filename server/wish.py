@@ -357,22 +357,25 @@ class StatusWell(BasicWell):
         accounts = outside.user_tokens.values()
 
         import time, os, datetime
+        from .env import get_size
 
-        feed(self.title('Server-Generated Status Report'))
+        feed(self.title('Server-Generated Status Report - ' + datetime.datetime.now().strftime('%m/%d/%Y')))
         feed(self.SEP)
         feed(self.header('General'))
         feed(self.line('IPv4', server.ip))
         feed(self.line('Port', server.port))
         feed(self.line('PID', os.getpid()))
-        feed(self.line('Server time', '%.1f' % time.time()))
+        feed(self.line('Epoch', '%.1f' % time.time()))
         feed(self.line('Server uptime', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
         feed(self.line('Requests handled (session)', server.REQUESTS_HANDLED))
         feed(self.line('Requests handled (lifetime)', server.stats.handled))
         feed(self.line('Unique IPs seen (lifetime)', len(server.stats.ips)))
+        feed(self.line('Project size', '%.1f MB' % (get_size('.')/10**6)))
         feed(self.SEP)
         feed(self.header('Diagnostics'))
         feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS))
-        feed(self.line('Connection errors', server.CONNECTION_ERRORS))
+        feed(self.line(ANSI(MAGENTA_DARK) + 'ConnectionError', server.CONNECTION_ERRORS))
+        feed(self.line(ANSI(MAGENTA_DARK) + 'StatusError', outside.scrape.StatusError.COUNTER))
         feed(self.SEP)
         feed(self.header('Threads'))
         feed(self.line('Server pool', '%d/%d' % (server.pool.alive_count(), server.pool.thread_count)))
