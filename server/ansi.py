@@ -1,5 +1,17 @@
+ESC = '\x1b'
+
 def ANSI(*codes):
-    return '\x1b[' + ';'.join(map(str, codes)) + 'm'
+    return ESC + '[' + ';'.join(map(str, codes)) + 'm'
+
+def HTRGB(hex):
+    hex = hex.strip('#')
+    l = len(hex)
+    scalar = 6//l
+    if scalar == 0:
+        raise ArithmeticError('Can\'t solve > 24-bit RGB values')
+    elif scalar == 6:
+        return (int(hex*2, 16),)*3
+    return int(hex[:l//3]*scalar, 16), int(hex[l//3:2*l//3]*scalar, 16), int(hex[2*l//3:]*scalar, 16)
 
 RESET = ANSI(0)
 
@@ -12,11 +24,12 @@ BLINK               = 5
 BLINK_FAST          = 6
 INVERT              = 7
 STRIKETHROUGH       = 9
-
 FRAKTUR             = 20
+
 BOLD_OFF            = 21
 ITALIC_OFF          = 23
-LINES_OFF           = 24
+FRAKTUR_OFF         = 23
+LINES_OFF           = 24  # Covers overline, underline, and strikethrough
 BLINK_OFF           = 25
 INVERT_OFF          = 27
 
@@ -28,6 +41,12 @@ BLUE_DARK           = 34
 MAGENTA_DARK        = 35
 CYAN_DARK           = 36
 GREY                = 37
+DEFAULT             = 39
+
+def RGB(r=255, g=255, b=255):
+    return ESC + '[38;2;' + ';'.join(map(str, (r, g, b))) + 'm'
+def BG_RGB(r=255, g=255, b=255):
+    return ESC + '[48;2;' + ';'.join(map(str, (r, g, b))) + 'm'
 
 BG_BLACK            = 40
 BG_RED_DARK         = 41
@@ -37,6 +56,7 @@ BG_BLUE_DARK        = 44
 BG_MAGENTA_DARK     = 45
 BG_CYAN_DARK        = 46
 BG_GREY             = 47
+BG_DEFAULT          = 49
 
 OVERLINE            = 53
 

@@ -1,6 +1,6 @@
 import sched
 import time
-from .threadpool import Poolsafe, Pool, Minisafe
+from .threadpool import Poolsafe, Minisafe
 import datetime
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(0, 7)

@@ -46,8 +46,11 @@ class Server(HTTPServer):
         self.cache = FileCache()
         self.buffer = stdout_buffer
         self.running = True
+
+        # Global stats
         self.stats = SERVER_DATA
 
+        # Session stats
         self.REQUESTS_HANDLED = 0
         self.CONNECTION_ERRORS = 0
         self.MISC_ERRORS = 0

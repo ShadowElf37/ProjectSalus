@@ -342,6 +342,9 @@ class StatusWell(BasicWell):
     @staticmethod
     def line(key, value):
         return ANSI(WHITE) + key + ': ' + ANSI(YELLOW) + str(value) + RESET
+    @staticmethod
+    def subline(key, value):
+        return '\t' + ANSI(BLUE) + key + ': ' + ANSI(YELLOW) + str(value) + RESET
 
 
     def wish(self, wish):
@@ -351,6 +354,7 @@ class StatusWell(BasicWell):
         outside_server = self.make_context(server.scope())
         response = wish.data['response']
         outside = self.make_context(wish.data['outside-world'])
+        accounts = outside.user_tokens.values()
 
         import time, os, datetime
 
@@ -359,21 +363,28 @@ class StatusWell(BasicWell):
         feed(self.header('General'))
         feed(self.line('IPv4', server.ip))
         feed(self.line('Port', server.port))
+        feed(self.line('PID', os.getpid()))
         feed(self.line('Server time', '%.1f' % time.time()))
-        feed(self.line('Time since last reboot', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
+        feed(self.line('Server uptime', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
         feed(self.line('Requests handled (session)', server.REQUESTS_HANDLED))
         feed(self.line('Requests handled (lifetime)', server.stats.handled))
         feed(self.line('Unique IPs seen (lifetime)', len(server.stats.ips)))
         feed(self.SEP)
+        feed(self.header('Diagnostics'))
+        feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS))
+        feed(self.line('Connection errors', server.CONNECTION_ERRORS))
+        feed(self.SEP)
         feed(self.header('Threads'))
         feed(self.line('Server pool', '%d/%d' % (server.pool.alive_count(), server.pool.thread_count)))
         feed(self.line('Scrape pool', '%d/%d' % (outside.updates.updater_pool.alive_count(), outside.updates.updater_pool.thread_count)))
+        feed(self.line('Chronomancer events', len(outside.updates.chronomancer.list())))
         feed(self.SEP)
         feed(self.header('Accounts'))
         feed(self.line('Registered', len(outside.user_tokens)))
-        feed(self.line('Dead validator keys', len([v for v in outside.user_tokens.values() if v is None])))
-        feed(self.SEP)
-        feed(self.header('Diagnostics'))
+        feed(self.line('Blackbaud auth', len([a for a in accounts if a.bb_enc_pass])))
+        feed(self.line('Email auth', len([a for a in accounts if a.email_enc_pass])))
+        feed(self.line('Cell auth', len([a for a in accounts if a.service_provider])))
+        feed(self.line('Dead validator keys', len([a for a in accounts if a is None])))
 
         self.output(wish, '\n'.join(status), '\n')
 

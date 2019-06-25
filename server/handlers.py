@@ -244,14 +244,14 @@ class HandlerBBLogin(RequestHandler):
 
         # Encrypt the password for storage and store unencrypted in RAM
         encoder = cryptrix(self.account.password, self.account.name)
-        self.account.bb_enc = encoder.encrypt(self.request.get_post('pass'))
+        self.account.bb_enc_pass = encoder.encrypt(self.request.get_post('pass'))
         self.account.bb_auth = auth = updates.DIRECTORY[self.account.name].get('email'), self.request.get_post('pass')
 
         # Log into Blackbaud
         myscraper = scrape.BlackbaudScraper()
         if myscraper.login(*auth).get('t') is None:
             self.response.refuse('Invalid password for %s' % self.account.name)
-            self.account.bb_enc = ''
+            self.account.bb_enc_pass = ''
             self.account.bb_auth = ('', '')
             return
 
