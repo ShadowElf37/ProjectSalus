@@ -325,7 +325,7 @@ class PingWell(BasicWell):
 from .ansi import *
 class StatusWell(BasicWell):
     INVOCATIONS = 'report', 'status'
-    SEP         = ANSI(WHITE) + '-'*40 + RESET
+    SEP         = WHITE + '-'*40 + RESET
     
     @staticmethod
     def make_context(dict):
@@ -334,16 +334,16 @@ class StatusWell(BasicWell):
 
     @staticmethod
     def title(s):
-        return ANSI(MAGENTA, ITALIC) + s + RESET
+        return MAGENTA*ITALIC + s + RESET
     @staticmethod
     def header(s):
-        return ANSI(BOLD, RED) + s + RESET
+        return BOLD*RED + s + RESET
     @staticmethod
     def line(key, value):
-        return ANSI(WHITE) + key + ': ' + ANSI(YELLOW) + str(value) + RESET
+        return WHITE + key + ': ' + YELLOW + str(value) + RESET
     @staticmethod
     def subline(key, value):
-        return '\t' + ANSI(BLUE) + key + ': ' + ANSI(YELLOW) + str(value) + RESET
+        return '\t' + BLUE + key + ': ' + YELLOW + str(value) + RESET
 
 
     def wish(self, wish):
@@ -355,7 +355,7 @@ class StatusWell(BasicWell):
         outside = self.make_context(wish.data['outside-world'])
         accounts = outside.user_tokens.values()
 
-        import time, os, datetime
+        import time, os, datetime, psutil
         from .env import get_size
 
         feed(self.title('Server-Generated Status Report - ' + datetime.datetime.now().strftime('%m/%d/%Y')))
@@ -372,9 +372,10 @@ class StatusWell(BasicWell):
         feed(self.line('Project size', '%.1f MB' % (get_size('.')/10**6)))
         feed(self.SEP)
         feed(self.header('Diagnostics'))
-        feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS))
-        feed(self.line(ANSI(MAGENTA_DARK) + 'ConnectionError', server.CONNECTION_ERRORS))
-        feed(self.line(ANSI(MAGENTA_DARK) + 'StatusError', outside.scrape.StatusError.COUNTER))
+        feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS + outside.scrape.StatusError.COUNTER))
+        feed(self.line(RED_DARK + 'ConnectionError' + WHITE, server.CONNECTION_ERRORS))
+        feed(self.line(RED_DARK + 'StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
+        feed(self.line('CPU Usage', '%s%%' % psutil.cpu_percent()))
         feed(self.SEP)
         feed(self.header('Threads'))
         feed(self.line('Server pool', '%d/%d' % (server.pool.alive_count(), server.pool.thread_count)))

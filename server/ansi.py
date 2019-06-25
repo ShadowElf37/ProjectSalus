@@ -1,4 +1,5 @@
 class Ansi:
+    ESC = "\x1b"
     def __init__(self, codes):
         self.codes = tuple(str(c) for c in codes)
     def __str__(self):
@@ -29,6 +30,13 @@ def FG(r, g, b):
     return Ansi((38, 2, r, g, b))
 def BG(r, g, b):
     return Ansi((48, 2, r, g, b))
+
+
+global RESET, NORMAL, BOLD, FAINT, ITALIC, UNDERLINE, BLINK, BLINK_FAST, INVERT, STRIKETHROUGH, FRAKTUR, BOLD_OFF,\
+    ITALIC_OFF, FRAKTUR_OFF, LINES_OFF, BLINK_OFF, INVERT_OFF, BLACK, RED_DARK, GREEN_DARK, YELLOW_DARK,\
+    GOLD, BLUE_DARK, MAGENTA_DARK, CYAN_DARK, GREY, DEFAULT, BG_BLACK, BG_RED_DARK, BG_GREEN_DARK, BG_YELLOW_DARK,\
+    BG_BLUE_DARK, BG_MAGENTA_DARK, BG_CYAN_DARK, BG_GREY, BG_DEFAULT, OVERLINE, GREY_DARK, RED, GREEN, YELLOW, BLUE,\
+    MAGENTA, CYAN, WHITE, BG_GREY_DARK, BG_RED, BG_GREEN, BG_YELLOW, BG_BLUE, BG_MAGENTA, BG_CYAN, BG_WHITE
 
 defns = {
     "NORMAL": 0,

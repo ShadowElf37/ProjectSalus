@@ -5,7 +5,7 @@ import os
 
 from importlib.util import find_spec
 
-DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git')
+DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git', 'psutil')
 
 assert all(map(find_spec, DEPENDENCIES)),\
     'Missing libraries are required to continue. Check to make sure you have {} installed.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
