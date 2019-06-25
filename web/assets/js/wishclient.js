@@ -55,7 +55,7 @@ function WishUI(i, o) {
 	var self = this;
 	this.in = i;
 	this.out = o;
-	this.out.style.whiteSpace = "pre-wrap";
+	this.output = new Output(o);
 	this.cycle = false;
 	this.parser = new WishParser();
 	this.parser.register("INP", function(data) { self.hdl_inp(data); });
@@ -82,38 +82,6 @@ WishUI.prototype.hdl_inp = function(line) {
 	var quote = this.out.firstChild;
 	quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
 };
-WishUI.prototype.hdl_out = function(line, isReprint=false) {
-	if(this.cycle) {
-		this.out.removeChild(this.out.firstChild);
-		this.cycle = false;
-	}
-	var span = document.createElement('span');
-	text = line
-
-	// Begin formatting
-	if (!isReprint) {
-		bold = /\*\*([^*]*)\*\*/;
-		italicize = /\*([^*]*)\*/;
-		color = /\[(#[0-9a-f]{3,8}|#default)\]/g;
-		text = text.replace(bold,
-			function(match, inner, offset, string) {
-				return "<b>"+inner+"</b>"
-			});
-		text = text.replace(italicize,
-			function(match, inner, offset, string) {
-				return "<i>"+inner+"</i>"
-			});
-		
-		colorCounter = 0;
-		text = text.replace(color,
-			function(match, color, offset, string) {
-				colorCounter++;
-				return "<span class=\"console-output\" style=\"color: "+(color=='#default' ? '#0f0' : color)+"\">"
-			});
-		while (colorCounter != 0) {text += '</span>';     colorCounter--;}
-	}
-	// End formatting
-
-	span.innerHTML = text+'\n';
-	this.out.insertBefore(span, this.out.firstChild);
+WishUI.prototype.hdl_out = function(line) {
+	this.output.println(line);
 };
