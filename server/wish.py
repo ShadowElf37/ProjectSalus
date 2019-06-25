@@ -146,16 +146,15 @@ def multi_well(cap):
 @multi_well(4)
 class BagelWell(BasicWell):
     INVOCATIONS = ('bagel', 'bagels')
-    BAGEL = r"""
-    .-"   "-.
-  .'   . ;   `.
- /    : . ' :  \
-|   `  .-. . '  |
-|  :  (   ) ; ` |
-|   :  `-'   :  |
- \   .` ;  :   /
-  `.   . '   .'
-    `-.___.-'"""
+    BAGEL = r"""    .-"   "-.    """
+            r"""  .'   . ;   `.  """
+            r""" /    : . ' :  \ """
+            r"""|   `  .-. . '  |"""
+            r"""|  :  (   ) ; ` |"""
+            r"""|   :  `-'   :  |"""
+            r""" \   .` ;  :   / """
+            r"""  `.   . '   .'  """
+            r"""    `-.___.-'    """
     def act(self, _, wish):
         self.output(wish, self.BAGEL)
 
