@@ -2,9 +2,10 @@
 <html>
     <head>
         <title>Well, well, well.</title>
+        {{js('output.js')}}
         {{js('wishclient.js')}}
         <style>
-          #output span:first-child:not(.console-output) {
+          #output span:last-child:not(.console-output) {
             font-weight: bold;
             font-style: italic;
           }
@@ -37,6 +38,9 @@
             font-style: normal;
             text-decoration: normal;
             color: inherit;
+          }
+          #output {
+            max-height: 50vh;
           }
         </style>
     </head>

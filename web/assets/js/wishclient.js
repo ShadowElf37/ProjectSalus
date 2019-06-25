@@ -79,7 +79,7 @@ WishUI.prototype.hdl_inp = function(line) {
 	this.in.value = line.trim() ? line + ' ' : '';
 	this.in.disabled = false;
 	this.cycle = true;
-	var quote = this.out.firstChild;
+	var quote = this.out.lastChild;
 	quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
 };
 WishUI.prototype.hdl_out = function(line) {

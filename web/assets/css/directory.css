@@ -2,20 +2,20 @@
 	#define G 1px solid #444;
 	border-left: G;
 	border-right: G;
-	width: 20%;
-	padding: 5%;
+	width: 30%;
+	padding: 3%;
 	display: inline-block;
 	margin: 0 3vw;
 }
 
 .card {
 	display: block;
-	height: 30vh;
-	width: 90%;
+	height: 20vh;
+	width: 92%;
 	border-radius: 7px;
 	background: #222;
 	margin: 0;
-	padding: 5%;
+	padding: 4%;
 	text-anchor: center;
 }
 .card * {
@@ -36,6 +36,9 @@
 	text-align: center;
 }
 
+.phone {
+	float: right;
+}
 .phone strong{
 	font-size: 20px;
 }
