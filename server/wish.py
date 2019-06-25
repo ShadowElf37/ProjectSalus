@@ -56,7 +56,6 @@ class BasicWell:
             if verb is None:
                 self.input(wish, self.prompt())
                 return
-            verb = verb.lower()
             if not verb in self.IGNORE:
                 break
         if verb == self.LIST:
