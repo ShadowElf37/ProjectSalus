@@ -43,6 +43,7 @@ defns = {
     "STRIKETHROUGH": 9,
     "FRAKTUR": 20,
 
+<<<<<<< HEAD
     "BOLD_OFF": 21,
     "ITALIC_OFF": 23,
     "FRAKTUR_OFF": 23,
@@ -54,6 +55,7 @@ defns = {
     "RED_DARK": 31,
     "GREEN_DARK": 32,
     "YELLOW_DARK": 33,
+    "GOLD": 33,
     "BLUE_DARK": 34,
     "MAGENTA_DARK": 35,
     "CYAN_DARK": 36,
