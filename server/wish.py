@@ -323,16 +323,30 @@ class PingWell(BasicWell):
     def wish(self, wish):
         self.output(wish, 'Pong.')
 
+from .ansi import *
 class StatusWell(BasicWell):
     INVOCATIONS = 'report', 'status'
-    SEP         = '[#fff]'+'-'*40
+    SEP         = ANSI(WHITE) + '-'*40 + RESET
+    
     @staticmethod
     def make_context(dict):
         # Returns an object with __dict__ of whatever you pass, so you can reference its keys as object.key instead of object['key']
         return type('Context', (), dict)
 
+    @staticmethod
+    def title(s):
+        return ANSI(MAGENTA, ITALIC) + s + RESET
+    @staticmethod
+    def header(s):
+        return ANSI(BOLD, RED) + s + RESET
+    @staticmethod
+    def line(key, value):
+        return ANSI(WHITE) + key + ': ' + ANSI(YELLOW) + str(value) + RESET
+
+
     def wish(self, wish):
         status = []
+        feed = status.append
         server = wish.data['server']
         outside_server = self.make_context(server.scope())
         response = wish.data['response']
@@ -340,26 +354,26 @@ class StatusWell(BasicWell):
 
         import time, os, datetime
 
-        status.append('\x1b[3mServer-Generated Status Report\x1b[0m')
-        status.append(self.SEP)
-        status.append('\x1b[1;31mGeneral:\x1b[0m')
-        status.append('[#fff]IPv4:[#ff0] %s' % server.ip)
-        status.append('[#fff]Port:[#ff0] %d' % server.port)
-        status.append('[#fff]Server time:[#ff0] %.1f' % time.time())
-        status.append('[#fff]Time since last reboot:[#ff0] %.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp()))
-        status.append('[#fff]Requests handled (session):[#ff0] %d' % server.REQUESTS_HANDLED)
-        status.append('[#fff]Requests handled (lifetime):[#ff0] %d' % server.stats.handled)
-        status.append('[#fff]Unique IPs seen (lifetime):[#ff0] %d' % len(server.stats.ips))
-        status.append(self.SEP)
-        status.append('[#f00]**Threads**:')
-        status.append('[#fff]Server pool:[#ff0] %d/%d' % (server.pool.alive_count(), server.pool.thread_count))
-        status.append('[#fff]Scrape pool:[#ff0] %d/%d' % (outside.updates.updater_pool.alive_count(), outside.updates.updater_pool.thread_count))
-        status.append(self.SEP)
-        status.append('[#f00]**Accounts**:')
-        status.append('[#fff]Registered:[#ff0] %d' % len(outside.user_tokens))
-        status.append('[#fff]Dead validator keys:[#ff0] %d' % len([v for v in outside.user_tokens.values() if v is None]))
-        status.append(self.SEP)
-        status.append('[#f00]**Diagnostics**:')
+        feed(self.title('Server-Generated Status Report'))
+        feed(self.SEP)
+        feed(self.header('General'))
+        feed(self.line('IPv4', server.ip))
+        feed(self.line('Port', server.port))
+        feed(self.line('Server time', '%.1f' % time.time()))
+        feed(self.line('Time since last reboot', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
+        feed(self.line('Requests handled (session)', server.REQUESTS_HANDLED))
+        feed(self.line('Requests handled (lifetime)', server.stats.handled))
+        feed(self.line('Unique IPs seen (lifetime)', len(server.stats.ips)))
+        feed(self.SEP)
+        feed(self.header('Threads'))
+        feed(self.line('Server pool', '%d/%d' % (server.pool.alive_count(), server.pool.thread_count)))
+        feed(self.line('Scrape pool', '%d/%d' % (outside.updates.updater_pool.alive_count(), outside.updates.updater_pool.thread_count)))
+        feed(self.SEP)
+        feed(self.header('Accounts'))
+        feed(self.line('Registered', len(outside.user_tokens)))
+        feed(self.line('Dead validator keys', len([v for v in outside.user_tokens.values() if v is None])))
+        feed(self.SEP)
+        feed(self.header('Diagnostics'))
 
         self.output(wish, '\n'.join(status), '\n')
 

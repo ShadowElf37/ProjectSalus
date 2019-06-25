@@ -4,7 +4,18 @@
         <title>Well, well, well.</title>
         {{js('output.js')}}
         {{js('wishclient.js')}}
+        <link href="https://fonts.googleapis.com/css?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+        
         <style>
+          #output {
+            font-size: 16px;
+          }
+          #home {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+          }
+
           #output span:last-child:not(.console-output) {
             font-weight: bold;
             font-style: italic;
@@ -12,7 +23,7 @@
           body {
             background-color: #010101;
             color: #0f0;
-            font-family: "Courier New", serif;
+            font-family: "Courier New", monospace, serif;
           }
           a{
             color: #0f0;
@@ -40,12 +51,12 @@
             color: inherit;
           }
           #output {
-            max-height: 50vh;
+            max-height: 60vh;
           }
         </style>
     </head>
     <body>
-        <a href="/">Go home.</a>
+        <a href="/" id="home">Go home.</a>
 
         <div class="well">
             <pre>                .-------------.
@@ -64,8 +75,8 @@
                |_| _ |_ ]_ _[_ |
                `"-..........--"`
                 A wishing well</pre>
-                    $&gt; <input type="text" id="input">
-                    <div id="output"></div>
+                  $&gt; <input type="text" id="input">
+                  <div id="output"></div>
             </div>
     </body>
     <script>

@@ -2,8 +2,8 @@
 function cloneTo(src, dest) {
 	for(let property in src) {
 		if(src.hasOwnProperty(property) && isNaN(+property)) {
-			console.log(property);
-			console.log(dest, src);
+			// console.log(property);
+			// console.log(dest, src);
 			dest[property] = src[property];
 		}
 	}
@@ -13,7 +13,7 @@ function Output(elem) {
 	this.tagnodes = {};
 	cloneTo({
 		overflowY: 'auto',
-		fontFamily: 'monospace',
+		fontFamily: '"Courier New", monospace',
 		whiteSpace: 'pre-wrap'
 	}, this.wrap.style);
 	this.onode = null;
@@ -50,9 +50,12 @@ Output.prototype.lut = Output.parselut(
 "5	animation:0.8s ease-in-out blink alternate infinite\n" +
 "6	animation:0.1s ease-in-out blink alternate infinite\n" +
 "7	filter:invert(100%)\n" +
+"9	textDecoration:line-through\n" +
+"53	textDecoration:overline\n" +
+"20	fontFamily:\'UnifrakturMaguntia\'\n" +
 "21	fontWeight:normal\n" +
 "22	@21\n" +
-"23	fontStyle:normal\n" +
+"23	fontStyle:normal; fontFamily:inherit\n" +
 "24	textDecoration:none\n" +
 "25	animation:none\n" +
 "27	filter:none\n" +
