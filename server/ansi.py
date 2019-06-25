@@ -1,6 +1,6 @@
 class Ansi:
     def __init__(self, codes):
-        self.codes = codes
+        self.codes = tuple(str(c) for c in codes)
     def __str__(self):
         return "\x1b[{}m".format(";".join(self.codes))
     def __mul__(self, other):
@@ -43,11 +43,10 @@ defns = {
     "STRIKETHROUGH": 9,
     "FRAKTUR": 20,
 
-<<<<<<< HEAD
     "BOLD_OFF": 21,
     "ITALIC_OFF": 23,
     "FRAKTUR_OFF": 23,
-    "LINES_OFF": 24  # Covers overline, underline, and strikethrough
+    "LINES_OFF": 24,  # Covers overline, underline, and strikethrough
     "BLINK_OFF": 25,
     "INVERT_OFF": 27,
 
