@@ -4,6 +4,8 @@ v0.5.9 (6/24/19)
 - Added PingWell
 - Added StatusWell with a full status report
 - Improved and fixed various Wells
+- Implemented BoundRotatingSerializer on accounts.json - it now backs up up to 5 times
+- Added 'restore' to DataWell to restore backups
 
 v0.5.8 (6/23/19)
 - Fixes to wish.py
