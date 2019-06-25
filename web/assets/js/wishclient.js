@@ -33,6 +33,7 @@ function WishParser() {
 WishParser.prototype.len = 3;
 WishParser.prototype.parse = function(block) {
 	var lines = block.split('\n');
+	console.log(lines);
 	for(var i=0; i<lines.length; i++) {
 		var chunk, line = lines[i];
 		if(!line) continue;

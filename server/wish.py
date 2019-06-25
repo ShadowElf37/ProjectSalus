@@ -340,9 +340,9 @@ class StatusWell(BasicWell):
 
         import time, os, datetime
 
-        status.append('[#f0f]*Server-Generated Status Report*')
+        status.append('\x1b[3mServer-Generated Status Report\x1b[0m')
         status.append(self.SEP)
-        status.append('[#f00]**General**:')
+        status.append('\x1b[1;31mGeneral:\x1b[0m')
         status.append('[#fff]IPv4:[#ff0] %s' % server.ip)
         status.append('[#fff]Port:[#ff0] %d' % server.port)
         status.append('[#fff]Server time:[#ff0] %.1f' % time.time())
