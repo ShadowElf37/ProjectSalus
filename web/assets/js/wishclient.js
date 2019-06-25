@@ -43,7 +43,7 @@ WishParser.prototype.parse = function(block) {
 			handler(line);
 		}
 		else {
-			throw new Error("Unknown chunk " + chunk + " at l:" + i + ", tell your sysadmin he's an idiot");
+			throw new Error("Unknown chunk " + chunk + " at l:" + i + ", tell your sysadmin he's an idiot"); // hey thats me
 		}
 	}
 };
@@ -70,7 +70,7 @@ function WishUI(i, o) {
 WishUI.prototype.onsubmit = function() {
 	var self = this;
 	this.in.disabled = true;
-	this.hdl_out("> " + this.in.value);
+	this.hdl_out("$> " + this.in.value, true);
 	this.fetcher.fetch("POST", "/wish", "command=" + escape(this.in.value), function(line) {
 		self.parser.parse(line);
 	});
@@ -82,12 +82,38 @@ WishUI.prototype.hdl_inp = function(line) {
 	var quote = this.out.firstChild;
 	quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
 };
-WishUI.prototype.hdl_out = function(line) {
+WishUI.prototype.hdl_out = function(line, isReprint=false) {
 	if(this.cycle) {
 		this.out.removeChild(this.out.firstChild);
 		this.cycle = false;
 	}
 	var span = document.createElement('span');
-	span.appendChild(document.createTextNode(line + '\n'));
+	text = line
+
+	// Begin formatting
+	if (!isReprint) {
+		bold = /\*\*([^*]*)\*\*/;
+		italicize = /\*([^*]*)\*/;
+		color = /\[(#[0-9a-f]{3,8}|#default)\]/g;
+		text = text.replace(bold,
+			function(match, inner, offset, string) {
+				return "<b>"+inner+"</b>"
+			});
+		text = text.replace(italicize,
+			function(match, inner, offset, string) {
+				return "<i>"+inner+"</i>"
+			});
+		
+		colorCounter = 0;
+		text = text.replace(color,
+			function(match, color, offset, string) {
+				colorCounter++;
+				return "<span class=\"console-output\" style=\"color: "+(color=='#default' ? '#0f0' : color)+"\">"
+			});
+		while (colorCounter != 0) {text += '</span>';     colorCounter--;}
+	}
+	// End formatting
+
+	span.innerHTML = text+'\n';
 	this.out.insertBefore(span, this.out.firstChild);
 };

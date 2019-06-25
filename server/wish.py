@@ -193,7 +193,6 @@ class SocketWell(RecursiveWell):
         raise StopIteration
     @staticmethod
     def write(op, data, wish):
-        print(op, data)
         wish.data['wfile'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('utf-8'))
         wish.data['wfile'].flush()
     def wish(self, wish):
@@ -225,6 +224,7 @@ class ReloadWell(BasicWell):
 class LogWell(BasicWell):
     INVOCATIONS = ("log",)
     VERBS = ('write', 'read')
+    PROMPT = "Read or write to log?"
     def act(self, verb, wish):
         server = wish.data["server"]
         if verb == 'write':
@@ -235,11 +235,12 @@ class LogWell(BasicWell):
             server.log('Reading %s lines of log to client.' % lines)
             self.output(wish, server.read_log(lines))
         else:
-            self.input(wish, 'What should be done with the log?')
+            return "Invalid action with log."
 
 class SystemWell(BasicWell):
     INVOCATIONS = ('system',)
     VERBS = ('reboot', 'update')
+    PROMPT = "System:"
     def act(self, verb, wish):
         server = wish.data['server']
         if verb == 'reboot':
@@ -257,6 +258,7 @@ class SystemWell(BasicWell):
 class DataWell(BasicWell):
     INVOCATIONS = ('data',)
     VERBS = ('dump', 'nuke')
+    PROMPT = "What to do with data?"
     def act(self, verb, wish):
         server = wish.data['server']
         if verb == 'dump':
@@ -268,7 +270,7 @@ class DataWell(BasicWell):
             else:
                 ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
                 if ser is None:
-                    return 'Invalid data dump target %s.' % target
+                    return 'Invalid data dump target %s' % target
                 ser.dump()
                 server.log('JSON file %s manually dumped to.' % target)
                 self.output(wish, 'JSON file %s manually dumped to.' % target)
@@ -280,7 +282,7 @@ class DataWell(BasicWell):
                 self.input(wish, 'Need a nuke target:')
             ser = next(filter(lambda s: s.name == target, server.SERMANAGER.serials), None)
             if ser is None:
-                return 'Invalid data nuke target %s.' % target
+                return 'Invalid data nuke target %s' % target
             ser.nuke()
             self.output(wish, 'Target nuked. Ladies and gentlement, we got \'em.')
 

@@ -4,14 +4,14 @@
         <title>Well, well, well.</title>
         {{js('wishclient.js')}}
         <style>
-          #output span:first-child {
+          #output span:first-child:not(.console-output) {
             font-weight: bold;
             font-style: italic;
           }
           body {
             background-color: #010101;
             color: #0f0;
-            font-family: "Courier New", sans-serif;
+            font-family: "Courier New", serif;
           }
           a{
             color: #0f0;
@@ -31,6 +31,12 @@
           }
           pre {
             margin-left: 100px;
+          }
+          span {
+            font-weight: normal;
+            font-style: normal;
+            text-decoration: normal;
+            color: inherit;
           }
         </style>
     </head>
@@ -54,7 +60,7 @@
                |_| _ |_ ]_ _[_ |
                `"-..........--"`
                 A wishing well</pre>
-                    &gt;&gt; <input type="text" id="input">
+                    $&gt; <input type="text" id="input">
                     <div id="output"></div>
             </div>
     </body>

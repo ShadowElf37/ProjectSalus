@@ -90,7 +90,7 @@ class Response:
         self.code = 200, 'OK'
         self.header = {}
         self.cookie = SimpleCookie()
-        self.body = ''
+        self.body = None
         self.default_renderopts = ByteDict(
             ip=self.server.host,
             port=self.server.port,
@@ -276,7 +276,7 @@ class Response:
         self.req.end_headers()
         self.compiled = True
 
-    def presume_body_of(self, nchars):
+    def fix_buffer(self, nchars):
         self.content_length = nchars
     def filltolen(self):
         if len(self.body_buffer) < self.content_length:
