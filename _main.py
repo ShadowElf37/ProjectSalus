@@ -3,10 +3,8 @@ import os.path as op
 from server.tee import *
 from datetime import datetime
 from server.config import get_config
-import psutil
 
 config = get_config("main")
-psutil.cpu_percent()
 
 logfile = open(op.join(
         op.dirname(op.abspath(__file__)),

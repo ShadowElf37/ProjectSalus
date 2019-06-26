@@ -54,6 +54,7 @@ class Server(HTTPServer):
         self.REQUESTS_HANDLED = 0
         self.CONNECTION_ERRORS = 0
         self.MISC_ERRORS = 0
+        self.SERVER_LEVEL_ERRORS = 0
 
     # Overloads socketserver.TCPServer.process_request()
     def process_request(self, request, client_address):
@@ -81,9 +82,8 @@ class Server(HTTPServer):
                 self.close()
                 break
             except Exception as e:
-                self.log('=*'*50+'Very bad server-level error:\n' + format_exc()+'\n'+'*='*50)
-            finally:
-                self.cleanup()
+                self.log('\n'+'=*'*50+'\nVery bad server-level error:\n' + format_exc()+'\n'+'*='*50)
+                self.SERVER_LEVEL_ERRORS += 1
         self.cleanup()
 
     def reboot(self):

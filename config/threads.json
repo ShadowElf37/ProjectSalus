@@ -1,3 +1,5 @@
 {
-	"cleanup-timeout": 5.0
+	"cleanup-timeout": 5.0,
+	"n-threads": 4,
+	"n-procs": 8
 }

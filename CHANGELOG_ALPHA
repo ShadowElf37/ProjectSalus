@@ -1,11 +1,19 @@
+v0.5.10 (6/25/19)
++ Added psutil for hardware info in status reports
++ Added some more fields to status reports
+- Overhauled wishclient.js and wish.py to use ANSI formatting codes
++ Added ansi.py to help with ANSI formatting
+- Fixed some bugs in wishing
+- Tried and failed to refactor threadpool.py to use multiprocessing; will do soon
+
 v0.5.9 (6/24/19)
-- Fixed issue where content-length would be set in responses with no body
-- Added colors, italics, and bolding to wishclient.js
-- Added PingWell
-- Added StatusWell with a full status report
+- Fixed issue where content-length would be set in responses with no body, preventing manual socket writing from working properly
++ Added colors, italics, and bolding to wishclient.js
++ Added PingWell
++ Added StatusWell with a full status report
 - Improved and fixed various Wells
 - Implemented BoundRotatingSerializer on accounts.json - it now backs up up to 5 times
-- Added 'restore' to DataWell to restore backups
++ Added 'restore' to DataWell to restore backups
 
 v0.5.8 (6/23/19)
 - Fixes to wish.py

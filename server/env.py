@@ -29,7 +29,7 @@ class EnvReader:
 
 # Stole from SO and needed a place to dump it - sorry Alex
 import os
-def get_size(start_path = '.'):
+def get_size(start_path='.'):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
@@ -38,3 +38,15 @@ def get_size(start_path = '.'):
             if not os.path.islink(fp):
                 total_size += os.path.getsize(fp)
     return total_size
+
+# This one is a modded version of above, for funsies
+def get_lines_of_code(start_path='.'):
+    total_lines = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp) and (os.path.splitext(fp)[1] or 'noextlol') in '.js .py .html .css':
+                print(fp)
+                total_lines += len([l for l in open(fp, 'rb').readlines() if l.strip()])
+    return total_lines

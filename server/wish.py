@@ -2,6 +2,11 @@ from functools  import wraps
 from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
+import psutil, os
+
+ME = psutil.Process(os.getpid())
+ME.cpu_percent()  # Returns a nonsense value of 0.0 on first call, so call it here
+psutil.cpu_percent()
 
 class InputNeededError(BaseException):
     pass
@@ -357,6 +362,8 @@ class StatusWell(BasicWell):
 
         import time, os, datetime, psutil
         from .env import get_size
+        ram = psutil.virtual_memory()
+        myram = ME.memory_info()
 
         feed(self.title('Server-Generated Status Report - ' + datetime.datetime.now().strftime('%m/%d/%Y')))
         feed(self.SEP)
@@ -365,21 +372,27 @@ class StatusWell(BasicWell):
         feed(self.line('Port', server.port))
         feed(self.line('PID', os.getpid()))
         feed(self.line('Epoch', '%.1f' % time.time()))
-        feed(self.line('Server uptime', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
+        feed(self.line('Server Uptime', '%.1f' % (time.time()-datetime.datetime.strptime(os.listdir('./logs')[-1], '%Y-%m-%d %H.%M.%S.log').timestamp())))
         feed(self.line('Requests handled (session)', server.REQUESTS_HANDLED))
         feed(self.line('Requests handled (lifetime)', server.stats.handled))
         feed(self.line('Unique IPs seen (lifetime)', len(server.stats.ips)))
-        feed(self.line('Project size', '%.1f MB' % (get_size('.')/10**6)))
+        feed(self.line('Project Size', '%.1f MB' % (get_size('.') / 10**6)))
         feed(self.SEP)
         feed(self.header('Diagnostics'))
-        feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS + outside.scrape.StatusError.COUNTER))
-        feed(self.line(RED_DARK + 'ConnectionError' + WHITE, server.CONNECTION_ERRORS))
-        feed(self.line(RED_DARK + 'StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
-        feed(self.line('CPU Usage', '%s%%' % psutil.cpu_percent()))
+        feed(self.line('Proc Status', ME.status()))
+        feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS + outside.scrape.StatusError.COUNTER + server.SERVER_LEVEL_ERRORS))
+        feed(self.line(RED_DARK + '  ConnectionError' + WHITE, server.CONNECTION_ERRORS))
+        feed(self.line(RED_DARK + '  StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
+        feed(self.line(RED_DARK + '  Server errors' + WHITE, server.SERVER_LEVEL_ERRORS))
+        feed(self.line('CPU Load', '%s%%' % ME.cpu_percent()))
+        feed(self.line('RAM Usage', '%.1f MB' % (myram.rss / 10 ** 6)))
+        feed(self.line('CPU Load (global)', '%s%%' % psutil.cpu_percent()))
+        feed(self.line('RAM Usage (global)', '%d/%d MB' % (ram.used / 10**6, ram.total / 10**6)))
         feed(self.SEP)
         feed(self.header('Threads'))
         feed(self.line('Server pool', '%d/%d' % (server.pool.alive_count(), server.pool.thread_count)))
         feed(self.line('Scrape pool', '%d/%d' % (outside.updates.updater_pool.alive_count(), outside.updates.updater_pool.thread_count)))
+        feed(self.line('OS-Reported', ME.num_threads()))
         feed(self.line('Chronomancer events', len(outside.updates.chronomancer.list())))
         feed(self.SEP)
         feed(self.header('Accounts'))
