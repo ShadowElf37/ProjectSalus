@@ -1,7 +1,7 @@
 import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
-from server.threadpool import Pool, Poolsafe
+from server.threadpool import ThreadManager, Poolsafe
 from server.persistent import PersistentDict, PersistentList
 
 HOURLY = 60
@@ -17,9 +17,9 @@ USER = env['BBUSER']
 PASS = env['BBPASS']
 
 print('Initializing Chronomancer...')
-updater_pool = Pool(32)
+updater_pool = ThreadManager(32)
 updater_pool.launch()
-chronomancer = chronos.Chronos(updater_pool.pushps)
+chronomancer = chronos.Chronos(updater_pool.push)
 updater_pool.pushf(chronomancer.arkhomai)
 
 Blackbaud = BlackbaudScraper()

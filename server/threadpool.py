@@ -1,8 +1,14 @@
 from threading import *
 from .config import get_config
 from inspect import isfunction, ismethod, isbuiltin
+import multiprocessing as mp
+import queue as q
 
 config = get_config('threads')
+
+PCOUNT = config.get('n-procs')
+TCOUNT = config.get('n-threads')
+TIMEOUT = config.get('cleanup-timeout')
 
 class Minisafe:
     def __init__(self, f, *args, **kwargs):
@@ -86,12 +92,89 @@ class Poolsafe:
         self.after.append((f, args, kwargs))
 
 
-class Pool:
-    def __init__(self, threadcount):
-        self.condition = Condition(Lock())
-        self.queue = []
-        self.threads = [Fish(self.condition, self.queue) for _ in range(threadcount)]
+class ProcessManager:
+    def __init__(self, procs=PCOUNT, threads=TCOUNT):
+        self.queue = mp.Queue()
+        self.procs = [Process(self.queue, threads, id=i) for i in range(procs)]
+
+    def start(self):
+        for proc in self.procs:
+            proc.start()
+
+    def alive_count_p(self):
+        return len([proc for proc in self.procs if proc.alive()])
+    def alive_count_t(self):
+        return sum(self.report())
+
+    def report(self):
+        return [{
+            'pid':proc.get_pid(),
+            'num':proc.id,
+            'alive':proc.alive_count()
+        } for proc in self.procs]
+
+    def join(self):
+        for proc in self.procs:
+            proc.join()
+
+    def cleanup(self):
+        self.queue.close()
+        for proc in self.procs:
+            proc.cleanup()
+        self.join()
+
+    def push(self, item):
+        self.queue.put(item)
+        print('Request queued.')
+
+    def pushf(self, f, *args, **kwargs):
+        self.queue.put(Poolsafe(f, *args, **kwargs))
+
+    def push_multi(self, *ps):
+        for p in ps:
+            self.push(p)
+
+
+class Process:
+    def __init__(self, queue, threadcount=TCOUNT, id=0):
+        self.proc = mp.Process(target=self._start, daemon=True, name='SalusProc%s' % id)
+        self.queue = queue
         self.thread_count = threadcount
+        self.id = id
+        self.finished = None
+        self.pool = None
+
+    def join(self):
+        self.proc.join(TIMEOUT + 1)
+
+    def alive(self):
+        return self.proc.is_alive()
+    def alive_count(self):
+        return self.pool.alive_count()
+
+    def get_pid(self):
+        return self.proc.pid
+
+    def start(self):
+        self.proc.start()
+
+    def _start(self):
+        self.finished = Condition()
+        self.pool = ThreadManager(self.thread_count, condition=self.finished, queue=self.queue)
+        self.pool.launch()
+        with self.finished:
+            self.finished.wait()
+        return
+
+    def cleanup(self):
+        self.pool.cleanup()
+
+class ThreadManager:
+    def __init__(self, threadcount=TCOUNT, condition=Condition(), queue=q.Queue()):
+        self.queue = queue
+        self.threads = [RHThread(self.queue, id=i) for i in range(threadcount)]
+        self.thread_count = threadcount
+        self.finished = condition  # Will be used to notify a parent process that the threads have finished cleanup
 
     def launch(self):
         for t in self.threads:
@@ -100,36 +183,31 @@ class Pool:
     def cleanup(self):
         for t in self.threads:
             t.terminate()
-        with self.condition:
-            self.condition.notify_all()
         for t in self.threads:
-            t.thread.join(config.get('cleanup-timeout'))
+            t.thread.join(TIMEOUT-1)
+        with self.finished:
+            self.finished.notify_all()
 
     def alive_count(self):
-        return sum([1 for thread in self.threads if thread.alive()])
+        return len([thread for thread in self.threads if thread.alive()])
 
-    def push(self, reqtuple):
-        self.pushf(None, *reqtuple)
+    def push(self, item):
+        self.queue.put(item)
 
     def pushf(self, f, *args, **kwargs):
-        with self.condition:
-            self.queue.insert(0, (f, args, kwargs))
-            self.condition.notify()
+        self.queue.put(Poolsafe(f, *args, **kwargs))
 
-    def pushps(self, ps):
-        self.pushf(ps)
-
-    def pushps_multi(self, *ps):
+    def push_multi(self, *ps):
         for p in ps:
-            self.pushps(p)
+            self.push(p)
 
-class Fish:
-    def __init__(self, condition, queue):
-        self.condition = condition
+class RHThread:
+    def __init__(self, queue, id=0):
         self.queue = queue
         self.thread = Thread(target=self.mainloop, daemon=True)
         self.running = True
         self.busy = False
+        self.id = id
 
     def init_thread(self):
         self.thread.start()
@@ -142,24 +220,17 @@ class Fish:
 
     def mainloop(self):
         while self.running:
-            with self.condition:
-                while True:
-                    if not self.running: return
-                    if self.queue:
-                        r = self.queue.pop()
-                        break
-                    self.condition.wait()
+            # No timeout is needed because if this is stuck here after self.running is false, that implies that it's safe to terminate the thread anyway because it's not handling any requests
+            print('Waiting...')
+            r = self.queue.get()
+            print('Processing request')
             self.busy = True
 
-            if type(r[0]) is Poolsafe:
-                r[0].call()
+            if type(r) is Poolsafe:
+                r.call()
                 continue
 
-            if r[0] is not None:
-                r[0](*r[1], **r[2])
-                continue
-
-            server, stream, client_address = r[1]
+            server, stream, client_address = r
             try:
                 server.finish_request(stream, client_address)
                 server.shutdown_request(stream)
@@ -167,6 +238,7 @@ class Fish:
                 server.log('An error occurred during communication with client: %s %s' % (e, e.args))
                 server.CONNECTION_ERRORS += 1
             self.busy = False
+
 
 class RWLockMixin:
     """Make any getattr access rw-locked."""

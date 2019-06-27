@@ -29,6 +29,7 @@ except (KeyError, JSONDecodeError):
     SERVER_DATA = ServerData()
 ServerDataSerializer.set('stats', SERVER_DATA)
 
+
 class Server(HTTPServer):
     SERMANAGER = Manager
     def __init__(self, host='0.0.0.0', port=8080, stdout_buffer=None, *args):
@@ -41,7 +42,7 @@ class Server(HTTPServer):
         self.port = port
         self.domain = 'localhost'
         self.log('Server initialized on {}:{}.'.format(self.ip, port))
-        self.pool = Pool(8)
+        self.pool = ProcessManager()
         self.config_cache = CONFIG_CACHE
         self.cache = FileCache()
         self.buffer = stdout_buffer
@@ -66,24 +67,22 @@ class Server(HTTPServer):
     def serve_forever(self, shutdown_poll_interval=0.5):
         try:
             super().serve_forever(shutdown_poll_interval)
-        except Exception as e:
-            raise e
-        finally:
-            self.cache.close()
-            self.pool.cleanup()
+        except (KeyboardInterrupt, SystemExit):
+            self.log('Server quit by user.')
+            self.close()
+            raise
+        except Exception:
+            raise
+            self.log('\n'+'=*'*50+'\nVery bad server-level error:\n' + format_exc()+'\n'+'*='*50)
+            self.SERVER_LEVEL_ERRORS += 1
 
     def run(self):
+        self.pool.start()
         while self.running:
             try:
-                self.pool.launch()
                 self.serve_forever()
             except (KeyboardInterrupt, SystemExit):
-                self.log('Server quit by user.')
-                self.close()
                 break
-            except Exception as e:
-                self.log('\n'+'=*'*50+'\nVery bad server-level error:\n' + format_exc()+'\n'+'*='*50)
-                self.SERVER_LEVEL_ERRORS += 1
         self.cleanup()
 
     def reboot(self):
@@ -127,6 +126,7 @@ class Server(HTTPServer):
         if not self.running: return
         self.running = False
         Manager.cleanup()
+        self.pool.cleanup()
         self.server_close()
 
     def scope(self):

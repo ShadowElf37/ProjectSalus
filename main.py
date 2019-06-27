@@ -8,8 +8,8 @@ from importlib.util import find_spec
 DEPENDENCIES = ('requests', 'bs4', 'cryptography', 'git', 'psutil')
 
 assert all(map(find_spec, DEPENDENCIES)),\
-    'Missing libraries are required to continue. Check to make sure you have {} installed.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
-print('Library check passed.')
+    'Missing dependencies are required to continue. Check to make sure you have {} installed.'.format(', '.join(DEPENDENCIES[:-1]).title()+', and '+DEPENDENCIES[-1].title())
+print('Dependency check passed.')
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 os.chdir(HERE)
