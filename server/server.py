@@ -42,7 +42,7 @@ class Server(HTTPServer):
         self.port = port
         self.domain = 'localhost'
         self.log('Server initialized on {}:{}.'.format(self.ip, port))
-        self.pool = ProcessManager()
+        self.pool = ThreadManager()
         self.config_cache = CONFIG_CACHE
         self.cache = FileCache()
         self.buffer = stdout_buffer
@@ -77,7 +77,7 @@ class Server(HTTPServer):
             self.SERVER_LEVEL_ERRORS += 1
 
     def run(self):
-        self.pool.start()
+        self.pool.launch()
         while self.running:
             try:
                 self.serve_forever()
