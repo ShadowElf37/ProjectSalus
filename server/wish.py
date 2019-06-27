@@ -3,6 +3,7 @@ from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
 import psutil, os
+from .ansi import *
 
 ME = psutil.Process(os.getpid())
 ME.cpu_percent()  # Returns a nonsense value of 0.0 on first call, so call it here
@@ -195,7 +196,7 @@ class TTYWell(RecursiveWell):
             except InputNeededError: pass
 
 class SocketWell(RecursiveWell):
-    PROMPT      = "What do you want?"
+    PROMPT      = FRAKTUR + "What do you want?"
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):
@@ -327,7 +328,6 @@ class PingWell(BasicWell):
     def wish(self, wish):
         self.output(wish, 'Pong.')
 
-from .ansi import *
 class StatusWell(BasicWell):
     INVOCATIONS = 'report', 'status'
     SEP         = WHITE + '-'*40 + RESET
@@ -381,9 +381,9 @@ class StatusWell(BasicWell):
         feed(self.header('Diagnostics'))
         feed(self.line('Proc Status', ME.status()))
         feed(self.line('All errors thrown', server.MISC_ERRORS + server.CONNECTION_ERRORS + outside.scrape.StatusError.COUNTER + server.SERVER_LEVEL_ERRORS))
-        feed(self.line(RED_DARK + '  ConnectionError' + WHITE, server.CONNECTION_ERRORS))
-        feed(self.line(RED_DARK + '  StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
-        feed(self.line(RED_DARK + '  Server errors' + WHITE, server.SERVER_LEVEL_ERRORS))
+        feed(self.line(PURPLE + '  ConnectionError' + WHITE, server.CONNECTION_ERRORS))
+        feed(self.line(PURPLE + '  StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
+        feed(self.line(PURPLE + '  Server errors' + WHITE, server.SERVER_LEVEL_ERRORS))
         feed(self.line('CPU Load', '%s%%' % ME.cpu_percent()))
         feed(self.line('RAM Usage', '%.1f MB' % (myram.rss / 10 ** 6)))
         feed(self.line('CPU Load (global)', '%s%%' % psutil.cpu_percent()))
