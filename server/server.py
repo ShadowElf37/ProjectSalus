@@ -57,6 +57,17 @@ class Server(HTTPServer):
         self.MISC_ERRORS = 0
         self.SERVER_LEVEL_ERRORS = 0
 
+    def __reduce__(self):
+        v = list(self.__dict__.values())
+        v.remove(self.pool)
+        v.remove(self.cache)
+        v.remove(self.buffer)
+        v.remove(self.stats)
+        v.remove(self.config_cache)
+        v.remove(self.RequestHandlerClass)
+        v.remove(self._BaseServer__is_shut_down)
+        return self.__class__, tuple(v)
+
     # Overloads socketserver.TCPServer.process_request()
     def process_request(self, request, client_address):
         self.pool.push((self, request, client_address))

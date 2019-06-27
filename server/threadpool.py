@@ -3,6 +3,7 @@ from .config import get_config
 from inspect import isfunction, ismethod, isbuiltin
 import multiprocessing as mp
 import queue as q
+from time import sleep
 
 config = get_config('threads')
 
@@ -54,39 +55,33 @@ class Poolsafe:
         self.args = args
         self.kwargs = kwargs
         self.r = Poolsafe.NONCE  # None is bad because functions might actually return None and we want to see that
-        self.cond = Condition(Lock())
         self.after = []
 
     @staticmethod
     def await_all(*pses):
         for ps in pses:
-            with ps.cond:
-                while ps.r is Poolsafe.NONCE:
-                    ps.cond.wait()
+            while ps.r is Poolsafe.NONCE:
+                ps.wait()
 
     def wait(self):
-        with self.cond:
-            while self.r is Poolsafe.NONCE:
-                self.cond.wait()
+        while self.r is Poolsafe.NONCE:
+            sleep(0.01)
         return self.r
 
     def call(self):
-        with self.cond:
-            args = Minisafe.find_minisafes_in(self.args)
-            kwargs = Minisafe.find_minisafes_kw(self.kwargs)
-            self.r = self.f(*args, **kwargs)
-            for f, args, kwargs in self.after:
-                a = Minisafe.find_minisafes_in(self.args)
-                k = Minisafe.find_minisafes_kw(self.kwargs)
-                f(*a, **k)
-            self.cond.notify_all()
+        args = Minisafe.find_minisafes_in(self.args)
+        kwargs = Minisafe.find_minisafes_kw(self.kwargs)
+        self.r = self.f(*args, **kwargs)
+        for f, args, kwargs in self.after:
+            a = Minisafe.find_minisafes_in(self.args)
+            k = Minisafe.find_minisafes_kw(self.kwargs)
+            f(*a, **k)
 
     def read(self):
         return self.r
 
     def reset(self):
-        with self.cond:
-            self.r = Poolsafe.NONCE
+        self.r = Poolsafe.NONCE
 
     def on_completion(self, f, *args, **kwargs):
         self.after.append((f, args, kwargs))
@@ -125,10 +120,12 @@ class ProcessManager:
 
     def push(self, item):
         self.queue.put(item)
-        print('Request queued.')
+        print('Testing...')
+        print(self.queue.get())
+        print('Tested.')
 
     def pushf(self, f, *args, **kwargs):
-        self.queue.put(Poolsafe(f, *args, **kwargs))
+        self.push(Poolsafe(f, *args, **kwargs))
 
     def push_multi(self, *ps):
         for p in ps:
@@ -159,11 +156,11 @@ class Process:
         self.proc.start()
 
     def _start(self):
-        self.finished = Condition()
+        #self.finished = Condition()
         self.pool = ThreadManager(self.thread_count, condition=self.finished, queue=self.queue)
         self.pool.launch()
-        with self.finished:
-            self.finished.wait()
+        #with self.finished:
+        #    self.finished.wait()
         return
 
     def cleanup(self):
@@ -174,7 +171,7 @@ class ThreadManager:
         self.queue = queue
         self.threads = [RHThread(self.queue, id=i) for i in range(threadcount)]
         self.thread_count = threadcount
-        self.finished = condition  # Will be used to notify a parent process that the threads have finished cleanup
+        # self.finished = condition  # Will be used to notify a parent process that the threads have finished cleanup
 
     def launch(self):
         for t in self.threads:
@@ -185,8 +182,8 @@ class ThreadManager:
             t.terminate()
         for t in self.threads:
             t.thread.join(TIMEOUT-1)
-        with self.finished:
-            self.finished.notify_all()
+        #with self.finished:
+        #    self.finished.notify_all()
 
     def alive_count(self):
         return len([thread for thread in self.threads if thread.alive()])
@@ -221,8 +218,10 @@ class RHThread:
     def mainloop(self):
         while self.running:
             # No timeout is needed because if this is stuck here after self.running is false, that implies that it's safe to terminate the thread anyway because it's not handling any requests
-            print('Waiting...')
-            r = self.queue.get()
+            #print('Waiting...')
+            #r = self.queue.get()
+            sleep(1)
+            continue
             print('Processing request')
             self.busy = True
 
