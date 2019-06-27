@@ -3,6 +3,7 @@ from scrape import *
 from server.env import EnvReader
 from server.threadpool import ThreadManager, Poolsafe
 from server.persistent import PersistentDict, PersistentList
+from server.config import get_config
 
 HOURLY = 60
 DAILY = 60*24
@@ -12,12 +13,14 @@ ANNUALLY = DAILY*365
 BIANNUALLY = MONTHLY*6
 QUARTERLY = MONTHLY*3
 
+cfg = get_config('threads')
+
 env = EnvReader('main.py')
 USER = env['BBUSER']
 PASS = env['BBPASS']
 
 print('Initializing Chronomancer...')
-updater_pool = ThreadManager(32)
+updater_pool = ThreadManager(cfg.get('n-scrapes'))
 updater_pool.launch()
 chronomancer = chronos.Chronos(updater_pool.push)
 updater_pool.pushf(chronomancer.arkhomai)

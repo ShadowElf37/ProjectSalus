@@ -1,5 +1,6 @@
 {
 	"cleanup-timeout": 5.0,
-	"n-threads": 4,
-	"n-procs": 8
+	"n-threads": 32,
+	"n-procs": 8,
+	"n-scrapes": 16
 }

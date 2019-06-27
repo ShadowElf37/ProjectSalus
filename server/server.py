@@ -72,7 +72,6 @@ class Server(HTTPServer):
             self.close()
             raise
         except Exception:
-            raise
             self.log('\n'+'=*'*50+'\nVery bad server-level error:\n' + format_exc()+'\n'+'*='*50)
             self.SERVER_LEVEL_ERRORS += 1
 

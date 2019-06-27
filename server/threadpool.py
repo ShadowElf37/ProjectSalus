@@ -221,9 +221,7 @@ class RHThread:
     def mainloop(self):
         while self.running:
             # No timeout is needed because if this is stuck here after self.running is false, that implies that it's safe to terminate the thread anyway because it's not handling any requests
-            print('Waiting...')
             r = self.queue.get()
-            print('Processing request')
             self.busy = True
 
             if type(r) is Poolsafe:
