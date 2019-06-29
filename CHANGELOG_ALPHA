@@ -1,3 +1,6 @@
+v0.5.12 (6/28/19)
+- 
+
 v0.5.11 (6/27/19)
 + Added purple and indigo to ansi.py
 - Modified threading structure to be more efficient and use queue.Queue
