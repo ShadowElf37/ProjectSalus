@@ -33,6 +33,7 @@ Check for:
     - Everything is html escaped
     - Remove TESTDATEs
     - cache.json
+    - Optimize!
 
 Post-deployment wishlist:
     - Minimalist text editor

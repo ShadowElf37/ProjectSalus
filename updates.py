@@ -47,13 +47,16 @@ def update_directory(updater):
     def u(*args, **kwargs):
         global DIRECTORY, DIRECTORY_HTML
         v = updater(*args, **kwargs)
+        v = {k:v[k] for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:])}  # Sort it since it pops out in sorted chunks but isn't sorted globally
         DIRECTORY_HTML = update_directory_html(v)
         return DIRECTORY.points(v)
     return u
 def update_teachers(updater):
     def u(*args, **kwargs):
-        global TEACHERS
-        return TEACHERS.points(updater(*args, **kwargs))
+        global TEACHERS, TEACHER_HTML
+        v = updater(*args, **kwargs)
+        TEACHER_HTML = update_teacher_html(v)
+        return TEACHERS.points(v)
     return u
 def update_menu(updater):
     def u(*args, **kwargs):
@@ -67,26 +70,35 @@ def update_sports(updater):
         return SPORTCAL.points(updater(*args, **kwargs))
     return u
 
-def update_directory_html(dir):
-    html = []
-    for name,entry in tuple(dir.items()):
-        html.append(snippets.get('dir-entry').format(
-            phones = '\n'.join([snippets.get('dir-phone').format(
-                    phone_number = entry[t],
-                    phone_type = t.title()
-                ) for t in ['home', 'cell'] if entry.get(t)]) or snippets.get('no-dir-phone'),
+def update_directory_html(sdir):
+    html =[snippets.get('dir-entry').format(
+        phones = '\n'.join([snippets.get('dir-phone').format(
+                phone_number = entry[t],
+                phone_type = t.title()
+            ) for t in ['home', 'cell'] if entry.get(t)]) or snippets.get('no-dir-phone'),
+        fname = name[:name.find(' ')],
+        lname = name[name.find(' ')+1:],
+        email = get(entry, 'email', 'No email on record.'),
+        addr = get(entry, 'address', 'No address on record.'),
+        city = get(entry, 'city', 'No city'),
+        state = get(entry, 'state', 'no state.'),
+        zip = get(entry, 'zip', '').split('-')[0],
+        reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
+        bbid = entry['id'],
+        grad = entry['year'],
+        grade = entry['grade']
+    ) for name,entry in sdir.items()]
+    return '\n'.join(html)
+def update_teacher_html(tdir):
+    html = [snippets.get('tdir-entry').format(
             fname = name[:name.find(' ')],
-            lname = name[name.find(' ')+1:],
-            email = entry['email'],
-            addr = entry['address'],
-            city = entry['city'],
-            state = entry['state'],
-            zip = get(entry, 'zip', 'No zip').split('-')[0],
-            reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
+            lname = name[name.find(' ') + 1:],
+            phone = get(entry, 'phone', snippets.get('no-dir-phone')),
             bbid = entry['id'],
-            grad = entry['year'],
-            grade = entry['grade']
-        ))
+            dept = ', '.join(entry['dept']) or 'Dept. of Mysterious Persons',
+            email = entry['email'],
+            reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
+        ) for name,entry in tdir.items()]
     return '\n'.join(html)
 
 def dsetter(dict, key, updaterf):
@@ -142,6 +154,7 @@ CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
 
 DIRECTORY_HTML = update_directory_html(DIRECTORY)
+TEACHER_HTML = update_teacher_html(TEACHERS)
 
 DataSerializer.set('TOPICS', CLASS_TOPICS)
 DataSerializer.set('DIRECTORY', DIRECTORY)

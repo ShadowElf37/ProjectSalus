@@ -133,7 +133,7 @@ class Server(HTTPServer):
 
     @staticmethod
     def log(*string, user='Server'):
-        text = user+' ['+time.strftime('%D %X')+'] -', *string
+        text = user, '['+time.strftime('%D %X')+'] -', *string
         print(*text)
         return ' '.join(text)
 

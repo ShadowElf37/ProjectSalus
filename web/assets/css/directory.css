@@ -3,13 +3,23 @@
 	border-right: 1px solid #444;
 	width: 500px;
 	padding: 3%;
-	display: inline-block;
-	margin: 0 3vw;
+	display: block;
+}
+
+.page-container{
+	width: 90%;
+}
+
+#students{
+	float: left;
+}
+#teachers{
+	float: right;
 }
 
 .card {
 	display: block;
-	height: 16vh;
+	min-height: 16vh;
 	width: 92%;
 	border-radius: 7px;
 	background: #222;
@@ -17,7 +27,7 @@
 	padding: 4%;
 	text-anchor: center;
 	position: relative;
-	overflow: hidden;
+	overflow-x: hidden;
 	margin-top: 20px;
 }
 .card * {
@@ -25,9 +35,12 @@
 }
 
 .name {
-	font-size: 34px;
-	margin-top: -5px;
-	margin-lefT: -5px;
+	font-size: 33px;
+	line-height: 33px;
+	margin: -5px 0px 5px -5px;
+	width: 60%;
+	text-align: left;
+	float: left;
 }
 .email {
 	font-size: 18px;
@@ -41,10 +54,12 @@
 .address{
 	font-size: 20px;
 	margin-top: 10px;
+	margin-bottom: 30px;
 }
 
 .phone {
 	float: right;
+	margin-bottom: 10px;
 }
 .phone strong{
 	font-size: 20px;
@@ -62,7 +77,6 @@
 	position: absolute;
 }
 .grade{
-	display: inline;
 	font-size: 16px;
 }
 
