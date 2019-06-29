@@ -269,7 +269,7 @@ class HandlerBBLogin(RequestHandler):
 class HandlerBBInfo(RequestHandler):
     def call(self):
         if self.rank < 1:
-            self.response.refuse('Sign in please.')
+            self.response.redirect('/login')
             return
 
         self.account.optimal_poll = next(filter(lambda p: not p.user_has_responded(self.account), sorted(info.POLLS.values())), type('',(),{'id':None})()).id

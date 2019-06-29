@@ -1,5 +1,8 @@
 v0.5.12 (6/28/19)
--
+- Fixed a number of bugs on landing page
++ Added teacher directory and directory updates
++ Added searchbar, no js
+- Modified current navbar and unlocked Directory
 
 v0.5.11 (6/27/19)
 + Added purple and indigo to ansi.py

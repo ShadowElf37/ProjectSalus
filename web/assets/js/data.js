@@ -51,6 +51,7 @@ var firstDay, lastDay, schedule, menu, allergenInfo, timespan, grades;
 dataLoaded = new Notifier(function(){
 	firstDay = timespan[0];
 	lastDay = timespan[1];
+    console.log('Loaded!')
 	newScheduleDay("05/21/2019"); //{{getDate()}}
 }, 5);
 

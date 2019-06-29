@@ -24,14 +24,14 @@ var sendForm = (function() {
 })();
 
 function Notifier(cb, target) {
-		this.cb = cb;
-		this.count = 0;
-        this.target = target;
+	this.callback = cb;
+	this.count = 0;
+    this.target = target;
 }
 Notifier.prototype.complete = function() {
-    if(this.count++ >= this.target) {
+    if (++this.count >= this.target) {
         this.count = 0;
-        return this.oncomplete();
+        return this.callback();
     }
     return null;
 };
@@ -42,7 +42,7 @@ function requestData(name, dowith, notifier=null) {
     xhr.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
 	    	dowith(this.response);
-            if(notifier)
+            if (notifier !== null)
                 notifier.complete();
 	    };
 	};

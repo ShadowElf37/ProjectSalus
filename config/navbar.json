@@ -8,12 +8,12 @@
       ],
   "1":
       [
-          ["Home", "/home/index.html", false],
+          ["Home", "/bb_login", false],
           ["SGA", "", true],
           ["Classes", "", true],
           ["Mail", "", true],
           ["Calendar", "", true],
-          ["Directory", "/accounts/directory.html", true],
+          ["Directory", "/directory", false],
           ["Settings", "", true],
           ["Logout", "/logout", false]
       ],

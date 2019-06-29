@@ -114,7 +114,7 @@ var newScheduleDay = function(newDay) {
 			let foodContains = [];
 			let foodMayContain = [];
 			let xContamWarning = "";
-			let veg = "Vegan";
+			var veg = "Vegan";
 
 			allergens.forEach(function(al, i, arr){
 				switch (al[0]){
@@ -128,8 +128,9 @@ var newScheduleDay = function(newDay) {
 						xContamWarning = "This item is subject to cross-contamination in oil."
 						break;
 					case 3:
-						if (al[1] == veg == "Vegan") {veg = "Vegetarian"};
-						if (al[1] == "Vegetarian") {veg = "Contains meat"};
+						console.log(al);
+						if (al[1] == "Vegan" && veg == "Vegan") {veg = "Vegetarian"}
+						else if (al[1] == "Vegetarian") {veg = "Contains meat"};
 						break;
 				};
 			});

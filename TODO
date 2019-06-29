@@ -1,18 +1,17 @@
 Known Bugs:
-- Allergen hover broke at some point
+- Schedule scrape syntax changed for lunch and ma'amad, maybe others
 
 - CSS
 - SGA feedback form & email forwarding system
-- Survey input types
+- Poll input types
 - Announcements, Ma'amad info editors
 - Public calendar with meetings & events
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
 - User-friendly ways to edit all these
 - Simple mass-email interface
-- Remote access console and maintenance-in-progress backup system
+- Maintenance-in-progress backup system
 - SMS with periods etc.
-- Student directory
 - IMAP/SMTP replacement for Outlook
 - Click on email address to open small window for composing emails
 - Store updater information for SMS scheduler, etc.
