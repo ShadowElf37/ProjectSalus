@@ -107,8 +107,9 @@ class Response:
     @staticmethod
     def cache_lookup(path, cache_db=cache_db):
         val = cache_db.get('file').get(basename(path), None)
+        if val:
+            return val
         mimetype = guess_mime(path)
-        if val: return val
         for mt in cache_db.get('mime-type'):
             if fnmatch(mimetype, mt['type']):
                 return mt['length']

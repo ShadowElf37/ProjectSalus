@@ -74,7 +74,7 @@ def update_directory_html(dir):
             phones = '\n'.join([snippets.get('dir-phone').format(
                     phone_number = entry[t],
                     phone_type = t.title()
-                ) for t in ['home', 'cell'] if entry.get(t)]) or 'No phone numbers registered.',
+                ) for t in ['home', 'cell'] if entry.get(t)]) or snippets.get('no-dir-phone'),
             fname = name[:name.find(' ')],
             lname = name[name.find(' ')+1:],
             email = entry['email'],

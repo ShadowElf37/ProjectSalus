@@ -196,7 +196,7 @@ class TTYWell(RecursiveWell):
             except InputNeededError: pass
 
 class SocketWell(RecursiveWell):
-    PROMPT      = FRAKTUR + "What do you want?"
+    PROMPT      = FRAKTUR + "What do you want?" + RESET
     def __init__(self, children):
         super().__init__(self, children)
     def output(self, wish, *args):

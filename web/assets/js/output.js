@@ -55,7 +55,7 @@ Output.prototype.lut = Output.parselut(
 "20	fontFamily:\'UnifrakturMaguntia\'\n" +
 "21	fontWeight:normal\n" +
 "22	@21\n" +
-"23	fontStyle:normal; fontFamily:inherit\n" +
+"23	fontStyle:normal; fontFamily:\'Courier\ New\'\n" +
 "24	textDecoration:none\n" +
 "25	animation:none\n" +
 "27	filter:none\n" +

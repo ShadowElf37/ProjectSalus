@@ -20,6 +20,7 @@
   "next-class-info-2": "<span id=\"classname\">{name}</span><span id=\"start-end\">{start} - {end}</span>\n<span id=\"teacher\">{teacher}</span>\n<span id=\"teacher-email\">{email}</span>",
   "next-class-info-e": "{msg}<span id=\"classname\"></span><span id=\"start-end\"></span>\n<span id=\"teacher\"></span>\n<span id=\"teacher-email\"></span>",
 
+  "no-dir-phone": "<p>No phones registered.</p>",
   "dir-phone": "<p>{phone_number} ({phone_type})</p>",
   "dir-entry": "<div class=\"orange-border card\" id=\"{bbid}\"><div class=\"phone\"><strong>Phone:</strong>{phones}</div><div class=\"name\">{fname} {lname}</div><div class=\"email\">{email}</div><div class=\"address\">{addr}<br>{city}, {state} {zip}</div><div class=\"signed-up\">{reg}</div><div class=\"id\">Blackbaud ID: {bbid}</div><div class=\"class\">Class of {grad} <div class=\"grade\">({grade}th Grade)</div></div></div>",
 

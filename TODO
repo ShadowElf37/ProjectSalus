@@ -32,7 +32,7 @@ Check for:
     - Bugs
     - Everything is html escaped
     - Remove TESTDATEs
-
+    - cache.json
 
 Post-deployment wishlist:
     - Minimalist text editor
