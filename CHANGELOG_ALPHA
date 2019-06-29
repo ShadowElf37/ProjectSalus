@@ -1,7 +1,7 @@
 v0.5.11 (6/27/19)
-- Added purple and indigo to ansi.py
++ Added purple and indigo to ansi.py
 - Modified threading structure to be more efficient and use queue.Queue
-- Added latent Process structures which are impossible to implement around our current request handling model
++ Added latent Process structures which are impossible to implement around our current request handling model
 
 v0.5.10 (6/25/19)
 + Added psutil for hardware info in status reports
@@ -9,7 +9,7 @@ v0.5.10 (6/25/19)
 - Overhauled wishclient.js and wish.py to use ANSI formatting codes
 + Added ansi.py to help with ANSI formatting
 - Fixed some bugs in wishing
-- Tried and failed to refactor threadpool.py to use multiprocessing; will do soon
+- Tried and failed to refactor threadpool.py to use multiprocessing
 
 v0.5.9 (6/24/19)
 - Fixed issue where content-length would be set in responses with no body, preventing manual socket writing from working properly

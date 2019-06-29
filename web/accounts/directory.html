@@ -1,25 +1,11 @@
 <!DOCTYPE html>
-#define <name> <div class="name">
-#define </name> </div>
-#define <email> <div class="email">
-#define </email> </div>
-#define <id> <div class="id">
-#define </id> </div>
-#define <address> <div class="address">
-#define </address> </div>
-#define <phone> <div class="phone">
-#define </phone> </div>
-#define <class> <div class="class">
-#define </class> </div>
-#define <grade> <div class="grade">
-#define </grade> </div>
-#define \n <br>
 <html>
     <head>
     	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Home</title>
         {{css('darkbb.css')}}
         {{css('directory.css')}}
+        {{js('dir_searchbar.js')}}
     </head>
     <body>
         <div class="navbar">
@@ -32,21 +18,11 @@
         <center>
             <div class="page-container">
             	<div class="cards">
-	        		<div class="orange-border card">
-	        			<phone>
-	        				<strong>Phone:</strong>
-	        				<p>(Home) 713-487-8392</p>
-		        			<p>(Cell) 917-549-2662</p>
-		        		</phone>\n
-	        			<name>Yovel Key-Cohen</name>
-
-	        			<email>ykey-cohen@emeryweiner.org</email>\n
-	        			<address>4511 Holly St. Bellaire TX</address>\n
-	        			
-		        		<id>Blackbaud ID: 3510119</id>
-	        			<class>Class of 2021 <grade>(11th Grade)</grade></class>
-	        			
-	        		</div>
+            		<div class="searchbar">
+            			<label>Search</label>
+            			<input class="search-input" type="text">
+            		</div>
+	        		[[students]]
         		</div>
         		<!--<div class="cards">
 	        		<div class="orange-border card">

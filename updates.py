@@ -3,6 +3,7 @@ from scrape import *
 from server.env import EnvReader
 from server.threadpool import ThreadManager, Poolsafe
 from server.persistent import PersistentDict, PersistentList
+from server.client import user_tokens
 from server.config import get_config
 
 HOURLY = 60
@@ -14,6 +15,7 @@ BIANNUALLY = MONTHLY*6
 QUARTERLY = MONTHLY*3
 
 cfg = get_config('threads')
+snippets = get_config('snippets')
 
 env = EnvReader('main.py')
 USER = env['BBUSER']
@@ -43,8 +45,10 @@ def bb_login_safe(f, user, pwd):
 
 def update_directory(updater):
     def u(*args, **kwargs):
-        global DIRECTORY
-        return DIRECTORY.points(updater(*args, **kwargs))
+        global DIRECTORY, DIRECTORY_HTML
+        v = updater(*args, **kwargs)
+        DIRECTORY_HTML = update_directory_html(v)
+        return DIRECTORY.points(v)
     return u
 def update_teachers(updater):
     def u(*args, **kwargs):
@@ -62,6 +66,28 @@ def update_sports(updater):
         global SPORTCAL
         return SPORTCAL.points(updater(*args, **kwargs))
     return u
+
+def update_directory_html(dir):
+    html = []
+    for name,entry in tuple(dir.items())[:5]:
+        html.append(snippets.get('dir-entry').format(
+            phones = '\n'.join([snippets.get('dir-phone').format(
+                    phone_number = entry[t],
+                    phone_type = t.title()
+                ) for t in ['home', 'cell'] if entry.get(t)]) or 'No phone numbers registered.',
+            fname = name[:name.find(' ')],
+            lname = name[name.find(' ')+1:],
+            email = entry['email'],
+            addr = entry['address'],
+            city = entry['city'],
+            state = entry['state'],
+            zip = get(entry, 'zip', 'No zip').split('-')[0],
+            reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
+            bbid = entry['id'],
+            grad = entry['year'],
+            grade = entry['grade']
+        ))
+    return '\n'.join(html)
 
 def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
@@ -114,6 +140,8 @@ except (JSONDecodeError, KeyError):
 
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
+
+DIRECTORY_HTML = update_directory_html(DIRECTORY)
 
 DataSerializer.set('TOPICS', CLASS_TOPICS)
 DataSerializer.set('DIRECTORY', DIRECTORY)

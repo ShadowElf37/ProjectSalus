@@ -384,7 +384,6 @@ class StatusWell(BasicWell):
         feed(self.line(PURPLE + '  ConnectionError' + WHITE, server.CONNECTION_ERRORS))
         feed(self.line(PURPLE + '  StatusError' + WHITE, outside.scrape.StatusError.COUNTER))
         feed(self.line(PURPLE + '  Server errors' + WHITE, server.SERVER_LEVEL_ERRORS))
-        feed(self.line('CPU Load', '%s%%' % ME.cpu_percent()))
         feed(self.line('RAM Usage', '%.1f MB' % (myram.rss / 10 ** 6)))
         feed(self.line('CPU Load (global)', '%s%%' % psutil.cpu_percent()))
         feed(self.line('RAM Usage (global)', '%d/%d MB' % (ram.used / 10**6, ram.total / 10**6)))

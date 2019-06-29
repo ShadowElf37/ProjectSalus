@@ -461,6 +461,10 @@ class HandlerConsoleCommand(RequestHandler):
         }))
 
 
+class HandlerDirectory(RequestHandler):
+    def call(self):
+        self.response.attach_file('/accounts/directory.html', students=updates.DIRECTORY_HTML)
+
 GET = {
     '/': HandlerBlank,
     '/favicon.ico': HandlerFavicon,
@@ -475,6 +479,7 @@ GET = {
     '/bb': HandlerBBInfo,
     '/data': HandlerDataRequests,
     '/well': HandlerConsolePage,
+    '/directory': HandlerDirectory
 }
 
 POST = {
@@ -487,6 +492,4 @@ POST = {
     '/wish': HandlerConsoleCommand,
 }
 
-INDEX = {}
-INDEX.update(GET)
-INDEX.update(POST)
+INDEX = {**GET, **POST}

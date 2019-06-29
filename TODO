@@ -16,7 +16,7 @@ Known Bugs:
 - IMAP/SMTP replacement for Outlook
 - Click on email address to open small window for composing emails
 - Store updater information for SMS scheduler, etc.
-- Purge stale updaters; generally overhaul session tokens with something more flexible
+- Purge stale updaters for logged out people; generally overhaul session tokens with something more flexible
 - Whitelist ranks
 - User settings and customization (delete, reload, etc.)
 - Check dates of recently graded assignments
