@@ -44,6 +44,7 @@
 }
 .email {
 	font-size: 18px;
+	float: left;
 }
 .id {
 	font-size: 14px;
@@ -53,6 +54,7 @@
 }
 .address{
 	font-size: 20px;
+	float: left;
 	margin-top: 10px;
 	margin-bottom: 30px;
 }
