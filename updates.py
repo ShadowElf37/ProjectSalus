@@ -69,7 +69,7 @@ def update_sports(updater):
 
 def update_directory_html(dir):
     html = []
-    for name,entry in tuple(dir.items())[:5]:
+    for name,entry in tuple(dir.items()):
         html.append(snippets.get('dir-entry').format(
             phones = '\n'.join([snippets.get('dir-phone').format(
                     phone_number = entry[t],
