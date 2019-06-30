@@ -9,6 +9,7 @@ config = get_config('threads')
 PCOUNT = config.get('n-procs')
 TCOUNT = config.get('n-threads')
 TIMEOUT = config.get('cleanup-timeout')
+REFRESHRATE = config.get('queue-refresh')
 
 class Minisafe:
     def __init__(self, f, *args, **kwargs):
@@ -181,13 +182,10 @@ class ThreadManager:
             t.init_thread()
 
     def cleanup(self):
+        for _ in self.threads:
+            self.queue.put(RHThread.POISON)
         for t in self.threads:
-            t.terminate()
-        for t in self.threads:
-            try:
-                t.thread.join(TIMEOUT)
-            except RuntimeError:
-                continue
+            t.thread.join(TIMEOUT)
         with self.finished:
             self.finished.notify_all()
 
@@ -205,6 +203,7 @@ class ThreadManager:
             self.push(p)
 
 class RHThread:
+    POISON = object()
     def __init__(self, queue, id=0):
         self.queue = queue
         self.thread = Thread(target=self.mainloop, daemon=True)
@@ -214,17 +213,17 @@ class RHThread:
 
     def init_thread(self):
         self.thread.start()
-    
-    def terminate(self):
-        self.running = False
 
     def alive(self):
         return self.thread.is_alive()
 
     def mainloop(self):
-        while self.running:
+        while True:
             # No timeout is needed because if this is stuck here after self.running is false, that implies that it's safe to terminate the thread anyway because it's not handling any requests
             r = self.queue.get()
+            if r is self.POISON:
+                self.queue.task_done()
+                return
             self.busy = True
 
             if type(r) is Poolsafe:
@@ -239,6 +238,7 @@ class RHThread:
                 server.log('An error occurred during communication with client: %s %s' % (e, e.args))
                 server.CONNECTION_ERRORS += 1
             self.busy = False
+            self.queue.task_done()
 
 
 class RWLockMixin:
