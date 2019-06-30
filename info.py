@@ -57,15 +57,20 @@ class TodoItem:
     def get_state(self):
         return TodoItem.STATES[self.state]
 
-@AccountsSerializer.serialized(title='', questions=[], responses={}, timestamp=0, priority=1, id='')
+@AccountsSerializer.serialized(title='', questions=[], responses={}, timestamp=0, priority=1, id='', reusable=True)
 class Poll:
-    def __init__(self, title):
+    FREERESPONSE = '#free'
+    SCALE = '#scale'
+    MULTIPLECHOICE = '#multi'
+
+    def __init__(self, title, reusable=False):
         self.title = title
         self.questions = []
         self.responses = {}
         self.timestamp = time.time()
         self.id = str(uuid.uuid1())
         self.priority = 1
+        self.reusable = reusable
 
     def __lt__(self, o):
         return self.priority < o.priority
@@ -98,9 +103,8 @@ class Poll:
         question = self.questions[qnum][0]
         self.responses[question].append((user, choice))
 
-    def add_question(self, qtext, *choices, freeresponse=False, number=None):
-        if number is None: number = len(self.questions)
-        self.questions.insert(number, (qtext, (choices if not freeresponse else None)))
+    def add_question(self, qtext, *choices, _type=MULTIPLECHOICE, qnumber=None):
+        self.questions.insert(qnumber or len(self.questions), (qtext, (choices if _type == self.MULTIPLECHOICE else _type)))
         self.responses[qtext] = []
 
     def remove_question(self, idx):

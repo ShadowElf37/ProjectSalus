@@ -7,7 +7,7 @@ from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', bb_enc_pass='', bb_id='', bb_t='', clubs=[], subscriptions=[], inbox=None, email_enc_pass='', phone='', service_provider='')
+@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', bb_enc_pass='', bb_id='', bb_t='', clubs=[], subscriptions=[], inbox=None, phone='', service_provider='')
 class Account(RWLockMixin):
     def __preinit__(self):
         super().__init__()
@@ -35,9 +35,7 @@ class Account(RWLockMixin):
         self.id = randint(0, 2**64-1)
         self.bb_enc_pass = ''
         self.bb_id = ''
-        self.email_auth = ('', '')
-        self.email_enc_pass = ''
-        self.subscriptions = []  # For notifications - a string is probably all that's necessary
+        self.subscriptions = []  # For notifications
         self.clubs = []
         self.inbox = None
         self.phone = ''

@@ -1,7 +1,7 @@
 from server.env import EnvReader
 from scrape import html, soup_without
 from bs4 import BeautifulSoup
-from server.threadpool import Pool, Poolsafe
+from server.threadpool import ThreadManager as Pool, Poolsafe
 from random import choice as rchoice
 
 ENV = EnvReader('main.py')
@@ -154,7 +154,7 @@ class IMAPEmail:
         self.bcc = message.get('bcc', '').replace('\n', '').replace('\r', '').replace('\t', ' ').split(', ')
         self.server_uid = message.get('message-id', '').strip()
         self.attachments = self.resolve_attachments(message)
-        self.body = self.decode_body(message)
+        self.body = self.decode_body(message) or ''
         self.type = 'html' if isinstance(self.body, BeautifulSoup) else 'text'
 
     def __repr__(self):
@@ -207,12 +207,12 @@ class IMAPEmail:
 @AccountsSerializer.serialized(addr='', pwd_enc='', messages=[], uids=[])
 class Inbox:
     def __postinit__(self):
-        self.pwd = ''
-    def __init__(self, email_address, encrypted_password, email_password=PASS):
+        self.pwd = getattr(self, 'pwd', '')
+    def __init__(self, email_address, email_password, encrypted_password):
         self.addr = email_address
         self.pwd = email_password
         self.pwd_enc = encrypted_password
-        self.messages = []
+        self.messages: [IMAPEmail] = []
         self.uids = []
 
     def get_size(self):
@@ -235,7 +235,7 @@ class Inbox:
         return rchoice(self.uids)
 
     def new_conn(self):
-        c = imaplib.IMAP4_SSL(IMAPHOST)
+        c = imaplib.IMAP4_SSL(IMAPHOST, port=993)
         c.login(self.addr, self.pwd)
         return c
 
@@ -269,7 +269,7 @@ class Inbox:
         for uid in self.search_new(max_count=max_count):
             if threadpool:
                 ps = Poolsafe(Inbox._fetch_msg_newc, self.addr, self.pwd, uid, folder=inbox_name)
-                threadpool.pushps(ps)
+                threadpool.push(ps)
                 poolsafes.append(ps)
             else:
                 msg = Inbox._fetch_msg(masterconn, uid)
@@ -311,7 +311,7 @@ class Inbox:
                     break
                 if threadpool:
                     msg = Poolsafe(Inbox._fetch_msg_newc, addr, pwd, msgid, i+1, folder=inbox_name)
-                    threadpool.pushps(msg)
+                    threadpool.push(msg)
                 else:
                     msg = Inbox._fetch_msg(c, msgid)
                 msgs.append(msg)
@@ -340,7 +340,8 @@ class Inbox:
 
 if __name__ == '__main__':
     print('Logging in...')
-    inbox = Inbox(USER, PASS)
+    # imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', 'Yoproductions3')
+    inbox = Inbox('ykey-cohen@emeryweiner.org', 'Yoproductions3', '')
     testpool = Pool(20)
     testpool.launch()
     print('Fetching...')

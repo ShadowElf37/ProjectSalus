@@ -184,7 +184,10 @@ class ThreadManager:
         for t in self.threads:
             t.terminate()
         for t in self.threads:
-            t.thread.join(TIMEOUT-1)
+            try:
+                t.thread.join(TIMEOUT)
+            except RuntimeError:
+                continue
         with self.finished:
             self.finished.notify_all()
 

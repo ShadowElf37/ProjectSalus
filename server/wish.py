@@ -397,7 +397,7 @@ class StatusWell(BasicWell):
         feed(self.header('Accounts'))
         feed(self.line('Registered', len(outside.user_tokens)))
         feed(self.line('Blackbaud auth', len([a for a in accounts if a.bb_enc_pass])))
-        feed(self.line('Email auth', len([a for a in accounts if a.email_enc_pass])))
+        feed(self.line('Email auth', len([a for a in accounts if a.inbox])))
         feed(self.line('Cell auth', len([a for a in accounts if a.service_provider])))
         feed(self.line('Dead validator keys', len([a for a in accounts if a is None])))
 

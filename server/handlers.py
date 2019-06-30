@@ -11,6 +11,7 @@ import info
 import mods.modding as modding
 import json
 import server.wish as wish
+import mail
 
 # REPLACE
 TEST = 'Hello World'
@@ -61,6 +62,7 @@ class RequestHandler:
             self.rank = self.account.rank
         self.render_register(
             name=self.account.name,
+            email=self.account.email,
             test='hello',
             themeblue='#0052ac',
             themedarkblue='#00429c',
@@ -178,6 +180,7 @@ class HandlerSignup(RequestHandler):
         self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
         a.dir = updates.DIRECTORY[a.name]
         a.bb_id = a.dir['id']
+        a.email = a.dir.get('email')
         self.response.redirect('/home/index.html')
 
 class HandlerLogin(RequestHandler):
@@ -199,6 +202,7 @@ class HandlerLogin(RequestHandler):
             self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
             account.dir = updates.DIRECTORY[account.name]
             account.bb_id = account.dir['id']
+            account.email = account.dir.get('email')
 
             # updates.register_bb_updater(account, 'profile-details', scrape.BlackbaudScraper.dir_details, account.bb_id, )
             # account.updaters['profile'] = updates.register_bb_updater(account, 'profile', scrape.BlackbaudScraper.dir_details, account.bb_id)
@@ -245,7 +249,7 @@ class HandlerBBLogin(RequestHandler):
         # Encrypt the password for storage and store unencrypted in RAM
         encoder = cryptrix(self.account.password, self.account.name)
         self.account.bb_enc_pass = encoder.encrypt(self.request.get_post('pass'))
-        self.account.bb_auth = auth = updates.DIRECTORY[self.account.name].get('email'), self.request.get_post('pass')
+        self.account.bb_auth = auth = self.account.email, self.request.get_post('pass')
 
         # Log into Blackbaud
         myscraper = scrape.BlackbaudScraper()
@@ -412,7 +416,7 @@ class HandlerBBInfo(RequestHandler):
 
         noschool = not periods or 'cancel' in spec or 'close' in spec or 'field day' in spec
 
-        self.response.attach_file('/accounts/bb_test.html', cache=False,
+        self.response.attach_file('/accounts/landing.html', cache=False,
                                   classday=classday,
                                   next_class_info=snippet('next-class-info-1',
                                                           period=nextclass[0],
@@ -465,6 +469,56 @@ class HandlerDirectory(RequestHandler):
     def call(self):
         self.response.attach_file('/accounts/directory.html', students=updates.DIRECTORY_HTML, teachers=updates.TEACHER_HTML)
 
+
+class HandlerMailLoginPage(RequestHandler):
+    def call(self):
+        if self.rank < 1:
+            self.response.redirect('/login')
+            return
+        if self.account.inbox.pwd:
+            self.response.redirect('/mail')
+            return
+        self.response.attach_file('/accounts/mail_login.html')
+
+class HandlerMailLogin(RequestHandler):
+    def call(self):
+        pwd = self.request.get_post('pass')
+        user = self.account.email
+        encoder = cryptrix(self.account.password, self.account.name)
+        encrypted_pass = encoder.encrypt(pwd)
+
+        session = mail.Inbox(user, pwd, encrypted_pass)
+        try:
+            session.new_conn()
+            session.update(threadpool=updates.updater_pool)
+        except mail.imaplib.IMAP4.error:
+            self.response.refuse('Incorrect password, or your email stored on Blackbaud is incorrect. If this error occurs outside of testing then Yovel is dumb and tell him immediately.')
+            return
+
+        self.account.inbox = session
+        self.response.redirect('/mail', get=True)
+
+class HandlerMail(RequestHandler):
+    def call(self):
+        messages = [msg.body for msg in self.account.inbox.messages]
+        self.response.attach_file('/accounts/mail.html', messages='<br><br>'.join(messages))
+
+class HandlerSendMail(RequestHandler):
+    def call(self):
+        to = self.request.get_post('to')
+        body = self.request.get_post('body')
+
+        msg = mail.Message(self.account.email, *to)
+        msg.write(body.encode())
+
+        self.response.set_body('Done.')
+        try:
+            remote = mail.SMTPRemote(self.account.email, self.account.inbox.pwd)
+            remote.send(msg)
+        except:
+            self.response.set_body('An error occurred.', append=False)
+
+
 GET = {
     '/': HandlerBlank,
     '/favicon.ico': HandlerFavicon,
@@ -479,7 +533,9 @@ GET = {
     '/bb': HandlerBBInfo,
     '/data': HandlerDataRequests,
     '/well': HandlerConsolePage,
-    '/directory': HandlerDirectory
+    '/directory': HandlerDirectory,
+    '/mail_login': HandlerMailLoginPage,
+    '/mail': HandlerMail,
 }
 
 POST = {
@@ -490,6 +546,8 @@ POST = {
     '/bb_post': HandlerBBLogin,
     '/submit-poll': HandlerSubmitPoll,
     '/wish': HandlerConsoleCommand,
+    '/mail_login': HandlerMailLogin,
+    '/mail': HandlerSendMail
 }
 
 INDEX = {**GET, **POST}

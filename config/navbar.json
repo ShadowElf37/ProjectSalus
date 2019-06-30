@@ -11,7 +11,7 @@
           ["Home", "/bb_login", false],
           ["SGA", "", true],
           ["Classes", "", true],
-          ["Mail", "", true],
+          ["Mail", "/mail_login", false],
           ["Calendar", "", true],
           ["Directory", "/directory", false],
           ["Settings", "", true],

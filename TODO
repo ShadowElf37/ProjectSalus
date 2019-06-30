@@ -1,5 +1,6 @@
 Known Bugs:
 - Schedule scrape syntax changed for lunch and ma'amad, maybe others
+- Blackbaud and mail logins die after /login
 
 - CSS
 - SGA feedback form & email forwarding system

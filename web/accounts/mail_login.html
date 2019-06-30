@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mail Login</title>
+        {{css('general.css')}}
+        {{js('asyncpost.js')}}
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-header"><a href="#">Project Salus</a></div>
+            <ul class="navbar-items">
+                [[navbar]]
+            </ul>
+        </div>
+
+        <center>
+            <h3 class="singular-form-header">Sign in to Outlook</h3><br>
+            <div class="singular-form">
+                <form method="POST" action="/mail_login">
+                    <p>Outlook Password</p><br>
+                    <input type="password" name="pass"><br>
+                    <div class="submit">
+                        <input type="submit">
+                    </div>
+                </form>
+            </div>
+        </center>
+
+    </body>
+</html>

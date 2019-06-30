@@ -320,7 +320,10 @@ class BoundSerializer(ClassSerializer):
         self.setfile(self.path)
 
     def __del__(self):
-        self.fh.close()
+        try:
+            self.fh.close()
+        except AttributeError:
+            return
 
     def getfile(self):
         return self.fh
