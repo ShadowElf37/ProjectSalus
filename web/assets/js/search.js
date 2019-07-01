@@ -35,7 +35,7 @@ Searcher.prototype.update = function() {
 	this.count.innerText = "Loading...";
 	
 	for(var i=0; i<tokens.length; i++) {
-		var token = tokens[i], subsel = null;
+		var token = tokens[i].toLowerCase(), subsel = null;
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
 				subsel = this.subs[key];
@@ -43,7 +43,7 @@ Searcher.prototype.update = function() {
 			}
 		}
 		entries = Array.prototype.slice.call(entries).filter(function(elem) {
-			return (subsel ? elem.querySelector(subsel) : elem).innerText.includes(token);
+			return (subsel ? elem.querySelector(subsel) : elem).innerText.toLowerCase().includes(token);
 		});
 	}
 	for(var i=0; i<entries.length; i++) {
