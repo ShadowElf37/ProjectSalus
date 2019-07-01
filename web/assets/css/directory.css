@@ -84,6 +84,14 @@
 	font-size: 16px;
 }
 
+.dept{
+	display: block;
+	font-size: 16px;
+	bottom: 15px;
+	left: 10px;
+	position: absolute;
+}
+
 .signed-up{
 	position: absolute;
 	right: 10px;

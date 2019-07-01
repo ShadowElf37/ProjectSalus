@@ -81,7 +81,7 @@ WishUI.prototype.hdl_inp = function(line) {
 	this.in.disabled = false;
 	this.cycle = true;
 	var quote = this.out.lastChild;
-	quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
+	// quote.innerText = "\"" + quote.innerText.trim() + "\"\n\n";
 };
 WishUI.prototype.hdl_out = function(line) {
 	this.output.println(line);

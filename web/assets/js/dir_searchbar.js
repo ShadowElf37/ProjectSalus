@@ -28,7 +28,7 @@ window.onload = function () {
 	var teachersDeptMap = {};
 	for (card of allTeacherCards) {
 		teachersNameMap.push([card.id, card.getElementsByClassName('name')[0].innerText.toLowerCase()]);
-		teachersDeptMap[card.id] = card.getElementsByClassName('class')[0].innerText.toLowerCase();
+		teachersDeptMap[card.id] = card.getElementsByClassName('dept')[0].innerText.toLowerCase();
 	};
 
 	// Search bar elems
