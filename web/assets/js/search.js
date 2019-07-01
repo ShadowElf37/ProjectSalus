@@ -18,6 +18,7 @@ function Searcher(input, root, query, subqueries, distype="initial") {
 	if(!subqueries) subqueries = {};
 	this.subs = subqueries;
 	this.distype = distype;
+	this.data = null;
 	
 	this.count = document.createElement("span");
 	this.count.className = "searcher-count";
@@ -25,17 +26,30 @@ function Searcher(input, root, query, subqueries, distype="initial") {
 	this.update();
 }
 
-Searcher.prototype.update = function() {
-	var tokens = lex(this.input.value);
+Searcher.prototype.initialize = function() {
 	var entries = this.root.querySelectorAll(this.query);
+	this.data = [];
+	for(var i=0; i<entries.length; i++) {
+		var result = {_root: entries[i].innerText.toLowerCase(), _elem: entries[i]};
+		for(let key in this.subs) {
+			result[key] = entries[i].querySelector(this.subs[key]).innerText.toLowerCase();
+		}
+		this.data.push(result);
+	}
+};
+
+Searcher.prototype.update = function() {
+	if(!this.data) return;
+	var tokens = lex(this.input.value);
+	var entries = this.data;
 	
 	for(var i=0; i<entries.length; i++) {
-		entries[i].style.display = "none";
+		entries[i]._elem.style.display = "none";
 	}
 	this.count.innerText = "Loading...";
 	
 	for(var i=0; i<tokens.length; i++) {
-		var token = tokens[i].toLowerCase(), subsel = null;
+		var token = tokens[i].toLowerCase(), subsel = "_root";
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
 				subsel = this.subs[key];
@@ -43,12 +57,12 @@ Searcher.prototype.update = function() {
 				break;
 			}
 		}
-		entries = Array.prototype.slice.call(entries).filter(function(elem) {
-			return (subsel ? elem.querySelector(subsel) : elem).innerText.toLowerCase().includes(token);
+		entries = entries.filter(function(elem) {
+			return entries[i][subsel].includes(token);
 		});
 	}
 	for(var i=0; i<entries.length; i++) {
-		entries[i].style.display = this.distype;
+		entries[i]._elem.style.display = this.distype;
 	}
 	this.count.innerText = "Found " + entries.length + " results.";
 };
