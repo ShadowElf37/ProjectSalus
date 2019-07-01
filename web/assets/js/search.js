@@ -6,16 +6,18 @@ function lex(string) {
 	return split.join("").split("\0");
 }
 
-function Searcher(input, root, query, subqueries) {
+function Searcher(input, root, query, subqueries, distype="initial") {
 	var self = this;
 	input.addEventListener("input", function(ev) {
 		self.update();
 	});
 	
+	this.input = input;
 	this.root = root;
 	this.query = query;
 	if(!subqueries) subqueries = {};
 	this.subs = subqueries;
+	this.distype = distype;
 	
 	this.count = document.createElement("span");
 	this.count.className = "searcher-count";
@@ -35,17 +37,17 @@ Searcher.prototype.update = function() {
 	for(var i=0; i<tokens.length; i++) {
 		var token = tokens[i], subsel = null;
 		for(let key in this.subs) {
-			if(token.beginsWith(key + ":")) {
+			if(token.startsWith(key + ":")) {
 				subsel = this.subs[key];
 				break;
 			}
 		}
-		entries = entries.filter(function(elem) {
+		entries = Array.prototype.slice.call(entries).filter(function(elem) {
 			return (subsel ? elem.querySelector(subsel) : elem).innerText.includes(token);
 		});
 	}
 	for(var i=0; i<entries.length; i++) {
-		entries[i].style.display = "initial";
+		entries[i].style.display = this.distype;
 	}
 	this.count.innerText = "Found " + entries.length + " results.";
 };

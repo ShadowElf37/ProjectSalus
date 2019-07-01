@@ -1,4 +1,30 @@
-window.onload = function () {
+window.addEventListener('load', function(e){
+	var pc = document.getElementById("page-container");
+	var width = document.documentElement.clientWidth
+	var students = document.getElementById("students");
+	var teachers = document.getElementById("teachers");
+	if (width > 1800) {
+		pc.style.width = "80%";
+		students.style.marginLeft = "5%";
+		teachers.style.marginRight = "5%";
+	} else if (width > 1500) {
+		pc.style.width = "80%";
+	};
+
+	var studentInput = document.getElementById('student-search');
+	var teacherInput = document.getElementById('teacher-search');
+
+	new Searcher(studentInput, students, '.card', {
+		'grade': '.grade',
+		'address': '.address'
+	}, 'block');
+
+	new Searcher(teacherInput, teachers, '.card', {
+		'dept': '.dept'
+	}, 'block');
+});
+
+/*window.onload = function () {
 	var pc = document.getElementById("page-container");
 	var width = document.documentElement.clientWidth
 	var students = document.getElementById("students");
@@ -101,4 +127,4 @@ window.onload = function () {
 			};
 		};
 	};
-};
+};*/
