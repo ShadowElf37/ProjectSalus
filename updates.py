@@ -5,6 +5,7 @@ from server.threadpool import ThreadManager, Poolsafe
 from server.persistent import PersistentDict, PersistentList
 from server.client import user_tokens
 from server.config import get_config
+from collections import OrderedDict
 
 HOURLY = 60
 DAILY = 60*24
@@ -47,16 +48,19 @@ def update_directory(updater):
     def u(*args, **kwargs):
         global DIRECTORY, DIRECTORY_HTML
         v = updater(*args, **kwargs)
-        v = {k:v[k] for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:])}  # Sort it since it pops out in sorted chunks but isn't sorted globally
+        # Sort it since it pops out in sorted chunks but isn't sorted globally
+        v = ((k,v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:]))
         DIRECTORY_HTML = update_directory_html(v)
-        return DIRECTORY.points(v)
+        return DIRECTORY.points(dict(v))
     return u
 def update_teachers(updater):
     def u(*args, **kwargs):
         global TEACHERS, TEACHER_HTML
         v = updater(*args, **kwargs)
+        # Sort it since it pops out in sorted chunks but isn't sorted globally
+        v = ((k, v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ') + 1:]))
         TEACHER_HTML = update_teacher_html(v)
-        return TEACHERS.points(v)
+        return TEACHERS.points(dict(v))
     return u
 def update_menu(updater):
     def u(*args, **kwargs):
@@ -70,7 +74,7 @@ def update_sports(updater):
         return SPORTCAL.points(updater(*args, **kwargs))
     return u
 
-def update_directory_html(sdir):
+def update_directory_html(stup):
     html =[snippets.get('dir-entry').format(
         phones = '\n'.join([snippets.get('dir-phone').format(
                 phone_number = entry[t],
@@ -87,9 +91,9 @@ def update_directory_html(sdir):
         bbid = entry['id'],
         grad = entry['year'],
         grade = entry['grade']
-    ) for name,entry in sdir.items()]
+    ) for name,entry in stup]
     return '\n'.join(html)
-def update_teacher_html(tdir):
+def update_teacher_html(ttup):
     html = [snippets.get('tdir-entry').format(
             fname = name[:name.find(' ')],
             lname = name[name.find(' ') + 1:],
@@ -98,7 +102,7 @@ def update_teacher_html(tdir):
             dept = ', '.join(entry['dept']) or 'Dept. of Mysterious Persons',
             email = entry['email'],
             reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
-        ) for name,entry in tdir.items()]
+        ) for name,entry in ttup]
     return '\n'.join(html)
 
 def dsetter(dict, key, updaterf):

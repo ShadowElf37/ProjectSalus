@@ -4,6 +4,7 @@
 	width: 500px;
 	padding: 3%;
 	display: block;
+	min-height: 150vh;
 }
 
 .page-container{
