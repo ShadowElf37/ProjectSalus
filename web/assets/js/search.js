@@ -39,6 +39,7 @@ Searcher.prototype.update = function() {
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
 				subsel = this.subs[key];
+				token = token.substring(token.length + 1);
 				break;
 			}
 		}
