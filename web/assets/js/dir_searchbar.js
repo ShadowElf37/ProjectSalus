@@ -35,25 +35,33 @@ window.onload = function () {
 	var studentSearch = document.getElementById('student-search');
 	var teacherSearch = document.getElementById('teacher-search');
 
-
 	// When input is received, search the cards
 	studentSearch.oninput = function(){
-		var input = studentSearch.value.toLowerCase();
+		var input = studentSearch.value.toLowerCase().trim();
 		let gradeIndex = input.indexOf('grade:')
 		let addrIndex = input.indexOf('address:')
 		if (gradeIndex===addrIndex) {
 			var grade = null;
 			var addr = null;
+		} else if (addrIndex===-1) {
+			var grade = input.slice(gradeIndex+6).trim()
+			var addr = null;
+			input = input.slice(0, gradeIndex).trim();
+		} else if (gradeIndex===-1) {
+			var addr = input.slice(addrIndex+8).trim()
+			var grade = null;
+			input = input.slice(0, addrIndex).trim();
 		} else if (gradeIndex > addrIndex) {
 			var grade = input.slice(gradeIndex+6).trim()
 			var addr = (addrIndex != -1) ? input.slice(addrIndex+8, gradeIndex).trim() : null;
-		} else if (addrIndex > gradeIndex) {
+			input = input.slice(0, addrIndex).trim();
+		} else if (gradeIndex < addrIndex) {
 			var addr = input.slice(addrIndex+8).trim()
 			var grade = (gradeIndex != -1) ? input.slice(gradeIndex+6, addrIndex).trim() : null;
+			input = input.slice(0, gradeIndex).trim();
 		};
-		console.log(grade, addr)
 
-		if (!input) {
+		if (!input && grade===null && addr===null) {
 			for (card of allStudentCards) {
 				card.style.display = "block";
 			};
@@ -63,7 +71,7 @@ window.onload = function () {
 			let id = cardIdName[0];
 			let name = cardIdName[1];
 			let card = document.getElementById(id);
-			if (name.includes(input)) {
+			if (name.includes(input) && ((grade===null) || studentsGradeMap[id].includes(grade)) && ((addr===null) || studentsAddrMap[id].includes(addr))) {
 				card.style.display = "block";
 			} else {
 				card.style.display = "none";
