@@ -38,7 +38,7 @@ WishParser.prototype.parse = function(block) {
 		var chunk, line = lines[i];
 		if(!line) continue;
 		chunk = line.substring(0, this.len);
-		line = line.substring(this.len).replace(/\\n/g, "\n");
+		line = atob(line.substring(this.len));
 		var handler = this.handlers[chunk];
 		if(handler) {
 			handler(line);

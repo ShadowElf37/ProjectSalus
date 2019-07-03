@@ -2,6 +2,7 @@ from functools  import wraps
 from itertools  import chain
 from sys        import stdout
 from shlex      import split, quote
+from base64     import b64encode
 import psutil, os
 from .ansi import *
 
@@ -209,7 +210,9 @@ class SocketWell(RecursiveWell):
         raise InputNeededError
     @staticmethod
     def write(op, data, wish):
-        wish.data['response'].write("{}{}\n".format(op, data.replace("\n", "\\n")).encode('utf-8'))
+        wish.data['response'].write(op.encode('utf-8'))
+        wish.data['response'].write(b64encode(data.encode('utf-8')))
+        wish.data['response'].write(b'\n')
         wish.data['response'].flush()
     def wish(self, wish):
         try:
