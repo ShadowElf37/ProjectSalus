@@ -210,7 +210,9 @@ class SocketWell(RecursiveWell):
         raise InputNeededError
     @staticmethod
     def write(op, data, wish):
-        wish.data['response'].write("{}{}\n".format(op, b64encode(data)).encode('utf-8'))
+        wish.data['response'].write(op.encode('utf-8'))
+        wish.data['response'].write(b64encode(data.encode('utf-8')))
+        wish.data['response'].write(b'\n')
         wish.data['response'].flush()
     def wish(self, wish):
         try:
