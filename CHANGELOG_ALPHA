@@ -1,5 +1,6 @@
 v0.6.0 (7/2/19)
 - Refactored handlers.py into a folder of files with relevant handlers
+- Reworked BB/email login flow to decrypt at site login
 + Added load_handlers.py
 + Added dir.json config for handlers
 + Added extensible searchbar JS in search.js
@@ -8,7 +9,6 @@ v0.6.0 (7/2/19)
 - Threads are now killed via poison pills in the queue
 + Added Credentials to client.py to manage passwords better
 - Fixed issues with decrypting passwords after reboot
-- Fixed BB/email login flow to decrypt at site login
 - Minor changes elsewhere
 
 === MAJOR ===

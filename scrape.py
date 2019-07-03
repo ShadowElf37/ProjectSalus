@@ -639,7 +639,7 @@ class BlackbaudScraper(Scraper):
 
 
 if __name__ == '__main__':
-    from server.threadpool import Pool, Poolsafe
+    from server.threadpool import Pool, Promise
 
     bb = BlackbaudScraper()
     print('LOGGING IN...')
@@ -650,7 +650,7 @@ if __name__ == '__main__':
     # schedule = Poolsafe(bb.schedule, '05/29/2019')
     # grades = Poolsafe(bb.grades, '3510119')
     # grades = Poolsafe(bb.get_graded_assignments, 89628484, 3510119)
-    schedule = Poolsafe(bb.schedule_span, '3510119', start_date=firstlast_of_month(-2)[0], end_date=firstlast_of_month(0)[1])
+    schedule = Promise(bb.schedule_span, '3510119', start_date=firstlast_of_month(-2)[0], end_date=firstlast_of_month(0)[1])
     # assignments = Poolsafe(bb.assignments)
     # topics = Poolsafe(bb.topics, '89628484')
     # calendar = Poolsafe(bb.sports_calendar)

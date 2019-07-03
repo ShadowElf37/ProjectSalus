@@ -3,7 +3,7 @@ from ..client           import *
 from ..htmlutil         import snippet, ISOWEEKDAYNAMES, ordinal
 from ..config           import get_config
 from ..crypt            import cryptrix, hash
-from ..threadpool       import Poolsafe
+from ..threadpool       import Promise
 from datetime           import datetime, date, time
 import mods.modding     as modding
 import server.wish      as wish

@@ -8,34 +8,27 @@ class HandlerBBInfo(RequestHandler):
 
         self.account.optimal_poll = next(filter(lambda p: not p.user_has_responded(self.account), sorted(info.POLLS.values())), type('',(),{'id':None})()).id
 
-        print('GETTING MYDAY')
-        print(self.account.personal_scraper)
-
         if 'schedule' not in self.account.updaters:
             if self.account.personal_scraper is None:
                 self.response.refuse('You must use your Blackbaud password to sign in first.')
                 return
 
-            print('SCRAPER IS', self.account.personal_scraper)
-
             scp: scrape.BlackbaudScraper = self.account.personal_scraper
             auth = self.account.bb_auth.creds
             login_safe = updates.bb_login_safe
 
-            print('SCRAPING...')
-
-            schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(SCHEDULE_RANGE[0])[0], end_date=scrape.firstlast_of_month(SCHEDULE_RANGE[1])[1])
+            schedule_ps = Promise(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(SCHEDULE_RANGE[0])[0], end_date=scrape.firstlast_of_month(SCHEDULE_RANGE[1])[1])
             us = updates.chronomancer.metakhronos(120, schedule_ps, now=True)
             self.account.updaters['schedule'] = schedule_ps
             self.account.scheduled['schedule'] = us
 
-            assignments_ps = Poolsafe(login_safe(scp.assignments, *auth), start_date=scrape.last_sunday(TESTDT), end_date=scrape.next_saturday(TESTDT))
+            assignments_ps = Promise(login_safe(scp.assignments, *auth), start_date=scrape.last_sunday(TESTDT), end_date=scrape.next_saturday(TESTDT))
             ua = updates.chronomancer.metakhronos(60, assignments_ps, now=True)
             self.account.updaters['assignments'] = assignments_ps
             self.account.scheduled['assignments'] = ua
 
             # For other pages
-            grades_ps = Poolsafe(login_safe(scp.grades, *auth), self.account.bb_id)
+            grades_ps = Promise(login_safe(scp.grades, *auth), self.account.bb_id)
             ug = updates.chronomancer.metakhronos(60, grades_ps, now=True)
             self.account.updaters['grades'] = grades_ps
             self.account.scheduled['grades'] = ug
@@ -59,7 +52,7 @@ class HandlerBBInfo(RequestHandler):
                 cid = cls['id']
                 if cid not in updates.CLASSES:
                     # Create class updater
-                    cps = Poolsafe(
+                    cps = Promise(
                         updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth)), cid)
                     cu = updates.chronomancer.monthly(1, cps, now=True)
                     updates.chronomancer.track(cu, cid)
@@ -68,7 +61,7 @@ class HandlerBBInfo(RequestHandler):
 
                     # Create class topics updater
                     updates.CLASS_TOPICS[cid] = {}
-                    tps = Poolsafe(
+                    tps = Promise(
                         updates.dsetter(updates.CLASS_TOPICS, cid, updates.bb_login_safe(scp.topics, *auth)), cid
                     )
                     tu = updates.chronomancer.daily(scrape.dt_from_timestr(TESTTIME), tps, now=True)
@@ -79,8 +72,6 @@ class HandlerBBInfo(RequestHandler):
 
         assignments = self.account.updaters['assignments'].wait()
         grades = self.account.updaters['grades'].wait()
-        #print(scrape.prettify(assignments))
-        #print(scrape.prettify(grades))
         prf = self.account.updaters['profile'].wait()
 
         periods = []

@@ -2,7 +2,7 @@ from datetime import datetime
 from secrets import token_urlsafe as new_key
 from .config import get_config
 from .persistent import PersistentDict, AccountsSerializer
-from .threadpool import RWLockMixin, Poolsafe
+from .threadpool import RWLockMixin, Promise
 from random import randint
 
 whitelist = get_config('whitelist').get('users')
@@ -15,7 +15,7 @@ class Account(RWLockMixin):
     def __postinit__(self):
         self.shell = False
         self.bb_t = ''
-        self.updaters: {str: Poolsafe} = {}
+        self.updaters: {str: Promise} = {}
         self.scheduled = {}
         self.dir = {}
         self.personal_scraper = None
@@ -69,7 +69,7 @@ class ShellAccount:
         self.bb_auth = Credentials()
         self.bb_t = ''
         self.bb_id = ''
-        self.updaters: {str: Poolsafe} = {}
+        self.updaters: {str: Promise} = {}
         self.scheduled = {}
         self.dir = {}
         self.subscriptions = []
@@ -132,6 +132,8 @@ class Credentials:
     def __init__(self, username=None, password=None, cryptrix=None):
         self.username = username
         self.password_encrypted = None
+        self.password = password
+        self.cryptrix = cryptrix
         if password and cryptrix:
             self.take(password, cryptrix)
 

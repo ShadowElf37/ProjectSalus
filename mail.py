@@ -1,7 +1,7 @@
 from server.env import EnvReader
 from scrape import html, soup_without
 from bs4 import BeautifulSoup
-from server.threadpool import ThreadManager as Pool, Poolsafe
+from server.threadpool import ThreadManager as Pool, Promise
 from random import choice as rchoice
 from server.client import Credentials
 
@@ -269,7 +269,7 @@ class Inbox:
 
         for uid in self.search_new(max_count=max_count):
             if threadpool:
-                ps = Poolsafe(Inbox._fetch_msg_newc, self.auth.username, self.auth.password, uid, folder=inbox_name)
+                ps = Promise(Inbox._fetch_msg_newc, self.auth.username, self.auth.password, uid, folder=inbox_name)
                 threadpool.push(ps)
                 poolsafes.append(ps)
             else:
@@ -311,7 +311,7 @@ class Inbox:
                 if i == max_count:
                     break
                 if threadpool:
-                    msg = Poolsafe(Inbox._fetch_msg_newc, addr, pwd, msgid, i+1, folder=inbox_name)
+                    msg = Promise(Inbox._fetch_msg_newc, addr, pwd, msgid, i + 1, folder=inbox_name)
                     threadpool.push(msg)
                 else:
                     msg = Inbox._fetch_msg(c, msgid)
@@ -343,11 +343,11 @@ if __name__ == '__main__':
     print('Logging in...')
     imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', 'Yoproductions3')
     testpool = Pool(20)
-    testpool.launch()
-    print('Fetching...')
-    inbox.update(threadpool=testpool)
-    print('Fetched.')
-    print(inbox.get_all())
+    #testpool.launch()
+    #print('Fetching...')
+    #inbox.update(threadpool=testpool)
+    #print('Fetched.')
+    #print(inbox.get_all())
 
     #smtp = Remote()
     #e = Email('ykey-cohen@emeryweiner.org', subject='Hello')

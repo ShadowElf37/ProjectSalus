@@ -1,7 +1,7 @@
 import server.chronos as chronos
 from scrape import *
 from server.env import EnvReader
-from server.threadpool import ThreadManager, Poolsafe
+from server.threadpool import ThreadManager, Promise
 from server.persistent import PersistentDict, PersistentList
 from server.client import user_tokens
 from server.config import get_config
@@ -108,8 +108,8 @@ def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
         if type(updaterf) is Minisafe:
             v = updaterf.call()
-        elif type(updaterf) is Poolsafe:
-            v = updaterf.wait()
+        elif type(updaterf) is Promise:
+            v = updaterf.call()
         else:
             v = updaterf(*args, **kwargs)
         dict[key] = v
@@ -122,10 +122,10 @@ SAGEMENU = PersistentDict()
 SAGEMENUINFO = PersistentDict()
 SPORTCAL = PersistentList()
 
-d = Poolsafe(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
-t = Poolsafe(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
-sp = Poolsafe(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)), end_date=firstlast_of_month(+1)[1])
-s = Poolsafe(update_menu(Sage.inst_menu))
+d = Promise(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
+t = Promise(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
+sp = Promise(update_sports(bb_login_safe(Blackbaud.sports_calendar, USER, PASS)), end_date=firstlast_of_month(+1)[1])
+s = Promise(update_menu(Sage.inst_menu))
 
 chronomancer.horaskhronos(datetime.datetime.strptime('8/15/2019', '%m/%d/%Y'), d, now=True)
 chronomancer.horaskhronos(datetime.datetime.strptime('1/1/2020', '%m/%d/%Y'), d)
@@ -155,7 +155,7 @@ except (JSONDecodeError, KeyError):
     CLASS_TOPICS = PersistentDict()
     PROFILE_DETAILS = PersistentDict()
     DIRECTORY = PersistentDict(d.wait())
-    Poolsafe.await_all(d, t, s, sp)
+    Promise.await_all(d, t, s, sp)
 
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}

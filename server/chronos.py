@@ -1,6 +1,6 @@
 import sched
 import time
-from .threadpool import Poolsafe, Minisafe
+from .threadpool import Promise, Minisafe
 import datetime
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(0, 7)
@@ -47,7 +47,7 @@ class Chronos:
             return v
         return wrapped
 
-    def delta(self, delta, ps: Poolsafe, delta_from=Minisafe(datetime.datetime.now), priority=0, now=False):
+    def delta(self, delta, ps: Promise, delta_from=Minisafe(datetime.datetime.now), priority=0, now=False):
         if now: self.push(ps)
         delta_from = Minisafe.test(delta_from)
         pushrepeater = self.repeatwrap(self.push, self.delta, delta, ps, priority=priority)
@@ -56,7 +56,7 @@ class Chronos:
                                     priority=priority, action=pushrepeater, argument=(ps,))
         return entry
 
-    def daily(self, _time: datetime.time, ps: Poolsafe, priority=0, now=True):
+    def daily(self, _time: datetime.time, ps: Promise, priority=0, now=True):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.daily, _time, ps, priority=priority)
 
@@ -67,7 +67,7 @@ class Chronos:
         return self.scheduler.enterabs(t,
                                        priority=priority, action=pushrepeater, argument=(ps,))
 
-    def every(self, daynum, ps: Poolsafe, at: datetime.time=datetime.time(0,0), priority=0, now=False):
+    def every(self, daynum, ps: Promise, at: datetime.time=datetime.time(0, 0), priority=0, now=False):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.every, daynum, ps, at, priority=priority)
 
@@ -79,7 +79,7 @@ class Chronos:
         return self.scheduler.enterabs(next_day,
                                        priority=priority, action=pushrepeater, argument=(ps,))
 
-    def monthly(self, nth_day, ps: Poolsafe, at: datetime.time=datetime.time(0,0), priority=0, now=False):
+    def monthly(self, nth_day, ps: Promise, at: datetime.time=datetime.time(0, 0), priority=0, now=False):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.monthly, nth_day, ps, at, priority=priority)
 
@@ -91,7 +91,7 @@ class Chronos:
         return self.scheduler.enterabs(next_day.timestamp(),
                                        priority=priority, action=pushrepeater, argument=(ps,))
 
-    def annual(self, on: datetime.datetime, ps: Poolsafe, priority=0, now=False):
+    def annual(self, on: datetime.datetime, ps: Promise, priority=0, now=False):
         if now: self.push(ps)
         pushrepeater = self.repeatwrap(self.push, self.annual, on, ps, priority=priority)
 
@@ -101,7 +101,7 @@ class Chronos:
         return self.scheduler.enterabs(on.timestamp(),
                                        priority=priority, action=pushrepeater, argument=(ps,))
 
-    def on(self, datetime: datetime.datetime, ps: Poolsafe, priority=0, now=False):
+    def on(self, datetime: datetime.datetime, ps: Promise, priority=0, now=False):
         if now: self.push(ps)
 
         return self.scheduler.enterabs(datetime.timestamp(),

@@ -16,7 +16,7 @@ class HandlerLogin(RequestHandler):
         p_enc = hash(password, name)
         self.client.login(name, p_enc)
 
-        account = self.client.account
+        account = self.account = self.client.account
         account.password = password
 
         if self.client.is_real():
@@ -26,29 +26,18 @@ class HandlerLogin(RequestHandler):
                 account.bb_auth.give(decoder)
 
                 # Log into Blackbaud
-                if self.account.personal_scraper is None:
-                    print('NO SCRAPER')
-                    self.account.personal_scraper = scrape.BlackbaudScraper()
-                    print(self.account.personal_scraper)
+                if account.personal_scraper is None:
+                    account.personal_scraper = scrape.BlackbaudScraper()
+
                     # If we don't already have cached profile details, create a fetcher for it
-                    updates.updater_pool.push(
-                        Poolsafe(self.account.personal_scraper.login, *account.bb_auth.creds).after(
+                    def fetch_account_details():
+                        account.personal_scraper.login(*account.bb_auth.creds)
+                        account.updaters['profile'] = Promise(
                             updates.dsetter(
-                                self.account.updaters, 'profile',
-                                Poolsafe(
-                                    updates.dsetter(
-                                        updates.PROFILE_DETAILS, self.account.name,
-                                        updates.bb_login_safe(self.account.personal_scraper.dir_details, *account.bb_auth.creds)
-                                    ), self.account.bb_id
-                                ).after(
-                                    updates.dsetter(self.account.scheduled, 'profile', Poolsafe(
-                                            updates.chronomancer.metakhronos, updates.MONTHLY, updates.Minisafe(self.account.updaters.get, 'profile'), now=True
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                                updates.PROFILE_DETAILS, self.account.name, updates.bb_login_safe(account.personal_scraper.dir_details, *account.bb_auth.creds)
+                            ), self.account.bb_id)
+                        account.scheduled['profile'] = updates.chronomancer.metakhronos(updates.MONTHLY, account.updaters['profile'], now=True)
+                    updates.updater_pool.pushf(fetch_account_details)
 
             if account.inbox and account.inbox.auth.waiting:
                 account.inbox.auth.give(decoder)
@@ -57,9 +46,6 @@ class HandlerLogin(RequestHandler):
             account.dir = updates.DIRECTORY[account.name]
             account.bb_id = account.dir['id']
             account.email = account.dir.get('email')
-
-            # updates.register_bb_updater(account, 'profile-details', scrape.BlackbaudScraper.dir_details, account.bb_id, )
-            # account.updaters['profile'] = updates.register_bb_updater(account, 'profile', scrape.BlackbaudScraper.dir_details, account.bb_id)
 
             self.response.redirect('/home')
         else:

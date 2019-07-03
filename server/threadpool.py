@@ -47,14 +47,14 @@ class Minisafe:
         return self.f(*self.args, **self.kwargs)
 
 CALLABLE = object()
-class Poolsafe:
+class Promise:
     NONCE = object()
     def __init__(self, f, *args, **kwargs):
         if not (isfunction(f) or ismethod(f) or isbuiltin(f)): raise TypeError('Poolsafe needs a function to run.')
         self.f = f
         self.args = args
         self.kwargs = kwargs
-        self.r = Poolsafe.NONCE  # None is bad because functions might actually return None and we want to see that
+        self.r = Promise.NONCE  # None is bad because functions might actually return None and we want to see that
         self.cond = Condition(Lock())
         self._after = []
 
@@ -62,12 +62,12 @@ class Poolsafe:
     def await_all(*pses):
         for ps in pses:
             with ps.cond:
-                while ps.r is Poolsafe.NONCE:
+                while ps.r is Promise.NONCE:
                     ps.cond.wait()
 
     def wait(self):
         with self.cond:
-            while self.r is Poolsafe.NONCE:
+            while self.r is Promise.NONCE:
                 self.cond.wait()
         return self.r
 
@@ -85,13 +85,13 @@ class Poolsafe:
 
     def reset(self):
         with self.cond:
-            self.r = Poolsafe.NONCE
+            self.r = Promise.NONCE
 
     def after(self, f_or_ps, *args, **kwargs):
-        if isinstance(f_or_ps, Poolsafe):
+        if isinstance(f_or_ps, Promise):
             self._after.append(f_or_ps)
         else:
-            self._after.append(Poolsafe(f_or_ps, args, kwargs))
+            self._after.append(Promise(f_or_ps, *args, *kwargs))
         return self
 
 
@@ -131,7 +131,7 @@ class ProcessManager:
         print('Request queued.')
 
     def pushf(self, f, *args, **kwargs):
-        self.queue.put(Poolsafe(f, *args, **kwargs))
+        self.queue.put(Promise(f, *args, **kwargs))
 
     def push_multi(self, *ps):
         for p in ps:
@@ -184,9 +184,11 @@ class ThreadManager:
             t.init_thread()
 
     def cleanup(self):
-        for _ in self.threads:
+        # For some reason putting N poison pills fails to notify about 7 of them, so 2N it is...
+        for _ in range(self.thread_count*2):
             self.queue.put(RHThread.POISON)
         for t in self.threads:
+            # print('Joining %s...' % t.id)
             t.thread.join(TIMEOUT)
         with self.finished:
             self.finished.notify_all()
@@ -198,7 +200,7 @@ class ThreadManager:
         self.queue.put(item)
 
     def pushf(self, f, *args, **kwargs):
-        self.queue.put(Poolsafe(f, *args, **kwargs))
+        self.queue.put(Promise(f, *args, **kwargs))
 
     def push_multi(self, *ps):
         for p in ps:
@@ -224,11 +226,12 @@ class RHThread:
             # No timeout is needed because if this is stuck here after self.running is false, that implies that it's safe to terminate the thread anyway because it's not handling any requests
             r = self.queue.get()
             if r is self.POISON:
+                # print('Poisoned %s.' % self.id, end='')
                 self.queue.task_done()
-                return
+                break
             self.busy = True
 
-            if type(r) is Poolsafe:
+            if type(r) is Promise:
                 r.call()
                 continue
 

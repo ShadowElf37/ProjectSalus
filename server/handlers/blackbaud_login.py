@@ -33,7 +33,7 @@ class HandlerBBLogin(RequestHandler):
         # If we don't already have cached profile details, create a fetcher for it
         if 'profile' not in self.account.updaters:
             self.account.personal_scraper = myscraper
-            self.account.updaters['profile'] = Poolsafe(
+            self.account.updaters['profile'] = Promise(
                 updates.dsetter(
                     updates.PROFILE_DETAILS, self.account.name, updates.bb_login_safe(myscraper.dir_details, *auth)
                 ), self.account.bb_id)

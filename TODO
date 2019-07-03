@@ -1,6 +1,7 @@
 Known Bugs:
 - Schedule scrape syntax changed for lunch and ma'amad, maybe others
-- Blackbaud and mail logins die after /login
+- 64 poison pills only kill 56 threads
+- Well does not autofocus and is stuck in b64
 
 - CSS
 - SGA feedback form & email forwarding system
