@@ -6,7 +6,7 @@ function lex(string) {
 	return split.join("").split("\0");
 }
 
-function Searcher(input, root, query, subqueries, distype="initial") {
+function Searcher(input, root, query, subqueries, def="_root", distype="initial") {
 	var self = this;
 	input.addEventListener("change", function(ev) {
 		self.update();
@@ -15,6 +15,7 @@ function Searcher(input, root, query, subqueries, distype="initial") {
 	this.input = input;
 	this.root = root;
 	this.query = query;
+	this.def = def;
 	if(!subqueries) subqueries = {};
 	this.subs = subqueries;
 	this.distype = distype;
@@ -50,7 +51,7 @@ Searcher.prototype.update = function() {
 	
 		console.log(entries);
 	for(var i=0; i<tokens.length; i++) {
-		var token = tokens[i].toLowerCase(), subsel = "_root";
+		var token = tokens[i].toLowerCase(), subsel = this.def;
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
 				subsel = key;
