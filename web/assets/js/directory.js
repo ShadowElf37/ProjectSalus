@@ -14,14 +14,16 @@ window.addEventListener('load', function(e){
 	var studentInput = document.getElementById('student-search');
 	var teacherInput = document.getElementById('teacher-search');
 
-	new Searcher(studentInput, students, '.card', {
+	studentSearcher = new Searcher(studentInput, students, '.card', {
 		'grade': '.grade',
 		'address': '.address'
 	}, 'block');
+	studentSearcher.initialize();
 
-	new Searcher(teacherInput, teachers, '.card', {
+	teacherSearcher = new Searcher(teacherInput, teachers, '.card', {
 		'dept': '.dept'
 	}, 'block');
+	teacherSearcher.initialize();
 });
 
 /*window.onload = function () {

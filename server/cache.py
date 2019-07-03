@@ -5,6 +5,7 @@ from mimetypes import guess_type, add_type
 from fnmatch import fnmatch
 from time import time, sleep
 from threading import Thread
+import os
 
 
 CONTENT_TYPE = {
@@ -53,6 +54,7 @@ class FileCache:
                 tfolder = dir
         # tfolder = get_config('locations').get(op.splitext(f)[1])
         f = 'web'+f
+        # print(os.listdir())
         if ff is None:
             # recursive search      while op.split(f)[0] != '/':
             try:
@@ -67,7 +69,6 @@ class FileCache:
                     ff = open('web/assets' + tfolder + '/' + op.split(of)[1], 'rb' if binary else 'r').read()
                 except FileNotFoundError:
                     pass
-
         if cache:
             self.cache[of] = ff
         return ff

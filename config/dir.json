@@ -1,0 +1,33 @@
+{
+  "GET": {
+    "/":                      "default.HandlerBlank",
+    "/favicon.ico":           "default.HandlerFavicon",
+    "/logfile":               "default.HandlerLog",
+    "/data":                  "default.HandlerDataRequests",
+
+    "/signup":                "signup.HandlerSignupPage",
+    "/login":                 "login.HandlerLoginPage",
+    "/home":                  "home.HandlerHome",
+    "/test":                  "test.HandlerTestPage",
+    "/logout":                "logout.HandlerLogout",
+    "/bb_login":              "blackbaud_login.HandlerBBLoginPage",
+    "/myday":                 "myday.HandlerBBInfo",
+    "/well":                  "well.HandlerConsolePage",
+    "/directory":             "directory.HandlerDirectory",
+    "/mail_login":            "mail_login.HandlerMailLoginPage",
+    "/mail":                  "mail.HandlerMailPage"
+  },
+
+  "POST": {
+    "/mod-h":                 "default.HandlerMod",
+    "/mod-s":                 "default.HandlerModServer",
+
+    "/signup":                "signup.HandlerSignup",
+    "/login":                 "login.HandlerLogin",
+    "/bb_post":               "blackbaud_login.HandlerBBLogin",
+    "/submit-poll":           "surveys.HandlerSubmitPoll",
+    "/wish":                  "well.HandlerConsoleCommand",
+    "/mail_login":            "mail_login.HandlerMailLogin",
+    "/mail":                  "mail.HandlerSendMail"
+  }
+}

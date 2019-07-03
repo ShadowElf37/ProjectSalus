@@ -5,7 +5,6 @@ from server.threadpool import ThreadManager, Poolsafe
 from server.persistent import PersistentDict, PersistentList
 from server.client import user_tokens
 from server.config import get_config
-from collections import OrderedDict
 
 HOURLY = 60
 DAILY = 60*24
@@ -49,7 +48,7 @@ def update_directory(updater):
         global DIRECTORY, DIRECTORY_HTML
         v = updater(*args, **kwargs)
         # Sort it since it pops out in sorted chunks but isn't sorted globally
-        v = ((k,v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:]))
+        v = [(k,v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:])]
         DIRECTORY_HTML = update_directory_html(v)
         return DIRECTORY.points(dict(v))
     return u
@@ -57,8 +56,8 @@ def update_teachers(updater):
     def u(*args, **kwargs):
         global TEACHERS, TEACHER_HTML
         v = updater(*args, **kwargs)
-        # Sort it since it pops out in sorted chunks but isn't sorted globally
-        v = ((k, v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ') + 1:]))
+        # Sort it because I want to
+        v = [(k, v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ') + 1:])]
         TEACHER_HTML = update_teacher_html(v)
         return TEACHERS.points(dict(v))
     return u
@@ -74,8 +73,8 @@ def update_sports(updater):
         return SPORTCAL.points(updater(*args, **kwargs))
     return u
 
-def update_directory_html(stup):
-    html =[snippets.get('dir-entry').format(
+def update_directory_html(s_list):
+    html = [snippets.get('dir-entry').format(
         phones = '\n'.join([snippets.get('dir-phone').format(
                 phone_number = entry[t],
                 phone_type = t.title()
@@ -91,9 +90,9 @@ def update_directory_html(stup):
         bbid = entry['id'],
         grad = entry['year'],
         grade = entry['grade']
-    ) for name,entry in stup]
+    ) for name, entry in s_list]
     return '\n'.join(html)
-def update_teacher_html(ttup):
+def update_teacher_html(t_list):
     html = [snippets.get('tdir-entry').format(
             fname = name[:name.find(' ')],
             lname = name[name.find(' ') + 1:],
@@ -102,7 +101,7 @@ def update_teacher_html(ttup):
             dept = ', '.join(entry['dept']) or 'Dept. of Mysterious Persons',
             email = entry['email'],
             reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
-        ) for name,entry in ttup]
+        ) for name, entry in t_list]
     return '\n'.join(html)
 
 def dsetter(dict, key, updaterf):
@@ -156,8 +155,11 @@ except (JSONDecodeError, KeyError):
 CLASS_UPDATERS = {}
 TOPICS_UPDATERS = {}
 
-DIRECTORY_HTML = update_directory_html(DIRECTORY)
-TEACHER_HTML = update_teacher_html(TEACHERS)
+
+v = [(k, DIRECTORY[k]) for k in sorted(DIRECTORY.keys(), key=lambda k: k[k.find(' ') + 1:])]
+DIRECTORY_HTML = update_directory_html(v)
+v = [(k, TEACHERS[k]) for k in sorted(TEACHERS.keys(), key=lambda k: k[k.find(' ') + 1:])]
+TEACHER_HTML = update_teacher_html(v)
 
 DataSerializer.set('TOPICS', CLASS_TOPICS)
 DataSerializer.set('DIRECTORY', DIRECTORY)

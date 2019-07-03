@@ -34,6 +34,7 @@ Check for:
     - Remove TESTDATEs
     - cache.json
     - Optimize!
+    - cache=True
 
 Post-deployment wishlist:
     - Minimalist text editor

@@ -39,14 +39,15 @@ def get_size(start_path='.'):
                 total_size += os.path.getsize(fp)
     return total_size
 
-# This one is a modded version of above, for funsies
+# This one is a modded version of above, for funsies; ignores newlines
 def get_lines_of_code(start_path='.'):
     total_lines = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
             # skip if it is symbolic link
-            if not os.path.islink(fp) and (os.path.splitext(fp)[1] or 'noextlol') in '.js .py .html .css':
-                print(fp)
-                total_lines += len([l for l in open(fp, 'rb').readlines() if l.strip()])
+            if not os.path.islink(fp) and (os.path.splitext(fp)[1] or 'nope') in '.js .py .html .css':
+                print('counting', fp)
+                with open(fp, 'rb') as f:
+                    total_lines += len([l for l in f.readlines() if l.strip()])
     return total_lines

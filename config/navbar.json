@@ -3,8 +3,8 @@
       [
           ["Home", "/home/index.html", false],
           ["SLB", "/home/slb.html", true],
-          ["About", "/accounts/about.html", true],
-          ["Login", "/accounts/login.html", false]
+          ["About", "/about", true],
+          ["Login", "/login", false]
       ],
   "1":
       [

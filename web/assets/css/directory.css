@@ -20,7 +20,7 @@
 
 .card {
 	display: block;
-	min-height: 16vh;
+	min-height: 150px;
 	width: 92%;
 	border-radius: 7px;
 	background: #222;

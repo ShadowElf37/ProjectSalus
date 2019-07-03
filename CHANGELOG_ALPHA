@@ -1,3 +1,12 @@
+v0.6.0 (7/2/19)
+- Refactored handlers.py into a folder of files with relevant handlers in each.
++ Added load_handlers.py
++ Added dir.json config for handlers
++ Added extensible searchbar JS in search.js
++ Added email login functionality
+- 
+- Fixed BB/email login flow to decrypt at site login 
+
 v0.5.12 (6/28/19)
 - Fixed a number of bugs on landing page
 + Added teacher directory and directory updates

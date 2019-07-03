@@ -52,7 +52,7 @@ Searcher.prototype.update = function() {
 		var token = tokens[i].toLowerCase(), subsel = "_root";
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
-				subsel = this.subs[key];
+				subsel = key;
 				token = token.substring(token.length + 1);
 				break;
 			}
