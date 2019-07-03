@@ -3,6 +3,7 @@ from scrape import html, soup_without
 from bs4 import BeautifulSoup
 from server.threadpool import ThreadManager as Pool, Poolsafe
 from random import choice as rchoice
+from server.client import Credentials
 
 ENV = EnvReader('main.py')
 
@@ -204,14 +205,10 @@ class IMAPEmail:
         else:
             return message.get_payload(decode=True).decode(message.get_content_charset()).strip()
 
-@AccountsSerializer.serialized(addr='', pwd_enc='', messages=[], uids=[])
+@AccountsSerializer.serialized(auth=None, messages=[], uids=[])
 class Inbox:
-    def __postinit__(self):
-        self.pwd = getattr(self, 'pwd', '')
-    def __init__(self, email_address, email_password, encrypted_password):
-        self.addr = email_address
-        self.pwd = email_password
-        self.pwd_enc = encrypted_password
+    def __init__(self, credentials: Credentials):
+        self.auth = credentials
         self.messages: [IMAPEmail] = []
         self.uids = []
 
@@ -235,16 +232,18 @@ class Inbox:
         return rchoice(self.uids)
 
     def new_conn(self):
-        c = imaplib.IMAP4_SSL(IMAPHOST, port=993)
-        c.login(self.addr, self.pwd)
-        return c
+        if self.auth.decrypted:
+            c = imaplib.IMAP4_SSL(IMAPHOST, port=993)
+            c.login(self.auth.username, self.auth.password)
+            return c
+        return None
 
     def pull(self, uid, inbox='INBOX', headeronly=False):
         return self._fetch_msg(Inbox._selected(self.new_conn(), inbox), uid, headeronly=headeronly)
 
     # Fetch first max_count messages from server irrespective of whether or not they've been downloaded
     def fetch(self, inbox_name='INBOX', max_count=10, threadpool: Pool=None, wait_for_pool=True):
-        self.messages = Inbox._fetch_inbox(self.addr, self.pwd, inbox_name=inbox_name, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
+        self.messages = Inbox._fetch_inbox(self.auth.username, self.auth.password, inbox_name=inbox_name, max_count=max_count, threadpool=threadpool, wait_for_pool=wait_for_pool)
         self.update_uids()
         return self.messages
 
@@ -262,13 +261,15 @@ class Inbox:
 
     # Get messages up to max_count from server that HAVEN'T been downloaded yet
     def update(self, inbox_name='INBOX', max_count=10, threadpool: Pool=None):
-        if not threadpool:
+        if not self.auth.decrypted:
+            return None
+        if threadpool is None:
             masterconn = self.new_conn()
         poolsafes = []
 
         for uid in self.search_new(max_count=max_count):
             if threadpool:
-                ps = Poolsafe(Inbox._fetch_msg_newc, self.addr, self.pwd, uid, folder=inbox_name)
+                ps = Poolsafe(Inbox._fetch_msg_newc, self.auth.username, self.auth.password, uid, folder=inbox_name)
                 threadpool.push(ps)
                 poolsafes.append(ps)
             else:
@@ -340,8 +341,7 @@ class Inbox:
 
 if __name__ == '__main__':
     print('Logging in...')
-    # imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', 'Yoproductions3')
-    inbox = Inbox('ykey-cohen@emeryweiner.org', 'Yoproductions3', '')
+    imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', 'Yoproductions3')
     testpool = Pool(20)
     testpool.launch()
     print('Fetching...')

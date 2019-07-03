@@ -106,7 +106,12 @@ def update_teacher_html(t_list):
 
 def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
-        v = updaterf(*args, **kwargs)
+        if type(updaterf) is Minisafe:
+            v = updaterf.call()
+        elif type(updaterf) is Poolsafe:
+            v = updaterf.wait()
+        else:
+            v = updaterf(*args, **kwargs)
         dict[key] = v
         return v
     return u

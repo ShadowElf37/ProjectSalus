@@ -16,11 +16,13 @@ class HandlerSignup(RequestHandler):
             return
 
         password = self.request.get_post('pwd')
-        a = self.client.create_account(name, password)
-        a.password_enc = hash(password, self.client.account.name)
-        self.response.add_cookie('user_token', a.key, samesite='strict', path='/')
-        a.dir = updates.DIRECTORY[a.name]
-        a.bb_id = a.dir['id']
-        a.email = a.dir.get('email')
+        account = self.client.create_account(name, password)
+        account.password_enc = hash(password, self.client.account.name)
+
+        self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
+
+        account.dir = updates.DIRECTORY[account.name]
+        account.bb_id = account.dir['id']
+        account.email = account.dir.get('email')
 
         self.response.redirect('/home')

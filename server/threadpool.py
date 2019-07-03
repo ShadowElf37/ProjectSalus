@@ -56,7 +56,7 @@ class Poolsafe:
         self.kwargs = kwargs
         self.r = Poolsafe.NONCE  # None is bad because functions might actually return None and we want to see that
         self.cond = Condition(Lock())
-        self.after = []
+        self._after = []
 
     @staticmethod
     def await_all(*pses):
@@ -76,10 +76,8 @@ class Poolsafe:
             args = Minisafe.find_minisafes_in(self.args)
             kwargs = Minisafe.find_minisafes_kw(self.kwargs)
             self.r = self.f(*args, **kwargs)
-            for f, args, kwargs in self.after:
-                a = Minisafe.find_minisafes_in(self.args)
-                k = Minisafe.find_minisafes_kw(self.kwargs)
-                f(*a, **k)
+            for ps in self._after:
+                ps.call()
             self.cond.notify_all()
 
     def read(self):
@@ -89,8 +87,12 @@ class Poolsafe:
         with self.cond:
             self.r = Poolsafe.NONCE
 
-    def on_completion(self, f, *args, **kwargs):
-        self.after.append((f, args, kwargs))
+    def after(self, f_or_ps, *args, **kwargs):
+        if isinstance(f_or_ps, Poolsafe):
+            self._after.append(f_or_ps)
+        else:
+            self._after.append(Poolsafe(f_or_ps, args, kwargs))
+        return self
 
 
 class ProcessManager:

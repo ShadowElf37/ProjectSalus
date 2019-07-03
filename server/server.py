@@ -164,7 +164,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             'Oh frick.'
             ]
         print('='*100+'\nA fatal error was caught in handler:\n' + format_exc() + '='*100)
-        self.send_error(500, (random.choice(responses) + ' {}: {}'.format(e.__class__.__name__, (str(e)[0].upper() + str(e)[1:]))))
+        self.send_error(500, (random.choice(responses) + ' {}: {}'.format(e.__class__.__name__, (str(e)[0].upper() + str(e)[1:]) if str(e) else 'META: NO MESSAGE')))
         return 0
 
     def do_HEAD(self):

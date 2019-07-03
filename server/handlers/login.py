@@ -8,18 +8,51 @@ class HandlerLogin(RequestHandler):
     def call(self):
         name = self.request.get_post('name')
         password = self.request.get_post('pwd')
+
         if not (name and password):
             self.response.back()
             return
-        pe = hash(password, name)
-        self.client.login(name, pe)
+
+        p_enc = hash(password, name)
+        self.client.login(name, p_enc)
+
         account = self.client.account
         account.password = password
+
         if self.client.is_real():
-            if account.bb_auth == ('', '') and account.bb_enc_pass != '':
-                # If the account has cached passwords, load them with the key given
-                decoder = cryptrix(account.password, account.name)
-                account.bb_auth = decoder.decrypt(account.bb_enc_pass)
+            decoder = cryptrix(account.password, account.name)
+            # If the account has cached passwords, load them with the key given
+            if account.bb_auth.waiting:
+                account.bb_auth.give(decoder)
+
+                # Log into Blackbaud
+                if self.account.personal_scraper is None:
+                    print('NO SCRAPER')
+                    self.account.personal_scraper = scrape.BlackbaudScraper()
+                    print(self.account.personal_scraper)
+                    # If we don't already have cached profile details, create a fetcher for it
+                    updates.updater_pool.push(
+                        Poolsafe(self.account.personal_scraper.login, *account.bb_auth.creds).after(
+                            updates.dsetter(
+                                self.account.updaters, 'profile',
+                                Poolsafe(
+                                    updates.dsetter(
+                                        updates.PROFILE_DETAILS, self.account.name,
+                                        updates.bb_login_safe(self.account.personal_scraper.dir_details, *account.bb_auth.creds)
+                                    ), self.account.bb_id
+                                ).after(
+                                    updates.dsetter(self.account.scheduled, 'profile', Poolsafe(
+                                            updates.chronomancer.metakhronos, updates.MONTHLY, updates.Minisafe(self.account.updaters.get, 'profile'), now=True
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+
+            if account.inbox and account.inbox.auth.waiting:
+                account.inbox.auth.give(decoder)
+
             self.response.add_cookie('user_token', account.key, samesite='strict', path='/')
             account.dir = updates.DIRECTORY[account.name]
             account.bb_id = account.dir['id']

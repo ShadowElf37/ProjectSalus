@@ -7,14 +7,14 @@ from random import randint
 
 whitelist = get_config('whitelist').get('users')
 
-@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', bb_enc_pass='', bb_id='', bb_t='', clubs=[], subscriptions=[], inbox=None, phone='', service_provider='')
+
+@AccountsSerializer.serialized(ips=[], id=0, rank=1, name='', password_enc='', key='', last_activity='', email='', bb_auth=None, bb_id='', bb_t='', clubs=[], subscriptions=[], inbox=None, phone='', service_provider='')
 class Account(RWLockMixin):
     def __preinit__(self):
         super().__init__()
     def __postinit__(self):
         self.shell = False
         self.bb_t = ''
-        self.bb_auth = ('', '')
         self.updaters: {str: Poolsafe} = {}
         self.scheduled = {}
         self.dir = {}
@@ -29,11 +29,11 @@ class Account(RWLockMixin):
         self.email = email
         self.password = password
         self.password_enc = ''
+        self.bb_auth = Credentials()
         self.last_activity = datetime.now().ctime()
         self.rank = 1
         self.key = key
         self.id = randint(0, 2**64-1)
-        self.bb_enc_pass = ''
         self.bb_id = ''
         self.subscriptions = []  # For notifications
         self.clubs = []
@@ -66,12 +66,9 @@ class ShellAccount:
         self.name = ''
         self.email = ''
         self.shell = True
-        self.bb_auth = ('', '')
+        self.bb_auth = Credentials()
         self.bb_t = ''
         self.bb_id = ''
-        self.bb_enc_pass = ''
-        self.email_auth = ('', '')
-        self.email_enc_pass = ''
         self.updaters: {str: Poolsafe} = {}
         self.scheduled = {}
         self.dir = {}
@@ -128,6 +125,63 @@ class ClientObj:
 
     def is_real(self):
         return self.account is not None and self.account.is_real()
+
+
+@AccountsSerializer.serialized(username=None, password_encrypted=None)
+class Credentials:
+    def __init__(self, username=None, password=None, cryptrix=None):
+        self.username = username
+        self.password_encrypted = None
+        if password and cryptrix:
+            self.take(password, cryptrix)
+
+    def __postinit__(self):
+        self.password = getattr(self, 'password', None)
+        self.cryptrix = getattr(self, 'cryptrix', None)
+        self.tokens = dict()
+
+    @property
+    def creds(self):
+        return self.username, self.password
+
+    def give(self, cryptrix):
+        self.pass_cryptrix(cryptrix)
+        self.decrypt()
+    def take(self, password, cryptrix=None):
+        if cryptrix is not None:
+            self.pass_cryptrix(cryptrix)
+        self.pass_password(password)
+        self.encrypt()
+    def dump(self):
+        self.password = None
+        self.password_encrypted = None
+        self.username = None
+        self.cryptrix = None
+
+    def pass_cryptrix(self, crypt):
+        self.cryptrix = crypt
+    def pass_username(self, username):
+        self.username = username
+    def pass_password(self, password):
+        self.password = password
+
+    @property
+    def signed_up(self):
+        return bool(self.password_encrypted)
+    @property
+    def decrypted(self):
+        return bool(self.password)
+    @property
+    def waiting(self):
+        return bool(self.password_encrypted and not self.password)
+
+    def encrypt(self):
+        self.password_encrypted = self.cryptrix.encrypt(self.password)
+        print('ENCRYPTED: %s => %s' % (self.password, self.password_encrypted))
+    def decrypt(self, ttl=None):
+        self.password = self.cryptrix.decrypt(self.password_encrypted, ttl=ttl)
+        print('DECRYPTED: %s => %s' % (self.password_encrypted, self.password))
+
 
 from json.decoder import JSONDecodeError
 try:

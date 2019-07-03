@@ -4,7 +4,6 @@ class DefaultHandler(RequestHandler):
     def call(self):
         self.response.attach_file(self.path, cache=False)
 
-# Important universal handlers
 
 class HandlerBlank(RequestHandler):
     def call(self):

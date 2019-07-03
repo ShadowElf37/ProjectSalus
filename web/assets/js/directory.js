@@ -16,13 +16,15 @@ window.addEventListener('load', function(e){
 
 	studentSearcher = new Searcher(studentInput, students, '.card', {
 		'grade': '.grade',
-		'address': '.address'
-	}, 'block');
+		'address': '.address',
+		'name': '.name'
+	}, def='name', distype='block');
 	studentSearcher.initialize();
 
 	teacherSearcher = new Searcher(teacherInput, teachers, '.card', {
-		'dept': '.dept'
-	}, 'block');
+		'dept': '.dept',
+		'name': '.name'
+	}, def='name', distype='block');
 	teacherSearcher.initialize();
 });
 

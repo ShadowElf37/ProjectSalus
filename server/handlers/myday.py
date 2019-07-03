@@ -8,14 +8,21 @@ class HandlerBBInfo(RequestHandler):
 
         self.account.optimal_poll = next(filter(lambda p: not p.user_has_responded(self.account), sorted(info.POLLS.values())), type('',(),{'id':None})()).id
 
+        print('GETTING MYDAY')
+        print(self.account.personal_scraper)
+
         if 'schedule' not in self.account.updaters:
             if self.account.personal_scraper is None:
                 self.response.refuse('You must use your Blackbaud password to sign in first.')
                 return
 
+            print('SCRAPER IS', self.account.personal_scraper)
+
             scp: scrape.BlackbaudScraper = self.account.personal_scraper
-            auth = self.account.bb_auth
+            auth = self.account.bb_auth.creds
             login_safe = updates.bb_login_safe
+
+            print('SCRAPING...')
 
             schedule_ps = Poolsafe(login_safe(scp.schedule_span, *auth), self.account.bb_id, start_date=scrape.firstlast_of_month(SCHEDULE_RANGE[0])[0], end_date=scrape.firstlast_of_month(SCHEDULE_RANGE[1])[1])
             us = updates.chronomancer.metakhronos(120, schedule_ps, now=True)

@@ -8,7 +8,9 @@ function lex(string) {
 
 function Searcher(input, root, query, subqueries, def="_root", distype="initial") {
 	var self = this;
-	input.addEventListener("change", function(ev) {
+	// !! IMPORTANT
+	// Switch "input" to "change" to search on <enter> instead of every input; use to mask performance issues 
+	input.addEventListener("input", function(ev) {
 		self.update();
 	});
 	
@@ -23,7 +25,8 @@ function Searcher(input, root, query, subqueries, def="_root", distype="initial"
 	
 	this.count = document.createElement("span");
 	this.count.className = "searcher-count";
-	this.root.appendChild(this.count);
+	// this.root.appendChild(this.count);
+
 	this.update();
 }
 
@@ -46,10 +49,10 @@ Searcher.prototype.update = function() {
 	
 	for(var i=0; i<entries.length; i++) {
 		entries[i]._elem.style.display = "none";
-	}
+	};
 	this.count.innerText = "Loading...";
 	
-		console.log(entries);
+	console.log(entries);
 	for(var i=0; i<tokens.length; i++) {
 		var token = tokens[i].toLowerCase(), subsel = this.def;
 		for(let key in this.subs) {
@@ -58,14 +61,14 @@ Searcher.prototype.update = function() {
 				token = token.substring(key.length + 1);
 				break;
 			}
-		}
+		};
 		entries = entries.filter(function(elem) {
 			return elem[subsel].includes(token);
 		});
 		console.log(entries);
-	}
+	};
 	for(var i=0; i<entries.length; i++) {
 		entries[i]._elem.style.display = this.distype;
-	}
+	};
 	this.count.innerText = "Found " + entries.length + " results.";
 };
