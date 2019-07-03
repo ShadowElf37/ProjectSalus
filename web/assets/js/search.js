@@ -8,7 +8,7 @@ function lex(string) {
 
 function Searcher(input, root, query, subqueries, distype="initial") {
 	var self = this;
-	input.addEventListener("input", function(ev) {
+	input.addEventListener("change", function(ev) {
 		self.update();
 	});
 	
@@ -48,18 +48,20 @@ Searcher.prototype.update = function() {
 	}
 	this.count.innerText = "Loading...";
 	
+		console.log(entries);
 	for(var i=0; i<tokens.length; i++) {
 		var token = tokens[i].toLowerCase(), subsel = "_root";
 		for(let key in this.subs) {
 			if(token.startsWith(key + ":")) {
 				subsel = key;
-				token = token.substring(token.length + 1);
+				token = token.substring(key.length + 1);
 				break;
 			}
 		}
 		entries = entries.filter(function(elem) {
-			return entries[i][subsel].includes(token);
+			return elem[subsel].includes(token);
 		});
+		console.log(entries);
 	}
 	for(var i=0; i<entries.length; i++) {
 		entries[i]._elem.style.display = this.distype;
