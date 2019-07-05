@@ -67,7 +67,7 @@ class Request:
         if v is None:
             return
         if len(v) == 1:
-            v = v[0]
+            return v[0]
         return v
 
     def read(self):

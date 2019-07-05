@@ -42,9 +42,6 @@ class Account(RWLockMixin):
         self.service_provider = ''
         self.optimal_poll = None
 
-    def has_inbox(self):
-        return self.inbox and self.inbox.auth.decrypted
-
     def register(self, key):
         self.key = key
         user_tokens[key] = self
@@ -58,6 +55,8 @@ class Account(RWLockMixin):
 
     def is_real(self):
         return True
+    def has_inbox(self):
+        return self.inbox and self.inbox.auth.decrypted
 
 class ShellAccount:
     def __init__(self, *args):
@@ -93,6 +92,8 @@ class ShellAccount:
         return
 
     def is_real(self):
+        return False
+    def has_inbox(self):
         return False
 
 

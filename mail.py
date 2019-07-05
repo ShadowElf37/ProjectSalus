@@ -49,8 +49,8 @@ class Message:
         self.body = MIMEMultipart('alternative')
         self.mime.attach(self.body)
 
-    def write(self, data):
-        m = MIMEText(data)
+    def write(self, data, ctype='plain'):
+        m = MIMEText(data, _subtype=ctype, _charset='utf-8')
         self.body.attach(m)
         return m
 
@@ -65,15 +65,19 @@ class Message:
 
 
 class Email(Message):
-    def __init__(self, *recipients, subject='', sender=USER, cc=(), bcc=()):
+    DEFAULT = None
+    def __init__(self, sender, *recipients, subject='', cc=(), bcc=()):
         super().__init__(sender, *recipients)
         self.subject = subject
         self.cc = cc
         self.bcc = bcc
-        self.content_type = 'text/html'
+        self.content_type = 'html'
 
     def set_subject(self, string):
         self.subject = string
+
+    def write(self, data, ctype=DEFAULT):
+        super().write(data, ctype=ctype or self.content_type)
 
     def compile(self):
         self.mime['From'] = self.sender
@@ -81,7 +85,7 @@ class Email(Message):
         self.mime['Subject'] = self.subject
         self.mime['Cc'] = ', '.join(self.cc)
         self.mime['Bcc'] = ', '.join(self.bcc)
-        return self.mime.as_string()
+        return super().compile()
 
 class MMS(Message):
     PROVIDERS = {'sprint': '@pm.sprint.com',
@@ -104,7 +108,7 @@ class MMS(Message):
         else:
             self.mime['To'] = ''
             self.mime['Bcc'] = ', '.join(self.recipients)
-        return self.mime.as_string()
+        return super().compile()
 
 
 # Fetching mail

@@ -1,7 +1,14 @@
+v0.6.2 (7/5/19)
++ Added email subjects
+- Escaped characters in async form posts
+- Fixed bug where &nbsp; would break email bodies
+- Fixed bug where emails were sent to self in addition to other recipients
+
 v0.6.1 (7/4/19)
 + Added quickmail.js
 + Added quickmail.css
 - Any email string classed with --qm-email, after fetching quickmail.js, will show a quick-compose-email popup on click
++ Added makeDraggable() in lib.js for fancy draggable divs
 + Added #include to render
 - Bug fixes and changes to a few random things to get quickmail working smoothly
 

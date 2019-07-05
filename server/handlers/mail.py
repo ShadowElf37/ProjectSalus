@@ -9,9 +9,10 @@ class HandlerSendMail(RequestHandler):
     def call(self):
         if self.account.has_inbox():
             to = [s for s in [s.strip() for s in self.request.get_post('to').split(',')] if s]
+            subject = self.request.get_post('subject')
             body = self.request.get_post('body')
 
-            msg = mail.Message(self.account.email, *to)
+            msg = mail.Email(self.account.email, *to, subject=subject)
             msg.write(body)
 
             self.response.set_body('Done.')

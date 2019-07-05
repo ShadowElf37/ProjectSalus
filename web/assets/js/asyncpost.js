@@ -19,7 +19,8 @@ var sendForm = (function() {
         var fd = new FormData(formElem);
         var data = [];
         for (item of fd){
-            data.push(item.join('='));
+            console.log(encodeURI(item.join('=')));
+            data.push(encodeURI(item.join('=')).replace(/;/g, '%3B').replace(/&/g, '%26'));
         };
         xhr.timeout = 20000;
         xhr.send(data.join('&'));
