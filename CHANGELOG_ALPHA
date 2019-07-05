@@ -1,4 +1,11 @@
-v0.6.0 (7/2/19)
+v0.6.1 (7/4/19)
++ Added quickmail.js
++ Added quickmail.css
+- Any email string classed with --qm-email, after fetching quickmail.js, will show a quick-compose-email popup on click
++ Added #include to render
+- Bug fixes and changes to a few random things to get quickmail working smoothly
+
+v0.6.0 (7/3/19)
 - Refactored handlers.py into a folder of files with relevant handlers
 - Reworked BB/email login flow to decrypt at site login
 + Added load_handlers.py

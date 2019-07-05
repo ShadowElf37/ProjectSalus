@@ -42,6 +42,9 @@ class Account(RWLockMixin):
         self.service_provider = ''
         self.optimal_poll = None
 
+    def has_inbox(self):
+        return self.inbox and self.inbox.auth.decrypted
+
     def register(self, key):
         self.key = key
         user_tokens[key] = self

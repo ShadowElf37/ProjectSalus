@@ -31,8 +31,8 @@ var overrideClasses = false;
 
 // Go forward one schedule day
 var nextScheduleDay = function(){
-	let currentDay = currentDayElem.innerHTML;
-	let newDate = new Date(currentDay).addDays(1).dateString()
+	var currentDay = currentDayElem.innerHTML;
+	var newDate = new Date(currentDay).addDays(1).dateString()
 	arrowBack.disabled = false;
 	arrowNext.disabled = newDate==lastDay ? true : false;
 	return newScheduleDay(newDate);
@@ -40,8 +40,8 @@ var nextScheduleDay = function(){
 
 // Go backwards one schedule day
 var lastScheduleDay = function(){
-	let currentDay = currentDayElem.innerHTML;
-	let newDate = new Date(currentDay).addDays(-1).dateString()
+	var currentDay = currentDayElem.innerHTML;
+	var newDate = new Date(currentDay).addDays(-1).dateString()
 	arrowNext.disabled = false;
 	arrowBack.disabled = newDate==firstDay ? true : false;
 	return newScheduleDay(newDate);
@@ -52,9 +52,9 @@ var newScheduleDay = function(newDay) {
 	overrideClasses = false;
 	revertStyle(scheduleDiv, menuDiv, maamadDiv, classInfoDiv);
 	
-	let newSchedule = schedule[newDay] || {};
-	let newScheduleKeys = Object.keys(newSchedule); // Sort by newSchedule['ord'] if necessary
-	let newMenu = menu[newDay] || {};
+	var newSchedule = schedule[newDay] || {};
+	var newScheduleKeys = Object.keys(newSchedule); // Sort by newSchedule['ord'] if necessary
+	var newMenu = menu[newDay] || {};
 
 	currentDayElem.innerText = newDay;
 	currentDayNumElem.innerText = "";
@@ -64,18 +64,18 @@ var newScheduleDay = function(newDay) {
 	clear(periodsDiv);
 	clear(menuItemsDiv);
 
-	let defaultAllergenStr = ['nothing', 'nothing', ''];
+	var defaultAllergenStr = ['nothing', 'nothing', ''];
 
 	// No classes for day
 	if (newScheduleKeys.length === 0) {
 		currentDayNumElem.innerText = "Day of No Class";
 		
-		let noPeriods = document.createElement('span');
+		var noPeriods = document.createElement('span');
 		noPeriods.style = "font-size: 24px;";
 		noPeriods.innerText = "No Classes Today";
 		periodsDiv.appendChild(noPeriods);
 
-		let noFood = document.createElement('span');
+		var noFood = document.createElement('span');
 		noFood.style = "font-size: 24px; text-align: left";
 		noFood.innerText = "There is no food.";
 		menuItemsDiv.appendChild(noFood);
@@ -98,11 +98,11 @@ var newScheduleDay = function(newDay) {
 	// Update whole menu
 	newMenu.forEach(function(foodstuff, i, arr){
 		// <span class="{veg}menuitem">{name}</span>
-		let menuItem = document.createElement('span')
+		var menuItem = document.createElement('span')
 		menuItem.className = "vegitem menuitem";
 		menuItem.innerHTML = foodstuff;
 
-		let allergens = allergenInfo[foodstuff];
+		var allergens = allergenInfo[foodstuff];
 		if (allergens.some(function(al){return al[1] == "Vegetarian"})){
 			menuItem.className = "menuitem";
 		};
@@ -110,10 +110,10 @@ var newScheduleDay = function(newDay) {
 		//<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p><p></p>
 		menuItem.onmouseleave = allergensDefaultHover;
 		menuItem.onmouseover = function(){
-			let allergens = allergenInfo[foodstuff];
-			let foodContains = [];
-			let foodMayContain = [];
-			let xContamWarning = "";
+			var allergens = allergenInfo[foodstuff];
+			var foodContains = [];
+			var foodMayContain = [];
+			var xContamWarning = "";
 			var veg = "Vegan";
 
 			allergens.forEach(function(al, i, arr){
@@ -160,8 +160,8 @@ var newScheduleDay = function(newDay) {
 
 	// Update classes
 	newScheduleKeys.forEach(function(period, i, arr){
-		let data = newSchedule[period];
-		let gradeInfo = data ? grades[data['id']] : null;
+		var data = newSchedule[period];
+		var gradeInfo = data ? grades[data['id']] : null;
 		if (period == 'DAY'){
 			if (currentDayNumElem.innerText=="") {currentDayNumElem.innerText = "Day " + data;};
 		}
@@ -172,7 +172,7 @@ var newScheduleDay = function(newDay) {
 				if (special.includes('cancel') || special.includes('close') || special.includes('field day')){
 					currentDayNumElem.innerText = "Day of No Class";
 
-					let noPeriods = document.createElement('span');
+					var noPeriods = document.createElement('span');
 					noPeriods.style = "font-size: 24px";
 					noPeriods.innerHTML = unique(newSchedule['SPECIALFMT']).join('<br>');
 					periodsDiv.appendChild(noPeriods);
@@ -184,7 +184,7 @@ var newScheduleDay = function(newDay) {
 		} else if (period == 'SPECIALFMT') {} else if (period == 'ORD') {} // dumb shut up
 		else if (!overrideClasses){
 			if (data['real']) {
-				let newPeriodDiv = document.createElement('div');
+				var newPeriodDiv = document.createElement('div');
 				newPeriodDiv.className = "class-tab";
 				newPeriodDiv.onclick = function(){
 					revertStyle
@@ -195,11 +195,11 @@ var newScheduleDay = function(newDay) {
 					classInfoEmail.innerText = gradeInfo['teacher-email'] ? gradeInfo['teacher-email'] : 'No email on record.';
 				};
 
-				let newPeriodSpan = document.createElement('span');
+				var newPeriodSpan = document.createElement('span');
 				newPeriodSpan.className = "period";
 				newPeriodSpan.innerText = period;
 
-				let newClassnameSpan = document.createElement('span');
+				var newClassnameSpan = document.createElement('span');
 				newClassnameSpan.className = "classname";
 				newClassnameSpan.innerText = data['title'];
 				
@@ -208,7 +208,7 @@ var newScheduleDay = function(newDay) {
 				periodsDiv.appendChild(newPeriodDiv);
 			}
 			else {
-				let newPeriodDiv = document.createElement('div');
+				var newPeriodDiv = document.createElement('div');
 				newPeriodDiv.className = "null-class";
 				newPeriodDiv.innerText = period;
 
@@ -246,9 +246,9 @@ var revertStyle = function(...elems) {
 
 
 var updatePoll = function(title, id, questions) {
-	let i = currentPollIndex;
+	var i = currentPollIndex;
 	pollTitleElem.innerText = title;
-	let q = questions[i];
+	var q = questions[i];
 	pollQuestionElem.innerText = q[0];
 
 	hideInputs(pollOptionsElem);
@@ -268,17 +268,17 @@ var updatePoll = function(title, id, questions) {
 		});
 	} else {
 		q[1].forEach(function(answer, j, arr){
-			let newInput = document.createElement('input');
+			var newInput = document.createElement('input');
 			newInput.type = "radio";
 			newInput.name = q[0];
 			newInput.value = answer;
 			newInput.id = q[0]+'-'+answer.split(' ').join('-');
 
-			let newLabel = document.createElement('label');
+			var newLabel = document.createElement('label');
 			newLabel.htmlFor = q[0]+'-'+answer.split(' ').join('-');
 			newLabel.innerText = answer;
 
-			let br = document.createElement('br');
+			var br = document.createElement('br');
 			br.className = 'br-'+q[0]+'-'+answer.split(' ').join('-');
 
 			pollOptionsElem.appendChild(newInput);

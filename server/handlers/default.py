@@ -4,6 +4,10 @@ class DefaultHandler(RequestHandler):
     def call(self):
         self.response.attach_file(self.path, cache=False)
 
+class DefaultPOSTHandler(RequestHandler):
+    def call(self):
+        print(self.request.post_vals)
+        self.response.set_body('Data received.')
 
 class HandlerBlank(RequestHandler):
     def call(self):

@@ -174,7 +174,7 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         req = Request(self)
         rsp = Response(req)
-        RESPONSE_QUEUE.append(rsp)
+        #RESPONSE_QUEUE.append(rsp)
         try:
             handler = handlers.GET.get(req.path, handlers_default.DefaultHandler)(req, rsp)
             handler.pre_call()
@@ -185,14 +185,14 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             self.make_error(e)
             self.server.MISC_ERRORS += 1
 
-        while RESPONSE_QUEUE[0] != rsp:
-            time.sleep(0.00001)
-        del RESPONSE_QUEUE[0]
+        #while RESPONSE_QUEUE[0] != rsp:
+        #    time.sleep(0.00001)
+        #del RESPONSE_QUEUE[0]
 
     def do_POST(self):
         req = Request(self)
         rsp = Response(req)
-        RESPONSE_QUEUE.append(rsp)
+        #RESPONSE_QUEUE.append(rsp)
         handler = handlers.POST.get(req.path, handlers_default.DefaultHandler)(req, rsp)
         try:
             handler.pre_call()
@@ -203,9 +203,9 @@ class HTTPMacroHandler(BaseHTTPRequestHandler):
             self.make_error(e)
             self.server.MISC_ERRORS += 1
 
-        while RESPONSE_QUEUE[0] != rsp:
-            time.sleep(0.00001)
-        del RESPONSE_QUEUE[0]
+        #while RESPONSE_QUEUE[0] != rsp:
+        #    time.sleep(0.00001)
+        #del RESPONSE_QUEUE[0]
 
 if __name__ == '__main__':
     s = Server()

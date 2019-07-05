@@ -21,6 +21,7 @@
   "POST": {
     "/mod-h":                 "default.HandlerMod",
     "/mod-s":                 "default.HandlerModServer",
+    "/test":                  "default.DefaultPOSTHandler",
 
     "/signup":                "signup.HandlerSignup",
     "/login":                 "login.HandlerLogin",

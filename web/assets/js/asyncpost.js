@@ -13,12 +13,15 @@ var sendControlKey = (function() {
 
 var sendForm = (function() {
     var xhr = new XMLHttpRequest;
-	return function(formElem) {
-        xhr.open('POST', '/submit-poll');
+	return function(formElem, dest) {
+        xhr.open('POST', dest);
+        console.log(formElem);
         var fd = new FormData(formElem);
         var data = [];
-        for (let item of fd) { data.push(item.join('=')) };
-        xhr.timeout = 1000;
+        for (item of fd){
+            data.push(item.join('='));
+        };
+        xhr.timeout = 20000;
         xhr.send(data.join('&'));
     };
 })();

@@ -160,7 +160,21 @@ class Response:
             self.body = string
         self.set_content_type(ctype)
 
-    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=False, htmlsafe=False, **render_opts):
+    def _read_file(self, path, render=True, force_render=False, cache=False, **render_opts):
+        if type(path) is bytes:
+            path = path.decode()
+        f = self.server.cache.read(path, binary=True, cache=cache)
+        if f is None:
+            self.send_error(404, 'Requested sub-page not found.')
+            return
+
+        if render and path.split('.')[-1] in Response.RENDER or force_render:
+            self.default_renderopts.update(render_opts)
+            f = self.render(f, self.default_renderopts)
+
+        return f
+
+    def attach_file(self, path, render=True, resolve_ctype=True, append=False, force_render=False, cache=False, **render_opts):
         """This function has a fair number of very important features to understand.
             Firstly, the path. The path will default to be in /web/, and the cache will automatically search folders from the given path all the way back up to /web/ for a requested file.
             The path here can also accept /../ in order to escape /web/.
@@ -171,7 +185,7 @@ class Response:
 
             Finally, **render_opts decides what, aside from the default_renderopts decided topside, will be rendered with what text."""
 
-        f = self.server.cache.read(path, True, cache=cache)
+        f = self.server.cache.read(path, binary=True, cache=cache)
         if f is None:
             self.send_error(404, 'Requested page not found.')
             return
@@ -194,15 +208,19 @@ class Response:
         self.set_body(f, append=append, ctype=self.content_type)
 
 
-    @staticmethod
-    def render(byte, render_opts):
+    def render(self, byte, render_opts):
         f = byte
 
-        defrender = re.findall(b'(#(?:[dD][eE][fF][iI][nN][eE])\s+([^ ]*)\s+([^;\n\r]*)(?:[;\n\r]+))', f)
+        includes = re.findall(b'(#(?:include)\s+([^;\n\r]*)(?:[;\n\r]+))', f, flags=re.IGNORECASE)
+        if includes:
+            for inclusion in includes:
+                f = f.replace(inclusion[0], self._read_file(inclusion[1]) + b'\r\n')
+
+        defrender = re.findall(b'(#(?:define)\s+([^ ]*)\s+([^;\n\r]*)(?:[;\n\r]+))', f, flags=re.IGNORECASE)
         if defrender:
             for df in defrender:
                 f = f.replace(df[0], b'')
-                f.replace(df[1], df[2])
+                f = f.replace(df[1], df[2])
 
         argrender = set(re.findall(b'\[\[(.[^\]]*)\]\]', f))
         for arg in argrender:

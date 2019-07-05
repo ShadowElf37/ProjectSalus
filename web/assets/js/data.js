@@ -86,7 +86,7 @@ document.getElementById('poll-submit-button').addEventListener('click', function
     	input.type = "radio";
     };
 
-    sendForm(form);
+    sendForm(form, '/submit-poll');
 
     clear(form);
     thanksMessage = document.createElement('p');

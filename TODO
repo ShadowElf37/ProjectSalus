@@ -1,11 +1,18 @@
 Known Bugs:
 - Schedule scrape syntax changed for lunch and ma'amad, maybe others
 - 64 poison pills only kill 56 threads
-- Well does not autofocus and is stuck in b64
+- Well does not autofocus
+- Inbox does not load on login maybe?
+
+
+WIP:
+- Find a better solution to the current email positioning
+- Email subjects
+
 
 - CSS
 - SGA feedback form & email forwarding system
-- Poll input types
+- Poll input types, store poll responses, default poll
 - Announcements, Ma'amad info editors
 - Public calendar with meetings & events
 - Transcripts / summaries of meetings
@@ -18,7 +25,7 @@ Known Bugs:
 - Click on email address to open small window for composing emails
 - Store updater information for SMS scheduler, etc.
 - Purge stale updaters for logged out people; generally overhaul session tokens with something more flexible
-- Whitelist ranks
+- Whitelist ranks, promotion command
 - User settings and customization (delete, reload, etc.)
 - Check dates of recently graded assignments
 - Abstractify everything into configs so we only have to reboot in emergencies

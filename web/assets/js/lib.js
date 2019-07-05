@@ -46,7 +46,7 @@ function stripAmPm(timeStr){
     return timeStr.toLowerCase().replace('pm', '').replace('am', '').trim();
 }
 
-
+// From SO
 Date.prototype.dateString = function() {
   var m = this.getMonth() + 1;
   var d = this.getDate();
@@ -58,4 +58,57 @@ Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
+}
+
+// From SO
+function isDescendant(parent, child) {
+     var node = child.parentNode;
+     while (node != null) {
+         if (node == parent) {
+             return true;
+         }
+         node = node.parentNode;
+     }
+     return false;
+}
+
+
+// From MDN, modified slightly to be more robust
+function makeDraggable(elmnt, ...andSelectors) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  elmnt.andSelectors = andSelectors;
+
+  elmnt.onmousedown = dragMouseDown;
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    if (e.target == this || array(this.querySelectorAll(this.andSelectors.join(','))).includes(e.target)) {
+        e.preventDefault();
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+    }
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 }
