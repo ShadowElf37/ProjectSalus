@@ -47,6 +47,7 @@ def update_directory(updater):
     def u(*args, **kwargs):
         global DIRECTORY, DIRECTORY_HTML
         v = updater(*args, **kwargs)
+        update_email_map(v)
         # Sort it since it pops out in sorted chunks but isn't sorted globally
         v = [(k,v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ')+1:])]
         DIRECTORY_HTML = update_directory_html(v)
@@ -56,6 +57,7 @@ def update_teachers(updater):
     def u(*args, **kwargs):
         global TEACHERS, TEACHER_HTML
         v = updater(*args, **kwargs)
+        update_email_map(v)
         # Sort it because I want to
         v = [(k, v[k]) for k in sorted(v.keys(), key=lambda k: k[k.find(' ') + 1:])]
         TEACHER_HTML = update_teacher_html(v)
@@ -103,6 +105,13 @@ def update_teacher_html(t_list):
             reg = 'Not registered' if user_tokens.find(lambda a: a.name == name) is None else 'Registered',
         ) for name, entry in t_list]
     return '\n'.join(html)
+
+def update_email_map(d):
+    global DIR_EMAIL_MAP
+    for name in d:
+        email = get(d[name], 'email', None)
+        if email is not None:
+            DIR_EMAIL_MAP[name] = email
 
 def dsetter(dict, key, updaterf):
     def u(*args, **kwargs):
@@ -165,6 +174,10 @@ v = [(k, DIRECTORY[k]) for k in sorted(DIRECTORY.keys(), key=lambda k: k[k.find(
 DIRECTORY_HTML = update_directory_html(v)
 v = [(k, TEACHERS[k]) for k in sorted(TEACHERS.keys(), key=lambda k: k[k.find(' ') + 1:])]
 TEACHER_HTML = update_teacher_html(v)
+
+DIR_EMAIL_MAP = {}
+update_email_map(DIRECTORY)
+update_email_map(TEACHERS)
 
 DataSerializer.set('TOPICS', CLASS_TOPICS)
 DataSerializer.set('DIRECTORY', DIRECTORY)

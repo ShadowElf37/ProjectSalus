@@ -27,17 +27,26 @@ var sendForm = (function() {
     };
 })();
 
-function Notifier(cb, target) {
+function Notifier(cb, target=1) {
 	this.callback = cb;
 	this.count = 0;
     this.target = target;
+    this.result = null;
 }
 Notifier.prototype.complete = function() {
     if (++this.count >= this.target) {
         this.count = 0;
-        return this.callback();
+        this.result = this.callback();
+        return this.result;
     }
     return null;
+};
+
+function putting(name) {
+    return function(data){
+        window[name] = data;
+        return data;
+    };
 };
 
 function requestData(name, dowith, notifier=null) {
@@ -46,6 +55,7 @@ function requestData(name, dowith, notifier=null) {
     xhr.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
 	    	dowith(this.response);
+            notifier.result = this.response;
             if (notifier !== null)
                 notifier.complete();
 	    };

@@ -32,11 +32,15 @@ class HandlerModServer(RequestHandler):
 
 class HandlerDataRequests(RequestHandler):
     def call(self):
-        schedule = self.account.updaters['schedule'].wait()
-        grades = self.account.updaters['grades'].wait()
+        if 'schedule' in self.account.updaters:
+            schedule = self.account.updaters['schedule'].wait()
+            grades = self.account.updaters['grades'].wait()
+            menu = {d: updates.SAGEMENU.get(d) for d in schedule.keys()}
+
         timespan = [scrape.firstlast_of_month(delta)[i].strftime('%m/%d/%Y') for i,delta in enumerate(SCHEDULE_RANGE)]
-        menu = {d:updates.SAGEMENU.get(d) for d in schedule.keys()}
         allergens = updates.SAGEMENUINFO
+        email_map = updates.DIR_EMAIL_MAP
+
         if self.account.optimal_poll is None:
             poll = None
         else:

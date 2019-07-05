@@ -38,14 +38,6 @@ function allergensDefaultHover(){
     allergenElems.forEach(function(p, i, arr){p.innerHTML = allergensDefault[i]}); //"<p>Food will contain {0}.</p><p>Food may also contain {1}.</p><p>{2}</p>"
 }
 
-
-
-function putting(name) {
-	return function(data){
-		window[name] = data;
-	};
-}
-
 var firstDay, lastDay, schedule, menu, allergenInfo, timespan, grades;
 
 dataLoaded = new Notifier(function(){

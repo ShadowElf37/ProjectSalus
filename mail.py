@@ -93,7 +93,7 @@ class MMS(Message):
                 'tmobile': '@tmomail.net',
                 'verizon': '@vzwpix.com'}
 
-    def __init__(self, *recipients, sender=USER, group=False):
+    def __init__(self, sender, *recipients, group=False):
         """Give recipients as tuples with (number, service provider)"""
         if type(recipients[0]) not in (tuple, list):
             raise TypeError('Recipients for MMS must be (number, provider) tuples')
