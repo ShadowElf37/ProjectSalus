@@ -12,6 +12,9 @@ class HandlerSendMail(RequestHandler):
             subject = self.request.get_post('subject')
             body = self.request.get_post('body')
 
+            attachments = self.request.get_post('attachments')
+            print(attachments)
+
             msg = mail.Email(self.account.email, *to, subject=subject)
             msg.write(body)
 

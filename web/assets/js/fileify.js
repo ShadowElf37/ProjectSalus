@@ -15,7 +15,7 @@ const fileify = form => {
       filedata.name = "_" + inp.name;
       const reader = new FileReader();
       reader.addEventListener("loadend", () => {
-        filedata.value = escape(reader.result);
+        filedata.value = encodeURI(reader.result);
         form.appendChild(filedata);
         if(!--count)
           form.submit();
@@ -27,6 +27,8 @@ const fileify = form => {
   });
 };
 
+/*
 // client code
 const form = document.querySelector('form'); // change to suit needs
 fileify(form);
+*/

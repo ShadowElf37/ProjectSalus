@@ -6,8 +6,10 @@ Known Bugs:
 
 
 WIP:
-- Find a better solution to the current email positioning
-- Email subjects
+- Find a better solution to the current sendbox positioning
+- Email autocomplete recipients
+- Email attachments
+- Email Cc, Bcc
 
 
 - CSS
