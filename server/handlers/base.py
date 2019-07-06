@@ -69,7 +69,9 @@ class RequestHandler:
         self.render_register(
             name=self.account.name,
             email=self.account.email,
-            test='hello',
+            hasInbox=str(self.account.has_inbox()).lower(),
+            meta="""<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">""",
+            test='hello world',
             themeblue='#0052ac',
             themedarkblue='#00429c',
             themeoffwhite='#eeeeee',

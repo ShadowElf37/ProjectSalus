@@ -239,6 +239,7 @@ class Response:
                 r = ''
             except Exception as e:
                 f = f.replace(b'{{' + kw + b'}}', e.__class__.__name__.upper().encode(ENCODING))
+                continue
             if type(r) != bytes:
                 r = bytes(str(r), ENCODING)
             f = f.replace(b'{{' + kw + b'}}', r)

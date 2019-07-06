@@ -1,0 +1,100 @@
+.--qm-email {
+	color: #09f;
+	cursor: pointer;
+}
+.--qm-email:hover {
+	color: #04d;
+}
+
+.--qm-send-box {
+	height: 300px;
+	width: 500px;
+	background-color: #444;
+	position: absolute;
+	overflow-x: hidden;
+	border-radius: 5px;
+	padding: 10px;
+	font-size: 16px;
+	border: 1px solid #eee;
+    color: #eee;
+    z-index: 999;
+    text-align: left;
+}
+
+.--qm-send-box * {
+    float: none;
+}
+
+.--qm-send-box label {
+    position: absolute;
+    height: 30px;
+    {{snippet('css-noselect')}}
+}
+
+.--qm-send-box input[type="text"] {
+	width: 420px;
+	border-radius: 5px;
+	height: 30px;
+	border: 2px solid #555;
+	background-color: #222;
+	color: inherit;
+	outline: none;
+	font-size: 16px;
+	font-family: inherit;
+	padding: 0 5px;
+    float: right;
+    margin-bottom: 10px;
+}
+.--qm-send-box input[type="submit"] {
+    color: inherit;
+    background-color: #333;
+    font-family: inherit;
+    font-size: 20px;
+    outline: none;
+    padding: 5px;
+    height: auto;
+    width: 150px;
+    border-radius: 3px;
+    border: 2px solid #555;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    {{snippet('css-noselect')}}
+}
+.--qm-send-box input[type="submit"]:hover {
+    background-color: #2a2a2a;
+}
+.--qm-send-box input[type="submit"]:active {
+    background-color: #222;
+}
+.--qm-send-box-body {
+	margin-top: 10px;
+	display: block;
+	width: 95%;
+	border-radius: 5px;
+	height: 135px;
+	border: 2px solid #555;
+	background-color: #222;
+	color: #eee;
+	outline: none;
+	font-size: 16px;
+	font-family: inherit;
+	padding: 5px;
+	overflow-x: hidden;
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.--qm-attach {
+    position: absolute;
+    bottom: 30px;
+    left: 5px;
+}
+
+input::-webkit-calendar-picker-indicator {
+  display: none;
+}

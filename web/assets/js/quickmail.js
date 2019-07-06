@@ -5,6 +5,23 @@
 // TO AVOID CONFLICTS, DO NOT REQUEST THESE FILES SEPARATELY
 // DO SO AT YOUR OWN RISK
 
+
+// Only fire this if the user has email enabled
+function loadQMEvents() {
+	// Give click event to all the marked emails in document
+	var quickies = document.querySelectorAll('.--qm-email');
+	for (var i=0; i < quickies.length; i++) {
+		if (![[hasInbox]] || !quickies[i].innerText.includes('@')){
+			quickies[i].classList.remove('--qm-email');
+			continue;
+		};
+		quickies[i].addEventListener('click', function(e){
+			openSendBox(this);
+		});
+	};
+};
+
+
 window.addEventListener('load', function(e){
 	// Now we can make the sendbox
 	var sendBox = document.createElement('div');
@@ -89,17 +106,7 @@ window.addEventListener('load', function(e){
 	// Fileify, very fancy
 	fileify(form);
 
-	// Give click event to all the quickable emails in document
-	var quickies = document.querySelectorAll('.--qm-email');
-	for (var i=0; i < quickies.length; i++) {
-		if (!quickies[i].innerText.includes('@')){
-			quickies[i].classList.remove('--qm-email');
-			continue;
-		};
-		quickies[i].addEventListener('click', function(e){
-			openSendBox(this);
-		});
-	};
+	loadQMEvents();
 
 	// Done!
 });
@@ -122,7 +129,7 @@ function openSendBox(onElem) {
 	sendBox.querySelector('#--qm-to').value = onElem.innerText + ", ";
 
 	sendBox.style.top = pos.y2 + 5 + 'px';
-	sendBox.style.left = pos.x1 + 15 + 'px';
+	sendBox.style.left = pos.x1 + 0 + 'px';
 	sendBox.style.display = "block";
 	sendBox.querySelector('#--qm-subject').focus();
 };

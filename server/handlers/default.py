@@ -40,6 +40,7 @@ class HandlerDataRequests(RequestHandler):
         timespan = [scrape.firstlast_of_month(delta)[i].strftime('%m/%d/%Y') for i,delta in enumerate(SCHEDULE_RANGE)]
         allergens = updates.SAGEMENUINFO
         email_map = updates.DIR_EMAIL_MAP
+        email_enabled = self.account.has_inbox()
 
         if self.account.optimal_poll is None:
             poll = None
