@@ -2,15 +2,14 @@ Known Bugs:
 - Schedule scrape syntax changed for lunch and ma'amad, maybe others
 - 64 poison pills only kill 56 threads
 - Well does not autofocus
-- Inbox does not load on login maybe?
+- 
 
 
 WIP:
-- Find a better solution to the current sendbox positioning
-- Email autocomplete recipients
 - Email attachments
 - Clear attachments on send
 - Email Cc, Bcc
+- Confirmation on submit
 
 
 - CSS
@@ -20,12 +19,10 @@ WIP:
 - Public calendar with meetings & events
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
-- User-friendly ways to edit all these
 - Simple mass-email interface
 - Maintenance-in-progress backup system
 - SMS with periods etc.
 - IMAP/SMTP replacement for Outlook
-- Click on email address to open small window for composing emails
 - Store updater information for SMS scheduler, etc.
 - Purge stale updaters for logged out people; generally overhaul session tokens with something more flexible
 - Whitelist ranks, promotion command

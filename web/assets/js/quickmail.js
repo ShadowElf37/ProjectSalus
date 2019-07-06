@@ -16,6 +16,19 @@ window.addEventListener('load', function(e){
 	var form = document.createElement('form');
 	form.id = "--qm-form";
 	form.enctype = "multipart/form-data";
+	form.onkeypress = function(){
+		if (event.key == 'Enter') {
+			if (document.activeElement.id == '--qm-to') {
+				document.getElementById('--qm-subject').focus();
+				return false;
+			} else if (document.activeElement.id == '--qm-subject') {
+				document.getElementById('--qm-send-box-body').focus();
+				return false;
+			} else if (document.activeElement.id != '--qm-send-box-body') {
+				return false;
+			};
+		};
+	};
 
 	// Form innards
 	var insideForm = '\
@@ -67,10 +80,9 @@ window.addEventListener('load', function(e){
 	center.appendChild(attachmentInput);
 	center.appendChild(submit);
 	form.appendChild(center);
-	form.appendChild(options);
 	sendBox.appendChild(form);
 	// Brush the box under the carpet
-	document.documentElement.appendChild(sendBox);
+	document.body.appendChild(sendBox);
 
 	// Draggable window, very fancy
 	makeDraggable(sendBox, 'center', 'form', 'label');
@@ -104,36 +116,13 @@ document.addEventListener('mousedown', function(e){
 });
 
 function openSendBox(onElem) {
-	var address = onElem.innerText;
 	var sendBox = document.getElementById("--qm-global-send-box");
-	var parent = onElem.parentNode;
-	var parentIsContainer = array(parent.classList).includes("--qm-send-box-container");
+	var pos = coords(onElem);
 
-	sendBox.querySelector('#--qm-to').value = address + ", ";
+	sendBox.querySelector('#--qm-to').value = onElem.innerText + ", ";
 
-	// Make a new container for nicer positioning
-	var container = document.createElement('span');
-	container.className = "--qm-send-box-container";
-
-	if (parentIsContainer) { // If we've already gone through this
-		parent.parentNode.insertBefore(container, parent);
-	} else { // If we've never stuck the box on it before
-		parent.insertBefore(container, onElem);
-	};
-	// Kill the original element
-	parent.removeChild(onElem);
-
-	// Go around earlier container if it exists because it's cancerous
-	sendBox.parentNode.removeChild(sendBox);
-
-	// Now dump the original element and the box in our container
-	container.appendChild(onElem);
-	container.appendChild(sendBox);
-	
-	// Kill the last container
-	if (parentIsContainer) {
-		parent.parentNode.removeChild(parent);
-	};
-
+	sendBox.style.top = pos.y2 + 5 + 'px';
+	sendBox.style.left = pos.x1 + 15 + 'px';
 	sendBox.style.display = "block";
+	sendBox.querySelector('#--qm-subject').focus();
 };

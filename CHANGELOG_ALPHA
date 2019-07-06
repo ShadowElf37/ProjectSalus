@@ -3,6 +3,10 @@ v0.6.2 (7/5/19)
 - Escaped characters in async form posts
 - Fixed bug where &nbsp; would break email bodies
 - Fixed bug where emails were sent to self in addition to other recipients
+- Massively simplified sendbox positioning
++ Added basic structure for attachments
+- Improved Notifier
+- Captured <enter> in sendbox so you can't accidentally send it
 
 v0.6.1 (7/4/19)
 + Added quickmail.js

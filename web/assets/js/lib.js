@@ -73,6 +73,22 @@ function isDescendant(parent, child) {
 }
 
 
+// Modified, from https://plainjs.com/javascript/styles/get-the-position-of-an-element-relative-to-the-document-24/
+function coords(elem) {
+    var rect = elem.getBoundingClientRect(),
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    return {
+        y: (rect.top + rect.bottom)/2 + scrollTop,
+        y1: rect.top + scrollTop,
+        y2: rect.bottom + scrollTop,
+        x: (rect.left + rect.right)/2 + scrollTop,
+        x1: rect.left + scrollLeft,
+        x2: rect.right + scrollLeft
+    };
+};
+
+
 // From MDN, modified slightly to be more robust
 function makeDraggable(elmnt, ...andSelectors) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
