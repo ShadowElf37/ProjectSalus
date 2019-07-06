@@ -27,6 +27,7 @@ v0.6.0 (7/3/19)
 - Threads are now killed via poison pills in the queue
 + Added Credentials to client.py to manage passwords better
 - Fixed issues with decrypting passwords after reboot
+- Renamed Poolsafe to Promise
 - Minor changes elsewhere
 
 === MAJOR ===
