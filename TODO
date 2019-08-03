@@ -18,19 +18,27 @@ WIP:
 - Email Cc, Bcc
 - Confirmation on submit
 
+Considerations:
+- Should remove the IMAP client page - it's way too much work to implement neatly, takes way too long to load, and generally isn't needed.
+- The calendar should have an hourly view per-day, and a way to block off time for yourself, and add notifications - I want such functionality because I need a personal scheduling system lol.
+- Classes view might be delayed to post-launch ...
+
 Features:
 - SGA feedback form
 - Poll input types, store poll responses, default poll
 - Announcements, Ma'amad info editors
 - Public calendar with meetings & events
+    - Hourly view
+    - Add calendar items
+    - SMS
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
 - Simple mass-email interface
-- SMS with periods etc.
-- IMAP client
+- SMS with periods
 - Whitelist ranks, promotion command
 - User settings and customization (delete, reload, etc.)
 - Club integration
+    - Calendar
 - Bug reports
 
 Backend Work:

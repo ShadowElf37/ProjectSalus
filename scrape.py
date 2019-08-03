@@ -338,12 +338,12 @@ class BlackbaudScraper(Scraper):
                                            params=params, headers=headers, cookies=self.cookies))
             directory += resp.json()
 
-        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+        directory = {('{} {}'.format(person['FirstName'].strip(), person['LastName'].strip())): {
             'id': person.get('UserID'),
-            'email' : person.get('Email', '').lower(),
-            'address': person.get('AddressLine1'),
-            'city': person.get('City'),
-            'state': person.get('State'),
+            'email' : person.get('Email', '').lower().strip(),
+            'address': person.get('AddressLine1').strip(),
+            'city': person.get('City'.strip()),
+            'state': person.get('State').strip(),
             'zip': person.get('Zip'),
             'home': format_phone_num(person.get('HomePhone', '').strip()),
             'cell': format_phone_num(person.get('CellPhone', '').strip()),
@@ -368,10 +368,10 @@ class BlackbaudScraper(Scraper):
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
                                        params=params, headers=headers, cookies=self.cookies)).json()
 
-        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+        directory = {('{} {}'.format(person['FirstName'].strip(), person['LastName'].strip())): {
             'id': person['UserID'],
             'prefix': person.get('Prefix', ''),
-            'email': person.get('Email', '').lower().replace('mailto:', ''),
+            'email': person.get('Email', '').lower().replace('mailto:', '').strip(),
             'phone': person.get('OfficePhone', '').strip(),
             'dept': person.get('DepartmentDisplay', '').split(', ')
         } for person in resp}
