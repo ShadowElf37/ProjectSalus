@@ -24,7 +24,7 @@ SCHEDULE_RANGE = (-1, 1)  # Month deltas from current for fetching user schedule
 
 TEST = 'Hello World'
 TESTTIME = '12:30 pm'
-TESTDATE = '05/21/2019'
+TESTDATE = '08/20/2019'
 TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 
 
@@ -37,7 +37,7 @@ p.add_question('Friday', 'Churros4', 'Fruit Roll Ups4', 'Cereal4')
 
 #info.create_announcement('Test', 'This is an announcement.', time()+1000000)
 #info.create_announcement('Test 2', 'This is a more recent announcement', time()+1000000)
-m = info.create_maamad_week('05/20/2019')
+m = info.create_maamad_week('08/20/2019')
 m.set_day(0, 'Ma\'amad', 'Presentation by Mr. Barber')
 m.set_day(1, 'Chavaya', '''9th Grade: Meet with Mrs. Larkin in Becker Theater
 10th Grade: Flex Time
@@ -70,7 +70,7 @@ class RequestHandler:
             name=self.account.name,
             email=self.account.email,
             hasInbox=str(self.account.has_inbox()).lower(),
-            meta="""<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">""",
+            meta="""<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">""",
             test='hello world',
             themeblue='#0052ac',
             themedarkblue='#00429c',

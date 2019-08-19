@@ -14,7 +14,7 @@
   "no-maamad": "<span style=\"font-size: 20px; text-align: left;\">There is no Ma'amad data for this week.</span>",
 
   "no-assignments": "<span style=\"font-size: 20px; text-align: left\">There are no assignments from any class this week.</span>",
-  "assignment": "<li>–<span class=\"assignment-title\">{title}</span><div class=\"sub-li\"><p>Due {due}{s12}(Assigned {assnd})</p><p class=\"desc\">{desc}</p></div></li>",
+  "assignment": "<li>-<span class=\"assignment-title\">{title}</span><div class=\"sub-li\"><p>Due {due}{s12}(Assigned {assnd})</p><p class=\"desc\">{desc}</p></div></li>",
 
   "next-class-info-1": "Your next period is <span class=\"important\">{period}</span> at {startp}",
   "next-class-info-2": "<span id=\"classname\">{name}</span><span id=\"start-end\">{start} - {end}</span>\n<span id=\"teacher\">{teacher}</span>\n<span id=\"teacher-email\">{email}</span>",

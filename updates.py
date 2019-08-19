@@ -130,6 +130,7 @@ TEACHERS = PersistentDict()
 SAGEMENU = PersistentDict()
 SAGEMENUINFO = PersistentDict()
 SPORTCAL = PersistentList()
+DIR_EMAIL_MAP = {}
 
 d = Promise(update_directory(bb_login_safe(Blackbaud.directory, USER, PASS)))
 t = Promise(update_teachers(bb_login_safe(Blackbaud.teacher_directory, USER, PASS)))
@@ -175,7 +176,6 @@ DIRECTORY_HTML = update_directory_html(v)
 v = [(k, TEACHERS[k]) for k in sorted(TEACHERS.keys(), key=lambda k: k[k.find(' ') + 1:])]
 TEACHER_HTML = update_teacher_html(v)
 
-DIR_EMAIL_MAP = {}
 update_email_map(DIRECTORY)
 update_email_map(TEACHERS)
 

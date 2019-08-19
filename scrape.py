@@ -173,9 +173,9 @@ class SageScraper(Scraper):
         headers.update(self.default_headers)
 
         # TESTING PURPOSES - Sage menu isn't available during summer
-        sleep(2)
-        menu = json.loads(escape(open('samplemenu.json', 'r').read(), quote=False))
-        #menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php', params=params, headers=headers, cookies=self.cookies)).json()
+        # sleep(2)
+        # menu = json.loads(escape(open('samplemenu.json', 'r').read(), quote=False))
+        menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php', params=params, headers=headers, cookies=self.cookies)).json()
 
         if 'menu' not in menu:
             return {}, {}
@@ -340,13 +340,13 @@ class BlackbaudScraper(Scraper):
 
         directory = {('{} {}'.format(person['FirstName'].strip(), person['LastName'].strip())): {
             'id': person.get('UserID'),
-            'email' : person.get('Email', '').lower().strip(),
-            'address': person.get('AddressLine1').strip(),
-            'city': person.get('City'.strip()),
-            'state': person.get('State').strip(),
+            'email' : get(person, 'Email', '').lower().strip(),
+            'address': get(person, 'AddressLine1', '').strip(),
+            'city': get(person, 'City', '').strip(),
+            'state': get(person, 'State', '').strip(),
             'zip': person.get('Zip'),
-            'home': format_phone_num(person.get('HomePhone', '').strip()),
-            'cell': format_phone_num(person.get('CellPhone', '').strip()),
+            'home': format_phone_num(get(person, 'HomePhone', '').strip()),
+            'cell': format_phone_num(get(person, 'CellPhone', '').strip()),
             'year': person.get('GradYear'),
             'grade': person.get('GradeDisplay'),
             'addrlatitude': person.get('PreferredAddressLat', 0.0),
@@ -557,7 +557,7 @@ class BlackbaudScraper(Scraper):
     def grades(self, userid, **headers):
         params = {
             'userId': userid,
-            'schoolYearLabel': '2018 - 2019',
+            'schoolYearLabel': '2019 - 2020',
             'memberLevel': 3,
             'persona': 2,
             'durationList': 88330,

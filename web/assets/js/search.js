@@ -25,7 +25,7 @@ function Searcher(input, root, query, subqueries, def="_root", distype="initial"
 	
 	this.count = document.createElement("span");
 	this.count.className = "searcher-count";
-	// this.root.appendChild(this.count);
+	this.root.appendChild(this.count);
 
 	this.update();
 }
