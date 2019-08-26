@@ -643,7 +643,7 @@ if __name__ == '__main__':
 
     bb = BlackbaudScraper()
     print('LOGGING IN...')
-    bb.login('ykey-cohen@emeryweiner.org', 'Yoproductions3', 't')
+    bb.login('ykey-cohen@emeryweiner.org', '', 't')
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')

@@ -4,7 +4,8 @@ Known Issues:
 - Line 560 of scape.py 'schoolYearLabel' in grade scrape params - year needs to be dynamic
 - Locked gradebook prevents teacher name from being fetched
 - Day 10s can't be indicated properly
-- Still stuck on old test date
+- Still stuck on old test date client-side
+- Newlines don't render in assignment descriptions landing.html
 
 
 =======================
