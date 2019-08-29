@@ -515,7 +515,7 @@ class BlackbaudScraper(Scraper):
             if date not in real:
                 real[date] = {'SPECIAL': [], 'SPECIALFMT':[], 'DAY': None}
             if 'Day ' == t[:4] and t[4].isnumeric() and data['id'] is None:
-                real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
+                real[date]['DAY'] = int(''.join(re.findall('[0-9]', t)))
                 continue
             elif period_from_name(t) == 'US':
                 real[date]['SPECIAL'].append(t)

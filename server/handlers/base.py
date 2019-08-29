@@ -24,7 +24,7 @@ SCHEDULE_RANGE = (-1, 1)  # Month deltas from current for fetching user schedule
 
 TEST = 'Hello World'
 TESTTIME = '12:30 pm'
-TESTDATE = '08/20/2019'
+TESTDATE = datetime.now().strftime('%m/%d/%Y')#'08/20/2019'
 TESTDT = datetime.strptime(TESTDATE, '%m/%d/%Y')
 
 

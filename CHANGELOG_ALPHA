@@ -1,3 +1,8 @@
+v0.6.3 (8/28/19)
+- Fixed some visual issues
+- Fixed an absolutely mental number of bugs that crawled out from under the bed while I was gone
++ Added SMS notifications proof of concept in notifications.py & test.py
+
 v0.6.2 (7/5/19)
 + Added email subjects
 - Escaped characters in async form posts
