@@ -10,9 +10,8 @@
       [
           ["Home", "/bb_login", false],
           ["SGA", "", true],
-          ["Classes", "", true],
           ["Mail", "/mail_login", false],
-          ["Calendar", "", true],
+          ["Clubs", "", true],
           ["Directory", "/directory", false],
           ["Settings", "", true],
           ["Logout", "/logout", false]
@@ -21,9 +20,8 @@
       [
           ["Home", "/home/index.html", false],
           ["SGA", "", true],
-          ["Classes", "", true],
           ["Mail", "", true],
-          ["Calendar", "", true],
+          ["Clubs", "", true],
           ["Directory", "/accounts/directory.html", true],
           ["Settings", "", true],
           ["Logout", "/logout", false]
@@ -32,9 +30,8 @@
       [
           ["Home", "/home/index.html", false],
           ["SGA", "", true],
-          ["Classes", "", true],
           ["Mail", "", true],
-          ["Calendar", "", true],
+          ["Clubs", "", true],
           ["Directory", "/accounts/directory.html", true],
           ["Settings", "", true],
           ["Logout", "/logout", false]
@@ -43,9 +40,8 @@
       [
           ["Home", "/home/index.html", false],
           ["SGA", "", true],
-          ["Classes", "", true],
           ["Mail", "", true],
-          ["Calendar", "", true],
+          ["Clubs", "", true],
           ["Directory", "/accounts/directory.html", true],
           ["Settings", "", true],
           ["Controls", "/admin/controlboard.html", false],
