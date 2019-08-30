@@ -21,6 +21,9 @@ var sendForm = (function() {
         var data = [];
         for (item of fd){
             console.log(item);
+            if (item[1] instanceof File) {
+                item[1] = item[1].name;
+            };
             console.log(encodeURI(item.join('=')));
             data.push(encodeURI(item.join('=')).replace(/;/g, '%3B').replace(/&/g, '%26'));
         };

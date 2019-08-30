@@ -14,6 +14,8 @@ const fileify = (form, cb) => {
       const filedata = document.createElement("input");
       filedata.type = "hidden";
       filedata.name = "_" + inp.name;
+      console.log(inp.name, file.name, inp.value, file.value, inp, file, inp.files)
+      //inp.value = file.name;
       const reader = new FileReader();
       reader.addEventListener("loadend", () => {
         filedata.value = encodeURI(reader.result);
