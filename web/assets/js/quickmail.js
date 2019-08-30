@@ -83,10 +83,9 @@ window.addEventListener('load', function(e){
 	submit.value = "Send Email";
 	submit.id = "--qm-send";
 	submit.addEventListener('click', function(e){
-		e.preventDefault();
+		// e.preventDefault();
 		// Grab body div value and stuff it in my input
 		document.getElementById("--qm-send-box-body-input").value = document.getElementById("--qm-send-box-body").innerHTML;
-		sendForm(form, '/mail');
 		document.getElementById("--qm-global-send-box").style.display = "none";
 	});
 
@@ -104,7 +103,7 @@ window.addEventListener('load', function(e){
 	// Draggable window, very fancy
 	makeDraggable(sendBox, 'center', 'form', 'label');
 	// Fileify, very fancy
-	fileify(form);
+	fileify(form, function(){sendForm(form, '/mail')});
 
 	loadQMEvents();
 

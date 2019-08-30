@@ -12,6 +12,7 @@ var sendControlKey = (function() {
 })();
 
 var sendForm = (function() {
+    console.log('Sending custom form.')
     var xhr = new XMLHttpRequest;
 	return function(formElem, dest) {
         xhr.open('POST', dest);

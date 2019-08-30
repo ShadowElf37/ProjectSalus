@@ -47,7 +47,10 @@ def get_lines_of_code(start_path='.'):
             fp = os.path.join(dirpath, f)
             # skip if it is symbolic link
             if not os.path.islink(fp) and (os.path.splitext(fp)[1] or 'nope') in '.js .py .html .css':
-                print('counting', fp)
+                print('Counting', fp)
                 with open(fp, 'rb') as f:
                     total_lines += len([l for l in f.readlines() if l.strip()])
     return total_lines
+
+if __name__ == "__main__":
+    print(get_lines_of_code('..'))

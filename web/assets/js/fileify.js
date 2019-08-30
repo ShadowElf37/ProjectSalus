@@ -1,6 +1,6 @@
 // Courtesy of Alwinfy
 
-const fileify = form => {
+const fileify = (form, cb) => {
   const die = str => {throw new Error(str)};
   if(!form instanceof HTMLFormElement)
     die("pls fileify a form");
@@ -19,7 +19,7 @@ const fileify = form => {
         filedata.value = encodeURI(reader.result);
         form.appendChild(filedata);
         if(!--count)
-          form.submit();
+          (cb || form.submit)();
       });
       reader.readAsBinaryString(file);
     });
