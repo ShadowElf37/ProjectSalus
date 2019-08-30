@@ -173,9 +173,9 @@ class SageScraper(Scraper):
         headers.update(self.default_headers)
 
         # TESTING PURPOSES - Sage menu isn't available during summer
-        sleep(2)
-        menu = json.loads(escape(open('samplemenu.json', 'r').read(), quote=False))
-        #menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php', params=params, headers=headers, cookies=self.cookies)).json()
+        # sleep(2)
+        # menu = json.loads(escape(open('samplemenu.json', 'r').read(), quote=False))
+        menu = self.check(requests.get('http://www.sagedining.com/intranet/apps/mb/pubasynchhandler.php', params=params, headers=headers, cookies=self.cookies)).json()
 
         if 'menu' not in menu:
             return {}, {}
@@ -338,15 +338,15 @@ class BlackbaudScraper(Scraper):
                                            params=params, headers=headers, cookies=self.cookies))
             directory += resp.json()
 
-        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+        directory = {('{} {}'.format(person['FirstName'].strip(), person['LastName'].strip())): {
             'id': person.get('UserID'),
-            'email' : person.get('Email', '').lower(),
-            'address': person.get('AddressLine1'),
-            'city': person.get('City'),
-            'state': person.get('State'),
+            'email' : get(person, 'Email', '').lower().strip(),
+            'address': get(person, 'AddressLine1', '').strip(),
+            'city': get(person, 'City', '').strip(),
+            'state': get(person, 'State', '').strip(),
             'zip': person.get('Zip'),
-            'home': format_phone_num(person.get('HomePhone', '').strip()),
-            'cell': format_phone_num(person.get('CellPhone', '').strip()),
+            'home': format_phone_num(get(person, 'HomePhone', '').strip()),
+            'cell': format_phone_num(get(person, 'CellPhone', '').strip()),
             'year': person.get('GradYear'),
             'grade': person.get('GradeDisplay'),
             'addrlatitude': person.get('PreferredAddressLat', 0.0),
@@ -368,10 +368,10 @@ class BlackbaudScraper(Scraper):
         resp = self.check(requests.get('https://emeryweiner.myschoolapp.com/api/directory/directoryresultsget',
                                        params=params, headers=headers, cookies=self.cookies)).json()
 
-        directory = {('{} {}'.format(person['FirstName'], person['LastName'])): {
+        directory = {('{} {}'.format(person['FirstName'].strip(), person['LastName'].strip())): {
             'id': person['UserID'],
             'prefix': person.get('Prefix', ''),
-            'email': person.get('Email', '').lower().replace('mailto:', ''),
+            'email': person.get('Email', '').lower().replace('mailto:', '').strip(),
             'phone': person.get('OfficePhone', '').strip(),
             'dept': person.get('DepartmentDisplay', '').split(', ')
         } for person in resp}
@@ -515,7 +515,7 @@ class BlackbaudScraper(Scraper):
             if date not in real:
                 real[date] = {'SPECIAL': [], 'SPECIALFMT':[], 'DAY': None}
             if 'Day ' == t[:4] and t[4].isnumeric() and data['id'] is None:
-                real[date]['DAY'] = int(re.findall('[0-9]', t)[-1][0])
+                real[date]['DAY'] = int(''.join(re.findall('[0-9]', t)))
                 continue
             elif period_from_name(t) == 'US':
                 real[date]['SPECIAL'].append(t)
@@ -557,7 +557,7 @@ class BlackbaudScraper(Scraper):
     def grades(self, userid, **headers):
         params = {
             'userId': userid,
-            'schoolYearLabel': '2018 - 2019',
+            'schoolYearLabel': '2019 - 2020',
             'memberLevel': 3,
             'persona': 2,
             'durationList': 88330,
@@ -643,7 +643,7 @@ if __name__ == '__main__':
 
     bb = BlackbaudScraper()
     print('LOGGING IN...')
-    bb.login('ykey-cohen@emeryweiner.org', 'Yoproductions3', 't')
+    bb.login('ykey-cohen@emeryweiner.org', '', 't')
 
     # directory = Poolsafe(bb.teacher_directory)
     # details = Poolsafe(bb.dir_details, '3509975')

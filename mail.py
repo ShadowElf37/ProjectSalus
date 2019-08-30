@@ -22,6 +22,7 @@ from email.mime.application import MIMEApplication
 class SMTPRemote:
     def __init__(self, user=USER, pwd=PASS, remote=SMTPHOST):
         self.remote = remote
+        self.server = None
         self.open()
         self.user = user
         self.pwd = pwd
@@ -345,7 +346,7 @@ class Inbox:
 
 if __name__ == '__main__':
     print('Logging in...')
-    imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', 'Yoproductions3')
+    imaplib.IMAP4_SSL(IMAPHOST, port=993).login('ykey-cohen@emeryweiner.org', '')
     testpool = Pool(20)
     #testpool.launch()
     #print('Fetching...')

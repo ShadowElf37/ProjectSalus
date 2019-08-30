@@ -189,7 +189,10 @@ class ThreadManager:
             self.queue.put(RHThread.POISON)
         for t in self.threads:
             # print('Joining %s...' % t.id)
-            t.thread.join(TIMEOUT)
+            try:
+                t.thread.join(TIMEOUT)
+            except RuntimeError:
+                pass
         with self.finished:
             self.finished.notify_all()
 

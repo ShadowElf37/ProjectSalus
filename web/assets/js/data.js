@@ -44,7 +44,7 @@ dataLoaded = new Notifier(function(){
 	firstDay = timespan[0];
 	lastDay = timespan[1];
     console.log('Loaded!')
-	newScheduleDay("05/21/2019"); //{{getDate()}}
+	newScheduleDay("{{getDate()}}");
 }, 5);
 
 requestData('schedule', putting('schedule'), dataLoaded);

@@ -53,7 +53,7 @@ class HandlerBBInfo(RequestHandler):
                 if cid not in updates.CLASSES:
                     # Create class updater
                     cps = Promise(
-                        updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth)), cid)
+                        updates.dsetter(updates.CLASSES, cid, updates.bb_login_safe(scp.get_class_info, *auth.creds)), cid)
                     cu = updates.chronomancer.monthly(1, cps, now=True)
                     updates.chronomancer.track(cu, cid)
                     updates.CLASS_UPDATERS[cid] = cps
@@ -62,7 +62,7 @@ class HandlerBBInfo(RequestHandler):
                     # Create class topics updater
                     updates.CLASS_TOPICS[cid] = {}
                     tps = Promise(
-                        updates.dsetter(updates.CLASS_TOPICS, cid, updates.bb_login_safe(scp.topics, *auth)), cid
+                        updates.dsetter(updates.CLASS_TOPICS, cid, updates.bb_login_safe(scp.topics, *auth.creds)), cid
                     )
                     tu = updates.chronomancer.daily(scrape.dt_from_timestr(TESTTIME), tps, now=True)
                     updates.chronomancer.track(tu, cid)
@@ -120,7 +120,7 @@ class HandlerBBInfo(RequestHandler):
 
         # Generate assignments
         assignmentlist = []
-        for title, assignment in assignments:
+        for title, assignment in assignments.items():
             assignmentlist.append(snippet('assignment',
                                           title=title,
                                           due=assignment['due'],
@@ -144,6 +144,9 @@ class HandlerBBInfo(RequestHandler):
 
         noschool = not periods or 'cancel' in spec or 'close' in spec or 'field day' in spec
 
+        print(nextclass)
+        print(grades)
+
         self.response.attach_file('/accounts/landing.html', cache=False,
                                   classday=classday,
                                   next_class_info=snippet('next-class-info-1',
@@ -151,8 +154,8 @@ class HandlerBBInfo(RequestHandler):
                                                           startp=scrape.striptimezeros(nextclass[1]['start']).lower()) if nextclass else 'No school today.' if noschool else 'No more classes today.',
                                   next_class_meta=snippet('next-class-info-2',
                                                            name=nextclass[1]['title'],
-                                                           teacher=grades[nextclass[1]['id']]['teacher'],
-                                                           email=grades[nextclass[1]['id']]['teacher-email'],
+                                                           teacher=grades.get(nextclass[1]['id'], {'teacher': 'teacher name is broken'}).get('teacher'),
+                                                           email=grades.get(nextclass[1]['id'], {'teacher-email': 'teacher email is also broken'}).get('teacher-email'),
                                                            start=start,
                                                            end=end) if nextclass else snippet('next-class-info-e', msg='Have a lovely day!'),
                                   periods='\n'.join(periods) if periods and not noschool else snippet('no-periods',

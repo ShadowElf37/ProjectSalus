@@ -240,7 +240,7 @@ var clickedGreenBorder = function(elem) {
 
 var revertStyle = function(...elems) {
     elems.forEach(function(elem, i, arr){
-        elem.style = styleCache[elem];
+        elem.style = styleCache[elem];  // This will error for fake class periods (e.g. sports)
     });
 };
 

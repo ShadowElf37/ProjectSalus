@@ -1,14 +1,20 @@
-Known Bugs:
-- Schedule scrape syntax changed for lunch and ma'amad, maybe others
-- 64 poison pills only kill 56 threads
+Known Issues:
+- 64 poison pills only kill 56 threads; sending 128
+- Line 560 of scape.py 'schoolYearLabel' in grade scrape params - year needs to be dynamic
+- Locked gradebook prevents teacher name from being fetched - need new source
+- Newlines don't render in assignment descriptions landing.html
+- XC will sometimes result in day null and no red, even if it's Saturday
+- Long assignment titles will cut off all the other information
 
 
 =======================
 Alex's Todo List:
 =======================
+
+!!!!!! Make fileify work
+
 - Ajax streaming for Well
 - Well input autofocus after enter
-- Make fileify work with async
 =======================
 
 
@@ -17,20 +23,37 @@ WIP:
 - Clear attachments on send
 - Email Cc, Bcc
 - Confirmation on submit
+- Class label on assignments
+
+Considerations:
+- Should remove the IMAP client page - it's way too much work to implement neatly, takes way too long to load, and generally isn't needed.
+- Classes view might be delayed to post-launch ...
+- XC breaks schedule when there's no class that day; also can't capture Shabbaton
+- Let's fix up assignments to be separated by day and actually not suck
+
+Next up:
+- SMS with periods
+- Phone number login
+- Remove IMAP client
+- Make sure schedule works
+- Switch assignments by which class is highlighted
+- Next class indicator cannot span days
 
 Features:
 - SGA feedback form
 - Poll input types, store poll responses, default poll
 - Announcements, Ma'amad info editors
 - Public calendar with meetings & events
+    - Hourly view
+    - Add calendar items
+    - SMS
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
 - Simple mass-email interface
-- SMS with periods etc.
-- IMAP client
 - Whitelist ranks, promotion command
 - User settings and customization (delete, reload, etc.)
 - Club integration
+    - Calendar
 - Bug reports
 
 Backend Work:

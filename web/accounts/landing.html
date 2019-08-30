@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        [[meta]]
+
+        <meta charset="UTF-8">
         <title>Home</title>
         {{css('darkbb.css')}}
         {{js('lib.js')}}
@@ -34,7 +35,6 @@
                     <hr><!--action="submit-poll" method="POST"-->
                     <form class="snack-poll" id="snack-poll-form" method="POST" action="/submit-poll">
                         <div class="poll-options" id="poll-options">
-                            No polls available right now!
                         </div>
                         <div class="day-label-container"><div class="snack-poll-day-label" id="question-container"></div></div>
                         <div class="button-wrapper">
@@ -52,7 +52,7 @@
                     <div style="width: 100%; bottom: 20px; position: absolute;">
                         <center>
                             <input type="button" value="⇐" class="movement-arrow yellow-border" style="margin-right: 2%" id="slast" onclick="lastScheduleDay()">
-                            <span id="sdatemarker">05/21/2019</span>
+                            <span id="sdatemarker">08/20/2019</span>
                             <input type="button" value="⇒" class="movement-arrow yellow-border" style="margin-left: 2%" id="snext" onclick="nextScheduleDay()">
                         </center>
                     </div>
@@ -99,8 +99,8 @@
                         <div id="links">
                             <h4>Direct Resources:</h4>
                             <a target="blank" href="http://www.sagedining.com/menus/emeryweiner">Menu</a> | 
-                            <a target="blank" href="https://emeryweiner.myschoolapp.com/app/student#studentmyday/assignment-center">Assignments</a> | 
-                            <a target="blank" href="https://emeryweiner.myschoolapp.com/app/student#studentmyday/schedule">Schedule</a> | 
+                            <a target="blank" href="https://signin.blackbaud.com/signin/?redirectUrl=https:%2F%2Femeryweiner.myschoolapp.com%2Fapp%2Fstudent%23studentmyday%2Fassignment-center">Assignments</a> | 
+                            <a target="blank" href="https://signin.blackbaud.com/signin/?redirectUrl=https:%2F%2Femeryweiner.myschoolapp.com%2Fapp%2Fstudent%23studentmyday%2Fschedule">Schedule</a> | 
                             <a target="blank" href="https://outlook.office.com/owa/?realm=emeryweiner.org">Outlook</a>
                         </div>
                     </center>

@@ -308,6 +308,7 @@ hr{
     width: 100%;
     display: inline;
     margin-left: 10px;
+    line-height: 25px;
 }
 .sub-li{
     display: block;
@@ -341,9 +342,10 @@ hr{
 }
 
 .null-class{
-    width: 180px;
+    min-width: 180px;
+    max-width: 210px;
     height: 30px;
-    padding: 5px;
+    padding: 1px 5px !important;
     position: relative;
     padding: 0;
     border-radius: 3px;
@@ -353,6 +355,8 @@ hr{
     z-index: 3;
     font-size: 24px;
     margin-bottom: 12px;
+    overflow: hidden;
+    text-align: center;
 }
 
 #sdaymarker{
