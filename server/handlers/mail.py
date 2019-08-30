@@ -1,7 +1,10 @@
 from .base import *
+from urllib.parse import unquote, unquote_to_bytes
 
 class HandlerMailPage(RequestHandler):
     def call(self):
+        self.response.redirect('/myday')
+        return
         messages = [msg.body for msg in self.account.inbox.messages]
         self.response.attach_file('/accounts/mail.html', messages='<br><br>'.join(messages))
 
@@ -13,10 +16,19 @@ class HandlerSendMail(RequestHandler):
             body = self.request.get_post('body')
 
             attachments = self.request.get_post('attachments')
+            attachment_data = self.request.get_post('_attachments')
+            if type(attachments) is str:
+                attachments = [attachments]
+            if type(attachment_data) is str:
+                attachment_data = [attachment_data]
             print(attachments)
+            print(attachment_data)
 
             msg = mail.Email(self.account.email, *to, subject=subject)
             msg.write(body)
+
+            for i,a in enumerate(attachments):
+                msg._attach(unquote(a), unquote_to_bytes(attachment_data[i]))
 
             self.response.set_body('Done.')
             try:

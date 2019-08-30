@@ -20,6 +20,7 @@ var sendForm = (function() {
         var fd = new FormData(formElem);
         var data = [];
         for (item of fd){
+            console.log(item);
             console.log(encodeURI(item.join('=')));
             data.push(encodeURI(item.join('=')).replace(/;/g, '%3B').replace(/&/g, '%26'));
         };

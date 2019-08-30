@@ -5,7 +5,7 @@ const fileify = (form, cb) => {
   if(!form instanceof HTMLFormElement)
     die("pls fileify a form");
   form.addEventListener("submit", ev => {
-    const files = form.querySelectorAll("input[type=file]");
+    var files = form.querySelectorAll("input[type=file]");
     let count = files.length;
     console.log(`fileify ${form} count ${count}`);
     files.forEach(inp => {
@@ -18,8 +18,9 @@ const fileify = (form, cb) => {
       reader.addEventListener("loadend", () => {
         filedata.value = encodeURI(reader.result);
         form.appendChild(filedata);
-        if(!--count)
+        if(!--count){
           (cb || form.submit)();
+        };
       });
       reader.readAsBinaryString(file);
     });

@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from server.threadpool import ThreadManager as Pool, Promise
 from random import choice as rchoice
 from server.client import Credentials
+from io import StringIO
 
 ENV = EnvReader('main.py')
 
@@ -56,8 +57,11 @@ class Message:
         return m
 
     def attach(self, filepath):
-        f = MIMEApplication(open(filepath, 'rb').read())
-        f.add_header('Content-Disposition', 'attachment', filename=os.path.split(filepath)[-1])
+        return self._attach(filepath, open(filepath, 'rb').read())
+
+    def _attach(self, name, binary_data):
+        f = MIMEApplication(binary_data)
+        f.add_header('Content-Disposition', 'attachment', filename=os.path.split(name)[-1])
         self.mime.attach(f)
         return f
 

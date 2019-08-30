@@ -56,7 +56,7 @@ class Account(RWLockMixin):
     def is_real(self):
         return True
     def has_inbox(self):
-        return self.inbox and self.inbox.auth.decrypted
+        return bool(self.inbox and self.inbox.auth.decrypted)
 
 class ShellAccount:
     def __init__(self, *args):
