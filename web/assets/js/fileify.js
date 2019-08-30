@@ -7,6 +7,7 @@ const fileify = form => {
   form.addEventListener("submit", ev => {
     const files = form.querySelectorAll("input[type=file]");
     let count = files.length;
+    console.log(`fileify ${form} count ${count}`);
     files.forEach(inp => {
       if(!inp.name) die("file input need name");
       const file = inp.files[0] || die("No file selected");
