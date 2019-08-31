@@ -1,3 +1,7 @@
+v0.6.4 (8/31/19)
+- Attachments can now be properly sent in emails
+- Email data will be deleted from the sendbox on submission so you don't send the same thing multiple times
+
 v0.6.3 (8/28/19)
 - Fixed some visual issues
 - Fixed an absolutely mental number of bugs that crawled out from under the bed while I was gone

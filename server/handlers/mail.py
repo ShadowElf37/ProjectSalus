@@ -22,13 +22,15 @@ class HandlerSendMail(RequestHandler):
             if type(attachment_data) is str:
                 attachment_data = [attachment_data]
             print(attachments)
-            print(attachment_data)
+            print(attachment_data[0].replace('%', ' %').replace('\n', '    '))
 
             msg = mail.Email(self.account.email, *to, subject=subject)
             msg.write(body)
 
-            for i,a in enumerate(attachments):
-                msg._attach(unquote(a), unquote_to_bytes(attachment_data[i]))
+            if attachments and attachment_data:
+                for i,a in enumerate(attachments):
+                    print(unquote(a), unquote_to_bytes(attachment_data[i]))
+                    msg._attach(unquote(a), unquote_to_bytes(attachment_data[i]))
 
             self.response.set_body('Done.')
             try:

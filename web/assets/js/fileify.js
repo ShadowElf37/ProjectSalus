@@ -5,12 +5,17 @@ const fileify = (form, cb) => {
   if(!form instanceof HTMLFormElement)
     die("pls fileify a form");
   form.addEventListener("submit", ev => {
+    // sad face debug
+    ev.preventDefault();
+
     var files = form.querySelectorAll("input[type=file]");
     let count = files.length;
     console.log(`fileify ${form} count ${count}`);
+
     files.forEach(inp => {
       if(!inp.name) die("file input need name");
-      const file = inp.files[0] || die("No file selected");
+      if (inp.files.length < 1) { (cb || form.submit)(); return false };
+      const file = inp.files[0];
       const filedata = document.createElement("input");
       filedata.type = "hidden";
       filedata.name = "_" + inp.name;
@@ -26,7 +31,7 @@ const fileify = (form, cb) => {
       });
       reader.readAsBinaryString(file);
     });
-    ev.preventDefault();
+
     return false;
   });
 };

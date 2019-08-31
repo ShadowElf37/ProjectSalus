@@ -14,7 +14,7 @@ var sendControlKey = (function() {
 var sendForm = (function() {
     console.log('Sending custom form.')
     var xhr = new XMLHttpRequest;
-	return function(formElem, dest) {
+	return function(formElem, dest, clearInputsOnSubmit=true) {
         xhr.open('POST', dest);
         console.log(formElem);
         var fd = new FormData(formElem);
@@ -29,6 +29,26 @@ var sendForm = (function() {
         };
         xhr.timeout = 20000;
         xhr.send(data.join('&'));
+
+        if (clearInputsOnSubmit) {
+            //filedata.value = null;
+            //inp.value = null;
+            for (input of formElem.querySelectorAll('input, div[contenteditable="true"]')) {
+                //console.log(input);
+                //console.log(input.contentEditable);
+                //console.log(input.contentEditable=="true");
+                if (input.contentEditable == "true") {
+                    console.log('div caught')
+                  input.innerHTML = "";
+                } else if (input.type == "hidden"){
+                  input.parentNode.removeChild(input);
+                } else if (input.type == "file") {
+                  input.value = null;
+                } else if (input.type != "submit") {
+                  input.value = "";
+                };
+            };
+      };
     };
 })();
 

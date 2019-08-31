@@ -18,14 +18,17 @@ class HandlerMailLogin(RequestHandler):
 
         creds = Credentials(user, pwd, encoder)
 
+        # Test if creds are correct
         session = mail.Inbox(creds)
         try:
             session.new_conn()
-            session.update(threadpool=updates.updater_pool)
+            # IMAPing
+            # session.update(threadpool=updates.updater_pool)
         except mail.imaplib.IMAP4.error:
             creds.dump()
             self.response.refuse('Incorrect password, or your email stored on Blackbaud is incorrect. If this error occurs outside of testing then Yovel is dumb and tell him immediately.')
             return
 
         self.account.inbox = session
+
         self.response.redirect('/mail', get=True)
