@@ -33,17 +33,19 @@ class Event:
         self.time = time
         self.datetime = self._gen_dt()
 
-@AccountsSerializer.serialized(title='', state=0, complete=False, assigned=None)
+@AccountsSerializer.serialized(title='', state=0, complete=False, assigned=None, details='', reports=[])
 class TodoItem:
     STATES = [
-        'Pending Approval',
-        'Approved',
-        'Assigned to Representative',
+        'Pending Approval...',
+        'Approved...',
+        'Delegated...',
+        'Waiting on Administration...'
         'Complete',
     ]
     def __init__(self, title):
         self.title = title
         self.details = ''
+        self.reports = []
         self.state = 0
         self.complete = False
         self.assigned = None
@@ -56,6 +58,8 @@ class TodoItem:
         self.state += 1
     def get_state(self):
         return TodoItem.STATES[self.state]
+    def submit_report(self, author, date, text):
+        self.reports.append((author, date, text))
 
 @AccountsSerializer.serialized(title='', questions=[], responses={}, timestamp=0, priority=1, id='', reusable=True)
 class Poll:

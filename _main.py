@@ -19,7 +19,7 @@ BUFFER = io.StringIO()
 tees = (OutTee(logfile, BUFFER), ErrTee(logfile, BUFFER))
 
 print('Starting %s...' % __file__)
-s = Server(stdout_buffer=BUFFER, port=config.get("port"), host='localhost')
+s = Server(stdout_buffer=BUFFER, port=config.get("port"), host=config.get("host"))
 s.run()
 logfile.close()
 print('Server shut down gently.')

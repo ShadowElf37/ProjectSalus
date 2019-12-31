@@ -21,8 +21,10 @@ class HandlerSendMail(RequestHandler):
                 attachments = [attachments]
             if type(attachment_data) is str:
                 attachment_data = [attachment_data]
-            print(attachments)
-            print(attachment_data[0].replace('%', ' %').replace('\n', '    '))
+
+            if attachments:
+                print(attachments)
+                print(attachment_data[0].replace('%', ' %').replace('\n', '    '))
 
             msg = mail.Email(self.account.email, *to, subject=subject)
             msg.write(body)

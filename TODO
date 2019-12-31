@@ -5,6 +5,7 @@ Known Issues:
 - Newlines don't render in assignment descriptions landing.html
 - XC will sometimes result in day null and no red, especially if it's Saturday
 - Long assignment titles will cut off all the other information
+- Next-class view should adjust for time and day and be empty as needed
 
 
 =======================
@@ -21,9 +22,9 @@ WIP:
 - Nicer email attachment button
 - Confirmation on submit
 - Class label on assignments
+- Make assignments into next 7 days
 
 Considerations:
-- Should remove the IMAP client page - it's way too much work to implement neatly, takes way too long to load, and generally isn't needed.
 - Classes view might be delayed to post-launch ...
 - XC breaks schedule when there's no class that day; also can't capture Shabbaton
 - Let's fix up assignments to be separated by day and actually not suck
@@ -40,18 +41,20 @@ Features:
 - SGA feedback form
 - Poll input types, store poll responses, default poll
 - Announcements, Ma'amad info editors
-- Public calendar with meetings & events
-    - Hourly view
-    - Add calendar items
-    - SMS
+
 - Transcripts / summaries of meetings
 - SGA's personal _todo list & easy way to add feedback to it
 - Simple mass-email interface
 - Whitelist ranks, promotion command
 - User settings and customization (delete, reload, etc.)
+- Bug reports
+
+- Public calendar with meetings & events
+    - Hourly view
+    - Add calendar items
+    - SMS
 - Club integration
     - Calendar
-- Bug reports
 
 Backend Work:
 - CSS, navbar
